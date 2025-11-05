@@ -19,48 +19,56 @@ Static website for High Surf Corp - a family-owned business specializing in coqu
 └── wrangler.toml     # Cloudflare configuration
 ```
 
-## Deployment to Cloudflare Pages
+## Deployment to Cloudflare Workers
 
-### Option 1: Deploy via Cloudflare Dashboard (Recommended)
+> **Why Workers?** As of 2024, Cloudflare Workers with static assets is the recommended approach for new projects. Workers offers more features (Durable Objects, Cron Triggers, advanced observability) while maintaining the same cost structure as Pages for static hosting.
 
-1. Log in to your [Cloudflare Dashboard](https://dash.cloudflare.com/)
-2. Navigate to **Pages** in the sidebar
-3. Click **Create a project**
-4. Select **Connect to Git**
-5. Choose your GitHub account and select the `highsurfcorp-website` repository
-6. Configure the build settings:
-   - **Production branch**: `main`
-   - **Build command**: Leave empty (static site)
-   - **Build output directory**: `dist`
-7. Click **Save and Deploy**
+### Prerequisites
 
-### Option 2: Deploy via Wrangler CLI
+Install Wrangler (Cloudflare CLI):
+```bash
+npm install -g wrangler
+```
 
-1. Install Wrangler (Cloudflare CLI):
-   ```bash
-   npm install -g wrangler
-   ```
+### Deploy via Wrangler CLI (Recommended)
 
-2. Login to Cloudflare:
+1. Login to Cloudflare:
    ```bash
    wrangler login
    ```
 
-3. Deploy the site:
+2. Deploy the site:
    ```bash
-   wrangler pages deploy dist --project-name=highsurfcorp-website
+   wrangler deploy
    ```
+
+   This will:
+   - Upload your static assets from the `dist/` directory
+   - Deploy to `highsurfcorp-website.workers.dev`
+   - Apply your `_headers` and `_redirects` configuration
+
+3. Your site will be live at: `https://highsurfcorp-website.workers.dev`
+
+### Alternative: Deploy via Dashboard
+
+You can also deploy through the Cloudflare Dashboard:
+
+1. Go to [Cloudflare Dashboard](https://dash.cloudflare.com/)
+2. Navigate to **Workers & Pages**
+3. Click **Create** → **Create Worker**
+4. Use the Wrangler CLI for easier deployment (recommended)
 
 ## Custom Domain Setup
 
-After deployment, connect your custom domain:
+After deployment, connect your custom domain to your Worker:
 
-1. In Cloudflare Pages, go to your project
-2. Click **Custom domains**
-3. Add your domain (e.g., `highsurfcorp.com` and `www.highsurfcorp.com`)
-4. Cloudflare will automatically configure DNS if your domain is already on Cloudflare
+1. In the [Cloudflare Dashboard](https://dash.cloudflare.com/), go to **Workers & Pages**
+2. Click on your `highsurfcorp-website` Worker
+3. Go to **Settings** → **Domains & Routes**
+4. Click **Add** and enter your domain (e.g., `highsurfcorp.com` and `www.highsurfcorp.com`)
+5. Since your domain is already on Cloudflare, DNS will be configured automatically!
 
-Since you've already transferred your domain to Cloudflare, the DNS setup should be automatic!
+**Important:** Workers requires that your domain's nameservers are managed by Cloudflare (which you've already done!).
 
 ## Tracking & Analytics
 
@@ -74,29 +82,45 @@ These are configured in `head-code.html` and `footer-code.html`.
 ## Making Updates
 
 1. Make changes to files in the `dist/` directory
-2. Test locally by opening HTML files in a browser
-3. Commit and push changes:
+2. Test locally (see Local Development section below)
+3. Deploy changes:
+   ```bash
+   wrangler deploy
+   ```
+4. Commit and push to GitHub:
    ```bash
    git add .
    git commit -m "Description of changes"
    git push origin main
    ```
-4. Cloudflare Pages will automatically rebuild and deploy
+
+**Note:** Unlike Pages, Workers doesn't have automatic Git deployment by default. You deploy directly via Wrangler CLI.
 
 ## Local Development
 
-Since this is a static HTML site, you can:
+### Option 1: Wrangler Dev Server (Recommended)
 
-1. Open files directly in a browser, or
-2. Run a local server:
-   ```bash
-   # Using Python
-   python3 -m http.server 8000 --directory dist
+Run a local development server that mimics the Cloudflare Workers environment:
 
-   # Using Node.js
-   npx http-server dist -p 8000
-   ```
-   Then visit `http://localhost:8000`
+```bash
+wrangler dev
+```
+
+This will start a local server (usually at `http://localhost:8787`) with hot-reloading.
+
+### Option 2: Simple Static Server
+
+Alternatively, use a basic static server:
+
+```bash
+# Using Python
+python3 -m http.server 8000 --directory dist
+
+# Using Node.js
+npx http-server dist -p 8000
+```
+
+Then visit `http://localhost:8000`
 
 ## Security Headers
 

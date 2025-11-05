@@ -1,8 +1,10 @@
 name = "highsurfcorp-website"
 compatibility_date = "2024-11-05"
 
-# Pages configuration
-pages_build_output_dir = "dist"
-
-[site]
-bucket = "./dist"
+# Workers Static Assets configuration
+[assets]
+directory = "./dist"
+# Serve index.html for the root path and directory paths
+html_handling = "auto-trailing-slash"
+# Use 404.html for not found pages
+not_found_handling = "404-page"
