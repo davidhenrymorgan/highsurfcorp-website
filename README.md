@@ -131,6 +131,15 @@ The site includes security headers via `dist/_headers`:
 - Referrer-Policy
 - Cache-Control for static assets
 
+## Troubleshooting
+
+Having issues with custom domain setup or getting Error 1016? See [TROUBLESHOOTING.md](TROUBLESHOOTING.md) for detailed solutions.
+
+Common issues:
+- **Error 1016**: DNS configuration problem - see troubleshooting guide
+- **Custom domain not working**: Check DNS records and Workers custom domain setup
+- **SSL certificate issues**: Wait for certificate provisioning or re-add domain
+
 ## Support
 
 - **Phone**: (321) 821-4895
