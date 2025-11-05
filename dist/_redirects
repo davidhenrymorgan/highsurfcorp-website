@@ -1,0 +1,5 @@
+# Redirect trailing slashes to non-trailing slash
+/*/ /:splat 301
+
+# 404 handling
+/404 /404.html 404
