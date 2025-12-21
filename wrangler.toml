@@ -1,5 +1,6 @@
 name = "highsurfcorp-website"
 compatibility_date = "2024-11-05"
+main = "src/index.js"
 
 # Workers Static Assets configuration
 [assets]
@@ -8,3 +9,14 @@ directory = "./dist"
 html_handling = "auto-trailing-slash"
 # Use 404.html for not found pages
 not_found_handling = "404-page"
+
+# Environment Variables (Secrets)
+# Set via: npx wrangler secret put RESEND_API_KEY
+# Required secrets:
+#   - RESEND_API_KEY: API key from Resend dashboard (https://resend.com/api-keys)
+#
+# To set the secret:
+#   1. Get your API key from https://resend.com/api-keys
+#   2. Run: npx wrangler secret put RESEND_API_KEY
+#   3. Paste the API key when prompted
+#   4. Verify: npx wrangler secret list

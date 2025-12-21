@@ -3,6 +3,7 @@
 const fs = require("fs");
 const path = require("path");
 const readline = require("readline");
+const https = require("https");
 
 // Paths
 const BLOG_CSV = path.join(
@@ -60,6 +61,96 @@ function getRecentPosts(posts, count = 3) {
       return dateB - dateA; // Sort descending (newest first)
     })
     .slice(0, count);
+}
+
+/**
+ * Download image from URL to local filesystem
+ * @param {string} url - Full URL to image
+ * @param {string} slug - Blog post slug (for error messages)
+ * @param {string} suffix - 'thumbnail' or 'hero' (for error messages)
+ * @returns {Promise<string|null>} Local filename or null
+ */
+async function downloadImage(url, slug, suffix) {
+  return new Promise((resolve, reject) => {
+    // Handle empty/null URLs
+    if (!url || url.trim() === "") {
+      console.log(`  ⚠️  No ${suffix} image for ${slug}`);
+      resolve(null);
+      return;
+    }
+
+    // Extract filename from URL
+    const urlParts = url.split("/");
+    const filenameEncoded = urlParts[urlParts.length - 1];
+
+    // Decode URL-encoded characters
+    const filename = decodeURIComponent(filenameEncoded);
+
+    // Create output directory if it doesn't exist
+    const outputDir = path.join(__dirname, "dist/images/blog");
+    if (!fs.existsSync(outputDir)) {
+      fs.mkdirSync(outputDir, { recursive: true });
+    }
+
+    const outputPath = path.join(outputDir, filename);
+
+    // Skip if already downloaded
+    if (fs.existsSync(outputPath)) {
+      console.log(`  ✅ ${suffix}: ${filename} (cached)`);
+      resolve(filename);
+      return;
+    }
+
+    console.log(`  ⬇️  Downloading ${suffix}: ${filename}`);
+
+    // Download image
+    https
+      .get(url, (response) => {
+        // Handle HTTP redirects
+        if (response.statusCode === 301 || response.statusCode === 302) {
+          const redirectUrl = response.headers.location;
+          console.log(`  ↪️  Redirect to: ${redirectUrl}`);
+          downloadImage(redirectUrl, slug, suffix).then(resolve).catch(reject);
+          return;
+        }
+
+        // Handle non-200 responses
+        if (response.statusCode !== 200) {
+          reject(
+            new Error(
+              `Failed to download ${suffix} image for ${slug}: HTTP ${response.statusCode}`,
+            ),
+          );
+          return;
+        }
+
+        // Stream to file
+        const fileStream = fs.createWriteStream(outputPath);
+        response.pipe(fileStream);
+
+        fileStream.on("finish", () => {
+          fileStream.close();
+          console.log(`  ✅ ${suffix}: ${filename}`);
+          resolve(filename);
+        });
+
+        fileStream.on("error", (err) => {
+          fs.unlinkSync(outputPath); // Clean up partial file
+          reject(
+            new Error(
+              `Failed to write ${suffix} image for ${slug}: ${err.message}`,
+            ),
+          );
+        });
+      })
+      .on("error", (err) => {
+        reject(
+          new Error(
+            `Network error downloading ${suffix} image for ${slug}: ${err.message}`,
+          ),
+        );
+      });
+  });
 }
 
 // Read CSV file
@@ -134,7 +225,7 @@ function generateBlogIndex(posts, topics, { headerNav, footer, head }) {
       return `
       <article class="u-vflex-stretch-top u-gap-small" style="background: var(--swatch--light-2); border-radius: 8px; overflow: hidden;">
         <a href="${post.Slug}/" style="display: block;">
-          <img src="${post["Thumbnail image"]}" alt="${post.Name}" style="width: 100%; height: 240px; object-fit: cover;">
+          <img src="${post._localThumbnail ? `../images/blog/${post._localThumbnail}` : post["Thumbnail image"]}" alt="${post.Name}" style="width: 100%; height: 240px; object-fit: cover;">
         </a>
         <div style="padding: var(--size--2rem);">
           <div class="u-hflex-left-center u-gap-xsmall" style="margin-bottom: var(--size--1rem);">
@@ -167,7 +258,7 @@ function generateBlogIndex(posts, topics, { headerNav, footer, head }) {
       return `
       <article class="u-vflex-stretch-top u-gap-small" style="border: 1px solid var(--swatch--dark-fade); border-radius: 8px; overflow: hidden; transition: transform 0.2s, box-shadow 0.2s;">
         <a href="${post.Slug}/" style="display: block;">
-          <img src="${post["Thumbnail image"]}" alt="${post.Name}" style="width: 100%; height: 200px; object-fit: cover;">
+          <img src="${post._localThumbnail ? `../images/blog/${post._localThumbnail}` : post["Thumbnail image"]}" alt="${post.Name}" style="width: 100%; height: 200px; object-fit: cover;">
         </a>
         <div style="padding: var(--size--2rem);">
           <div class="u-hflex-left-center u-gap-xsmall" style="margin-bottom: var(--size--1rem);">
@@ -263,7 +354,7 @@ function generatePostPage(post, { headerNav, footer, head }) {
   <meta content="${metaDesc}" name="description">
   <meta content="${post.Name}" property="og:title">
   <meta content="${metaDesc}" property="og:description">
-  <meta content="${post["Hero image"]}" property="og:image">
+  <meta content="${post._localHero ? `https://highsurfcorp.com/images/blog/${post._localHero}` : post["Hero image"]}" property="og:image">
   <meta content="https://highsurfcorp.com/blog/${post.Slug}/" property="og:url">
   <meta property="og:type" content="article">
   <meta property="article:published_time" content="${post["Published On"]}">
@@ -355,12 +446,12 @@ function generatePostPage(post, { headerNav, footer, head }) {
     </section>
 
     ${
-      post["Hero image"]
+      post["Hero image"] || post._localHero
         ? `
     <section data-padding-top="none" data-padding-bottom="main">
       <div class="u-container">
         <div style="max-width: 1000px; margin: 0 auto;">
-          <img src="${post["Hero image"]}" alt="${post.Name}" style="width: 100%; height: auto; border-radius: 8px; box-shadow: 0 20px 60px rgba(0,0,0,0.1);">
+          <img src="${post._localHero ? `../../images/blog/${post._localHero}` : post["Hero image"]}" alt="${post.Name}" style="width: 100%; height: auto; border-radius: 8px; box-shadow: 0 20px 60px rgba(0,0,0,0.1);">
         </div>
       </div>
     </section>
@@ -484,6 +575,46 @@ async function main() {
   console.log("📄 Extracting site navigation...");
   const siteElements = extractNavigation();
   console.log("✅ Navigation extracted\n");
+
+  // Download all blog images
+  console.log("📥 Downloading blog images...\n");
+  const imageDownloads = [];
+
+  for (const post of posts) {
+    console.log(`📄 Processing images for: ${post.Slug}`);
+
+    // Download thumbnail
+    if (post["Thumbnail image"]) {
+      imageDownloads.push(
+        downloadImage(post["Thumbnail image"], post.Slug, "thumbnail").then(
+          (filename) => {
+            if (filename) post._localThumbnail = filename;
+          },
+        ),
+      );
+    }
+
+    // Download hero
+    if (post["Hero image"]) {
+      imageDownloads.push(
+        downloadImage(post["Hero image"], post.Slug, "hero").then(
+          (filename) => {
+            if (filename) post._localHero = filename;
+          },
+        ),
+      );
+    }
+  }
+
+  // Wait for all downloads (fail on any error)
+  try {
+    await Promise.all(imageDownloads);
+    console.log("\n✅ All images downloaded successfully\n");
+  } catch (err) {
+    console.error("\n❌ Image download failed:");
+    console.error(err.message);
+    process.exit(1); // Fail build
+  }
 
   // Create output directory
   if (!fs.existsSync(OUTPUT_DIR)) {

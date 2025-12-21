@@ -658,7 +658,7 @@ html:not(.wf-design-mode) .styleguide_guide_wrap {
               </div>
             </div>
             <div class="contact_form w-form">
-              <form id="contact-form" name="email-form" data-name="Email Form" redirect="/contact/success" data-redirect="/contact/success" method="get" data-wf-page-id="68fc859a95b7d8d6466ccd47" data-wf-element-id="3c4a093a-345f-beb9-c5d8-fd14b0cf5660">
+              <form id="contact-form" name="email-form" data-name="Email Form" action="/api/submit" method="post" data-wf-page-id="68fc859a95b7d8d6466ccd47" data-wf-element-id="3c4a093a-345f-beb9-c5d8-fd14b0cf5660">
                 <div class="field_wrap"><label for="name-2" class="field_label large">Your name</label><input class="field name w-input" data-msg-minlength="Please enter your full name" maxlength="256" name="name-2" data-name="Name 2" placeholder="" minlength="3" type="text" id="name-2" data-msg="What should we call you?" required=""></div>
                 <div class="field_wrap"><label for="title-2" class="field_label large">Zip code</label><input class="field name w-input" maxlength="256" name="title-2" data-name="Title 2" placeholder="" type="text" id="title-2"></div>
                 <div class="field_wrap"><label for="email-2" class="field_label large">Your email</label><input class="field email w-input" maxlength="256" name="email-2" data-name="Email 2" placeholder="" type="email" id="email-2" required=""></div>
@@ -871,6 +871,43 @@ $("#contact-form").validate({
   },
   errorPlacement: function (error, element) {
     error.appendTo(element.closest(".field_wrap"));
+  }
+});
+
+// Handle form submission to API
+document.getElementById('contact-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const form = e.target;
+  const submitBtn = form.querySelector('input[type="submit"]');
+  const originalText = submitBtn.value;
+
+  // Show loading state
+  submitBtn.value = 'Sending...';
+  submitBtn.disabled = true;
+
+  try {
+    const formData = new FormData(form);
+    const response = await fetch('/api/submit', {
+      method: 'POST',
+      body: formData
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+      // Success - redirect to success page
+      window.location.href = '/contact/success';
+    } else {
+      // Error - show message
+      alert(result.error || 'An error occurred. Please try again.');
+      submitBtn.value = originalText;
+      submitBtn.disabled = false;
+    }
+  } catch (err) {
+    alert('Network error. Please check your connection and try again.');
+    submitBtn.value = originalText;
+    submitBtn.disabled = false;
   }
 });
 </script>

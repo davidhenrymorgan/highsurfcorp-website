@@ -1,0 +1,24 @@
+{
+  "name": "highsurfcorp-website",
+  "version": "1.0.0",
+  "description": "High Surf Corp marketing website with blog and contact form",
+  "scripts": {
+    "build": "node generate-blog.js",
+    "dev": "npm run build && npx wrangler dev",
+    "deploy": "npm run build && npx wrangler deploy"
+  },
+  "dependencies": {
+    "resend": "^4.0.1"
+  },
+  "devDependencies": {
+    "wrangler": "^3.84.1"
+  },
+  "keywords": [
+    "cloudflare",
+    "workers",
+    "static-site",
+    "blog"
+  ],
+  "author": "High Surf Corp",
+  "license": "PRIVATE"
+}
