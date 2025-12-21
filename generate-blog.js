@@ -51,6 +51,17 @@ function formatDate(dateString) {
   return date.toLocaleDateString("en-US", options);
 }
 
+// Get recent posts sorted by date
+function getRecentPosts(posts, count = 3) {
+  return posts
+    .sort((a, b) => {
+      const dateA = new Date(a["Published On"] || a["Created On"]);
+      const dateB = new Date(b["Published On"] || b["Created On"]);
+      return dateB - dateA; // Sort descending (newest first)
+    })
+    .slice(0, count);
+}
+
 // Read CSV file
 async function readCSV(filePath) {
   return new Promise((resolve, reject) => {
@@ -382,6 +393,80 @@ function generatePostPage(post, { headerNav, footer, head }) {
 </html>`;
 }
 
+// Generate homepage blog section HTML
+function generateHomepageBlogSection(posts) {
+  const recentPosts = getRecentPosts(posts, 3);
+
+  const blogCardsHTML = recentPosts
+    .map((post) => {
+      const category = post["Categories / topics"] || "General";
+      const excerpt = (
+        post["Short preview"] ||
+        post["Meta description"] ||
+        ""
+      ).slice(0, 100);
+
+      return `
+                <div role="listitem" class="blog_cms_item">
+                  <a tr-ajaxmodal-element="cms-link" data-theme="invert" href="blog/${post.Slug}/" class="blog_card_wrap u-vflex-left-between u-gap-medium w-inline-block">
+                    <div class="blog_card_header u-vflex-left-top u-gap-small">
+                      <div class="g_tag_wrap u-color-brand">${category}</div>
+                      <div class="blog_card_title u-text-large u-weight-medium">${post.Name}</div>
+                    </div>
+                    <div class="g_link-title_wrap u-hflex-between-center u-hflex-nowrap u-gap-xsmall">
+                      <div class="g_link-title_text u-line-clamp-2">${excerpt}</div>
+                      <div class="g_link-title_icon"><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewbox="0 0 18 19" fill="none">
+                          <path d="M1 17.4981L17 1.49811" stroke="currentColor" stroke-width="var(--svg-stroke-width--main)" stroke-miterlimit="10" vector-effect="non-scaling-stroke"></path>
+                          <path d="M16.9999 13.5407C16.9999 13.5407 13.1927 8.68158 16.9999 1.49811C9.81639 5.30525 4.95728 1.49811 4.95728 1.49811" stroke="currentColor" stroke-width="var(--svg-stroke-width--main)" stroke-linejoin="bevel" vector-effect="non-scaling-stroke"></path>
+                        </svg></div>
+                    </div>
+                  </a>
+                </div>
+      `.trim();
+    })
+    .join("\n");
+
+  return `
+            <div class="blog_cms_wrap">
+              <div role="list" class="blog_cms_list u-grid-column-3">
+${blogCardsHTML}
+              </div>
+            </div>
+  `.trim();
+}
+
+// Update homepage with blog posts
+function updateHomepageWithBlogPosts(posts) {
+  const indexPath = INDEX_HTML;
+  let indexHTML = fs.readFileSync(indexPath, "utf-8");
+
+  // Find and replace the blog section (lines 901-922)
+  const blogSectionStart = indexHTML.indexOf(
+    '<div class="blog_cms_wrap w-dyn-list">',
+  );
+  const blogSectionEnd = indexHTML.indexOf(
+    "</div>\n          </div>\n        </div>\n      </section>\n      <footer",
+    blogSectionStart,
+  );
+
+  if (blogSectionStart === -1 || blogSectionEnd === -1) {
+    console.log("⚠️  Could not find blog section in homepage");
+    return;
+  }
+
+  const newBlogSection = generateHomepageBlogSection(posts);
+
+  // Replace the section
+  indexHTML =
+    indexHTML.substring(0, blogSectionStart) +
+    newBlogSection +
+    indexHTML.substring(blogSectionEnd);
+
+  // Write updated HTML
+  fs.writeFileSync(indexPath, indexHTML);
+  console.log("✅ Homepage updated with recent blog posts");
+}
+
 // Main function
 async function main() {
   console.log("🚀 Starting blog generation...\n");
@@ -410,6 +495,10 @@ async function main() {
   const indexHTML = generateBlogIndex(posts, topics, siteElements);
   fs.writeFileSync(path.join(OUTPUT_DIR, "index.html"), indexHTML);
   console.log("✅ Blog index created\n");
+
+  // Update homepage with recent posts
+  console.log("📝 Updating homepage with recent blog posts...");
+  updateHomepageWithBlogPosts(posts);
 
   // Generate individual posts
   console.log("📝 Generating individual post pages...");
