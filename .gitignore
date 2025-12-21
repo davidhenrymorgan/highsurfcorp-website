@@ -40,6 +40,10 @@ logs
 # RTF files (converted to HTML)
 *.rtf
 
+# Node modules
+node_modules/
+package-lock.json
+
 # Cloudflare
 .wrangler
 wrangler.toml.bak
