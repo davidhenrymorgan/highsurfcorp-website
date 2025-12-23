@@ -4,130 +4,147 @@ export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
 
+    // Handle CORS preflight requests (OPTIONS)
+    if (request.method === "OPTIONS") {
+      return handleCors(request);
+    }
+
     // API Route: Contact Form Submission
     if (url.pathname === "/api/submit" && request.method === "POST") {
       return handleContactForm(request, env);
     }
 
     // Static Asset Serving: Delegate to Workers Assets
+    // This is the "Smart Static Host" capability
     return env.ASSETS.fetch(request);
   },
 };
 
 /**
+ * Handle CORS Preflight
+ */
+function handleCors(request) {
+  const origin = request.headers.get("Origin");
+  // Allow requests from your domain and localhost for dev
+  const allowedOrigins = [
+    "https://highsurfcorp.com",
+    "https://www.highsurfcorp.com",
+    "http://localhost:8787",
+  ];
+
+  const allowOrigin = allowedOrigins.includes(origin)
+    ? origin
+    : "https://www.highsurfcorp.com";
+
+  return new Response(null, {
+    headers: {
+      "Access-Control-Allow-Origin": allowOrigin,
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type",
+    },
+  });
+}
+
+/**
  * Handle contact form submission
- * @param {Request} request - Incoming request
- * @param {Object} env - Environment bindings (includes RESEND_API_KEY)
- * @returns {Response}
  */
 async function handleContactForm(request, env) {
+  // Common headers for JSON responses
+  const corsHeaders = {
+    "Access-Control-Allow-Origin": request.headers.get("Origin") || "*",
+    "Content-Type": "application/json",
+  };
+
   try {
-    // Parse form data
+    // 1. Parse Data
     const formData = await request.formData();
 
-    // Extract fields (matching HTML form field names)
-    const name = formData.get("name-2");
-    const email = formData.get("email-2");
-    const phone = formData.get("phone-2");
-    const message = formData.get("message-2");
-    const zipCode = formData.get("title-2"); // Labeled "Zip code" in form
-    const projectBudget = formData.get("projectBudget"); // Radio button
+    // Map Webflow legacy names to semantic variables
+    // "title-2" was likely the Zip Code field in Webflow
+    const payload = {
+      name: formData.get("name-2"),
+      email: formData.get("email-2"),
+      phone: formData.get("phone-2") || "Not provided",
+      message: formData.get("message-2") || "No message",
+      zipCode: formData.get("title-2") || "Not provided",
+      budget: formData.get("projectBudget") || "Not specified",
+    };
 
-    // Validation
-    if (!name || !email) {
+    // 2. Validation
+    if (!payload.name || !payload.email) {
       return new Response(
         JSON.stringify({
           success: false,
           error: "Name and email are required",
         }),
-        {
-          status: 400,
-          headers: { "Content-Type": "application/json" },
-        },
+        { status: 400, headers: corsHeaders },
       );
     }
 
-    // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
+    if (!emailRegex.test(payload.email)) {
       return new Response(
-        JSON.stringify({
-          success: false,
-          error: "Invalid email address",
-        }),
-        {
-          status: 400,
-          headers: { "Content-Type": "application/json" },
-        },
+        JSON.stringify({ success: false, error: "Invalid email address" }),
+        { status: 400, headers: corsHeaders },
       );
     }
 
-    // Initialize Resend with API key from environment
+    // 3. Prepare Email
     const resend = new Resend(env.RESEND_API_KEY);
 
-    // Construct email body
+    // Construct a clean, readable text body
     const emailBody = `
-New Contact Form Submission from High Surf Corp Website
-
-Name: ${name}
-Email: ${email}
-Phone: ${phone || "Not provided"}
-Zip Code: ${zipCode || "Not provided"}
-Project Budget: ${projectBudget || "Not specified"}
+New Lead from Website
+-----------------------
+Name:    ${payload.name}
+Email:   ${payload.email}
+Phone:   ${payload.phone}
+Zip:     ${payload.zipCode}
+Budget:  ${payload.budget}
 
 Message:
-${message || "No message provided"}
+${payload.message}
 
----
-Submitted: ${new Date().toLocaleString("en-US", { timeZone: "America/New_York" })}
+-----------------------
+Received: ${new Date().toLocaleString("en-US", { timeZone: "America/New_York" })}
     `.trim();
 
-    // Send email via Resend
+    // 4. Send via Resend
+    // Using verified noreply@highsurfcorp.com address
     const { data, error } = await resend.emails.send({
-      from: "High Surf Corp Website <noreply@highsurfcorp.com>",
+      from: "High Surf Corp <noreply@highsurfcorp.com>",
       to: ["crew@highsurfcorp.com"],
-      replyTo: email, // Allow direct reply to customer
-      subject: `New Contact Form: ${name} - ${zipCode || "No Location"}`,
+      replyTo: payload.email,
+      subject: `New Lead: ${payload.name} (${payload.zipCode})`,
       text: emailBody,
     });
 
     if (error) {
-      console.error("Resend API error:", error);
+      console.error("Resend Failure:", JSON.stringify(error));
+      // Return 502 Bad Gateway for external service failures
       return new Response(
         JSON.stringify({
           success: false,
-          error: "Failed to send email. Please try again.",
+          error: "Email service reported an error.",
         }),
-        {
-          status: 500,
-          headers: { "Content-Type": "application/json" },
-        },
+        { status: 502, headers: corsHeaders },
       );
     }
 
-    // Success response
+    // 5. Success
     return new Response(
       JSON.stringify({
         success: true,
-        message: "Thank you for contacting us! We will get back to you soon.",
-        emailId: data.id,
+        message: "Message sent successfully!",
+        id: data.id,
       }),
-      {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      },
+      { status: 200, headers: corsHeaders },
     );
   } catch (err) {
-    console.error("Contact form error:", err);
+    console.error("Worker Error:", err.stack);
     return new Response(
-      JSON.stringify({
-        success: false,
-        error: "An unexpected error occurred. Please try again.",
-      }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
-      },
+      JSON.stringify({ success: false, error: "Internal server error" }),
+      { status: 500, headers: corsHeaders },
     );
   }
 }
