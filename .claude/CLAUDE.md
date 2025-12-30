@@ -54,8 +54,8 @@ git push origin development  # or feature branch name
 4. `main` branch auto-deploys to Cloudflare Worker (highsurfcorp.com)
 
 ## Project Overview
-- **Type**: Static marketing website with blog
-- **Hosting**: Cloudflare Workers (static assets only, no custom Worker code)
+- **Type**: Static marketing website with blog + CMS database
+- **Hosting**: Cloudflare Workers (static assets + D1 database)
 - **Domain**: highsurfcorp.com
 - **Source**: Migrated from Webflow CMS
 
@@ -63,7 +63,8 @@ git push origin development  # or feature branch name
 - **Platform**: Cloudflare Workers
 - **Config**: `wrangler.toml` in project root
 - **Static Files**: Served from `dist/` directory
-- **Build Process**: Node.js scripts generate static HTML from CSV data
+- **Database**: Cloudflare D1 (`highsurf-cms`) - blog content stored in SQL
+- **Build Process**: Node.js scripts generate static HTML from CSV/D1 data
 
 ### R2 Storage (Cloudflare R2 Bucket)
 - **Bucket Name**: `highsurfcorp`
@@ -92,6 +93,71 @@ git push origin development  # or feature branch name
 - Images are served via Cloudflare's global CDN for optimal performance
 - Update image paths in CSV files and HTML templates to use R2 URLs
 - No authentication required for public reads
+
+### D1 Database (Cloudflare D1)
+- **Database Name**: `highsurf-cms`
+- **Database ID**: `9c2d47fb-8c36-45be-9afe-9ea8f1a3e00f`
+- **Binding**: `DB` (access via `env.DB` in Worker code)
+- **Purpose**: CMS content storage (blog posts and topics)
+
+**Database Schema:**
+```sql
+-- Topics/Categories table (65 records)
+CREATE TABLE topics (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  slug TEXT UNIQUE NOT NULL,
+  created_at TEXT,
+  updated_at TEXT,
+  published_at TEXT
+);
+
+-- Blog Posts table (23 records)
+CREATE TABLE posts (
+  id TEXT PRIMARY KEY,
+  title TEXT NOT NULL,
+  slug TEXT UNIQUE NOT NULL,
+  short_tag TEXT,
+  hero_image TEXT,
+  thumbnail_image TEXT,
+  featured INTEGER DEFAULT 0,
+  short_preview TEXT,
+  title_variation TEXT,
+  meta_description TEXT,
+  category TEXT,
+  body TEXT,
+  seo_description TEXT,
+  introduction TEXT,
+  description_variation TEXT,
+  archived INTEGER DEFAULT 0,
+  draft INTEGER DEFAULT 0,
+  created_at TEXT,
+  updated_at TEXT,
+  published_at TEXT
+);
+```
+
+**D1 Management Commands:**
+```bash
+# Query local database
+npx wrangler d1 execute highsurf-cms --command="SELECT * FROM posts LIMIT 5"
+
+# Query remote (production) database
+npx wrangler d1 execute highsurf-cms --remote --command="SELECT COUNT(*) FROM posts"
+
+# Re-run schema (creates/resets tables)
+npx wrangler d1 execute highsurf-cms --remote --file=./schema.sql
+
+# Re-seed data (regenerate from CSV first if needed)
+node generate-seed.js
+npx wrangler d1 execute highsurf-cms --remote --file=./seed.sql
+```
+
+**Data Flow:**
+1. Source data: CSV files in `website-main/blog/`
+2. `generate-seed.js` converts CSV → `seed.sql` (SQL INSERT statements)
+3. `schema.sql` + `seed.sql` are executed against D1
+4. Worker can query D1 via `env.DB` binding
 
 ### Homepage Stack
 - **CSS Framework**: Tailwind CSS (via CDN) + Webflow CSS (hybrid for blog compatibility)
@@ -146,8 +212,11 @@ npx wrangler deploy
 ### Project Structure
 ```
 /
-├── wrangler.toml              # Cloudflare Workers config
-├── generate-blog.js           # Blog static site generator
+├── wrangler.toml              # Cloudflare Workers config (includes D1 binding)
+├── generate-blog.js           # Blog static site generator (CSV → HTML)
+├── generate-seed.js           # D1 seed generator (CSV → SQL)
+├── schema.sql                 # D1 database schema (tables definition)
+├── seed.sql                   # D1 seed data (generated, 88 INSERT statements)
 ├── dist/                      # Static assets (served by Workers)
 │   ├── index.html            # Homepage (includes blog widget)
 │   ├── blog/                 # Blog section
@@ -164,6 +233,10 @@ npx wrangler deploy
 R2 Bucket (highsurfcorp):      # Image assets stored in Cloudflare R2
 ├── images/                    # Main website images
 └── images/blog/               # Blog post images (thumbnails, hero images)
+
+D1 Database (highsurf-cms):    # Blog content stored in Cloudflare D1
+├── topics (65 records)        # Blog categories/topics
+└── posts (23 records)         # Blog post content
 ```
 
 ### Key Configuration Files
@@ -171,6 +244,9 @@ R2 Bucket (highsurfcorp):      # Image assets stored in Cloudflare R2
   - `directory = "./dist"` - Static assets location
   - `html_handling = "auto-trailing-slash"` - URL normalization
   - `not_found_handling = "404-page"` - Custom 404 page
+  - `[[d1_databases]]` - D1 binding (`DB` → `highsurf-cms`)
+- **schema.sql**: D1 database table definitions (posts, topics)
+- **generate-seed.js**: Converts CSV data → SQL INSERT statements
 
 ### CSV Data Structure
 **Blog Posts CSV (23 posts):**
@@ -200,8 +276,9 @@ R2 Bucket (highsurfcorp):      # Image assets stored in Cloudflare R2
 - No manual intervention needed
 
 ### Technical Details
-- **No database**: All content is pre-rendered at build time
-- **No Workers code**: Pure static asset serving
+- **Database**: Cloudflare D1 (`highsurf-cms`) stores blog posts and topics
+- **Static Generation**: Blog HTML pre-rendered at build time from CSV data
+- **No Workers code yet**: Currently pure static asset serving (D1 ready for future dynamic features)
 - **SEO-friendly**: All content server-rendered in HTML
 - **Cache-friendly**: Static files cached at Cloudflare edge
 - **Framework**: Modern Tailwind CSS + Node.js build scripts
@@ -230,7 +307,15 @@ R2 Bucket (highsurfcorp):      # Image assets stored in Cloudflare R2
 - `dist/index.html` - Tailwind-based homepage (optimized, no extra fonts)
 - `dist/js/webflow.js` - Webflow JavaScript (renamed from hashed filename)
 - `generate-blog.js` - Injects all fonts into blog pages only (not homepage)
-- `generate-blog.js.backup` - Backup of original blog generator
+
+**D1 Database Migration (December 30, 2025):**
+- Added Cloudflare D1 database (`highsurf-cms`) for CMS content storage
+- Created `schema.sql` with `posts` (23 records) and `topics` (65 records) tables
+- Created `generate-seed.js` to convert CSV data → SQL INSERT statements
+- Generated `seed.sql` with 88 INSERT statements from CSV data
+- Migrated all blog content to both local and remote D1 databases
+- Deleted obsolete `migrate-to-d1.js` (was just a copy of generate-blog.js)
+- D1 binding configured in `wrangler.toml` as `DB` for future Worker code
 
 ## Code Quality Standards
 
