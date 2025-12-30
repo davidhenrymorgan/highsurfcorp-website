@@ -10,13 +10,20 @@ html_handling = "auto-trailing-slash"
 # Use 404.html for not found pages
 not_found_handling = "404-page"
 
+# D1 Database Binding (for CMS content)
+[[d1_databases]]
+binding = "DB"  # Use in Worker as env.DB
+database_name = "highsurf-cms"
+database_id = "9c2d47fb-8c36-45be-9afe-9ea8f1a3e00f"
+preview_database_id = "9c2d47fb-8c36-45be-9afe-9ea8f1a3e00f"  # Use same for dev; replace with staging ID later
+
 # Environment Variables (Secrets)
 # Set via: npx wrangler secret put RESEND_API_KEY
 # Required secrets:
-#   - RESEND_API_KEY: API key from Resend dashboard (https://resend.com/api-keys)
+# - RESEND_API_KEY: API key from Resend dashboard[](https://resend.com/api-keys)
 #
 # To set the secret:
-#   1. Get your API key from https://resend.com/api-keys
-#   2. Run: npx wrangler secret put RESEND_API_KEY
-#   3. Paste the API key when prompted
-#   4. Verify: npx wrangler secret list
+# 1. Get your API key from https://resend.com/api-keys
+# 2. Run: npx wrangler secret put RESEND_API_KEY
+# 3. Paste the API key when prompted
+# 4. Verify: npx wrangler secret list
