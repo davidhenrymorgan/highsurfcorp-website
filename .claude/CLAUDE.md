@@ -65,6 +65,34 @@ git push origin development  # or feature branch name
 - **Static Files**: Served from `dist/` directory
 - **Build Process**: Node.js scripts generate static HTML from CSV data
 
+### R2 Storage (Cloudflare R2 Bucket)
+- **Bucket Name**: `highsurfcorp`
+- **Access**: Public read access enabled
+- **Purpose**: All website images and static assets
+
+**Directory Structure:**
+- **Main images**: `highsurfcorp/images/` - Website homepage and general assets
+- **Blog images**: `highsurfcorp/images/blog/` - Blog post images (thumbnails, hero images)
+
+**API Endpoints:**
+- **S3 API**: `https://8e25b417fafad849c042143bceb1e147.r2.cloudflarestorage.com/highsurfcorp`
+- **Public Dev URL**: `https://pub-8a557d48118e46a38c0007cee5e58bd9.r2.dev`
+
+**Usage in HTML:**
+```html
+<!-- Main website images -->
+<img src="https://pub-8a557d48118e46a38c0007cee5e58bd9.r2.dev/images/logo.png" alt="Logo">
+
+<!-- Blog images -->
+<img src="https://pub-8a557d48118e46a38c0007cee5e58bd9.r2.dev/images/blog/post-thumbnail.jpg" alt="Post">
+```
+
+**Important Notes:**
+- All image references should use the public dev URL for production
+- Images are served via Cloudflare's global CDN for optimal performance
+- Update image paths in CSV files and HTML templates to use R2 URLs
+- No authentication required for public reads
+
 ### Homepage Stack
 - **CSS Framework**: Tailwind CSS (via CDN) + Webflow CSS (hybrid for blog compatibility)
 - **Fonts**: Montserrat (primary) + Poppins (secondary) via Google WebFont Loader
@@ -127,12 +155,15 @@ npx wrangler deploy
 │   │   └── [slug]/index.html # Individual blog posts (23)
 │   ├── css/                  # Stylesheets
 │   ├── js/                   # Client-side JavaScript
-│   ├── images/               # Image assets
 │   ├── _headers              # HTTP headers config
 │   └── _redirects            # URL redirect rules
 └── website-main/blog/        # Source CSV data
     ├── Copy of High Surf Corp V4.20 - Blog Posts.csv
     └── Copy of High Surf Corp V4.20 - Topics.csv
+
+R2 Bucket (highsurfcorp):      # Image assets stored in Cloudflare R2
+├── images/                    # Main website images
+└── images/blog/               # Blog post images (thumbnails, hero images)
 ```
 
 ### Key Configuration Files
@@ -175,7 +206,7 @@ npx wrangler deploy
 - **Cache-friendly**: Static files cached at Cloudflare edge
 - **Framework**: Modern Tailwind CSS + Node.js build scripts
 
-### Recent Changes (December 2024)
+### Recent Changes (December 2025)
 
 **Homepage Rebuild:**
 - Replaced Webflow-based homepage with modern Tailwind CSS design
