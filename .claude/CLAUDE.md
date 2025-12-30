@@ -2,20 +2,56 @@
 
 ## Git Workflow (CRITICAL)
 
-**⚠️ ALWAYS CREATE A NEW BRANCH BEFORE ANY CHANGES**
+### Branch Strategy
 
+- **`main`** - Production branch (synced to Cloudflare Worker and highsurfcorp.com)
+  - ⚠️ **NEVER commit directly to main**
+  - Only updated via Pull Requests from `development`
+  - Protected branch - stays in sync with live site
+
+- **`development`** - Primary working branch for local development
+  - All work happens here or in feature branches created from here
+  - Test thoroughly before merging to `main`
+
+- **`feature/*`** or **`bugfix/*`** - Optional feature branches
+  - Create from `development` for isolated work
+  - Merge back to `development` when complete
+
+### Daily Workflow
+
+**Start of EVERY coding session:**
 ```bash
-# Start of EVERY coding session (before any edits):
-git checkout -b feature/descriptive-name
+# Switch to development branch
+git checkout development
 
-# After changes are complete and tested:
-git add .
-git commit -m "descriptive message"
-git push origin feature/descriptive-name
-# Then create PR for review
+# Pull latest changes
+git pull origin development
+
+# Start working directly on development
+# OR create a feature branch (optional)
+git checkout -b feature/descriptive-name
 ```
 
-**NEVER commit directly to main** - Current session is the ONLY exception (initial setup/sync)
+**After changes are complete and tested:**
+```bash
+# Stage changes
+git add .
+
+# Commit with descriptive message
+git commit -m "feat: descriptive message"
+
+# Push to remote
+git push origin development  # or feature branch name
+
+# Create PR to main when ready for production
+```
+
+### Deployment to Production
+
+1. Work and test on `development` branch
+2. When ready for production, create Pull Request: `development` → `main`
+3. Review and merge PR
+4. `main` branch auto-deploys to Cloudflare Worker (highsurfcorp.com)
 
 ## Project Overview
 - **Type**: Static marketing website with blog
@@ -28,6 +64,15 @@ git push origin feature/descriptive-name
 - **Config**: `wrangler.toml` in project root
 - **Static Files**: Served from `dist/` directory
 - **Build Process**: Node.js scripts generate static HTML from CSV data
+
+### Homepage Stack
+- **CSS Framework**: Tailwind CSS (via CDN) + Webflow CSS (hybrid for blog compatibility)
+- **Fonts**: Montserrat (primary) + Poppins (secondary) via Google WebFont Loader
+- **JavaScript**: Vanilla JS + IntersectionObserver for scroll animations
+- **Analytics**: Google Analytics (G-93DQDPMR4J) + Meta Pixel (1712382146162316)
+- **SEO**: LocalBusiness structured data (schema.org)
+- **Design**: Modern, dark theme with glassmorphic elements and Tailwind utilities
+- **Blog Integration**: Automatic widget injection via `generate-blog.js` (3 most recent posts)
 
 ### Blog System
 - **Data Source**: CSV files exported from Webflow
@@ -54,15 +99,21 @@ npx wrangler dev
 
 **Deploy to Production:**
 ```bash
+# ⚠️ ONLY deploy from main branch (after PR merge)
+git checkout main
+git pull origin main
 npx wrangler deploy
 # Deploys to highsurfcorp-website.workers.dev and highsurfcorp.com
 ```
 
 **Update Blog Content:**
-1. Edit CSV: `website-main/blog/Copy of High Surf Corp V4.20 - Blog Posts.csv`
-2. Run: `node generate-blog.js`
-3. Test: `npx wrangler dev`
-4. Deploy: `npx wrangler deploy`
+1. Switch to development: `git checkout development`
+2. Edit CSV: `website-main/blog/Copy of High Surf Corp V4.20 - Blog Posts.csv`
+3. Run: `node generate-blog.js`
+4. Test: `npx wrangler dev`
+5. Commit: `git add . && git commit -m "feat: update blog content"`
+6. Push: `git push origin development`
+7. When ready: Create PR `development` → `main`, then deploy from `main`
 
 ### Project Structure
 ```
@@ -105,10 +156,12 @@ npx wrangler deploy
 ### Common Tasks
 
 **Adding a New Blog Post:**
-1. Add row to CSV: `website-main/blog/Copy of High Surf Corp V4.20 - Blog Posts.csv`
+1. On `development` branch: Add row to CSV: `website-main/blog/Copy of High Surf Corp V4.20 - Blog Posts.csv`
 2. Run: `node generate-blog.js`
-3. Commit: `git add dist/ && git commit -m "feat: add new blog post"`
-4. Deploy: `npx wrangler deploy`
+3. Test: `npx wrangler dev`
+4. Commit: `git add . && git commit -m "feat: add new blog post"`
+5. Push: `git push origin development`
+6. When ready: Create PR `development` → `main` for production deployment
 
 **Updating Homepage Blog Widget:**
 - Automatically shows 3 most recent posts (sorted by "Published On" date)
@@ -120,12 +173,28 @@ npx wrangler deploy
 - **No Workers code**: Pure static asset serving
 - **SEO-friendly**: All content server-rendered in HTML
 - **Cache-friendly**: Static files cached at Cloudflare edge
-- **Framework**: Webflow export + custom Node.js build scripts
+- **Framework**: Modern Tailwind CSS + Node.js build scripts
+
+### Recent Changes (December 2024)
+
+**Homepage Rebuild:**
+- Replaced Webflow-based homepage with modern Tailwind CSS design
+- Maintained blog integration and automatic widget updates
+- Implemented hybrid CSS approach (Tailwind for homepage, Webflow for blog pages)
+- Added structured data and enhanced analytics
+
+**Key Files:**
+- `dist/index.html` - New Tailwind-based homepage
+- `dist/index-old-webflow.html` - Backup of original Webflow homepage
+- `generate-blog.js` - Updated to work with new Tailwind structure
+- `generate-blog.js.backup` - Backup of original blog generator
+- `dist/home.html` - Original Tailwind template (can be deleted after verification)
 
 ## Code Quality Standards
 
 - Test locally before committing: `npx wrangler dev`
 - Verify blog generation: `node generate-blog.js`
 - Commit messages: Clear, descriptive, conventional commits format
-- Always work in feature branches (never main)
+- Always work on `development` branch (never commit directly to `main`)
 - All changes must be tested before pushing
+- Only deploy to production from `main` branch after PR review

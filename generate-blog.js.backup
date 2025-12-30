@@ -189,9 +189,9 @@ async function readCSV(filePath) {
 function extractNavigation() {
   const indexHTML = fs.readFileSync(INDEX_HTML, "utf-8");
 
-  // Extract Tailwind navigation (pill-shaped fixed nav)
+  // Extract header navigation
   const navMatch = indexHTML.match(
-    /<div class="fixed top-6[\s\S]*?<\/nav>[\s\S]*?<\/div>/,
+    /<header class="nav_wrap"[\s\S]*?<\/header>/,
   );
   const headerNav = navMatch ? navMatch[0] : "";
 
@@ -495,42 +495,35 @@ function generateHomepageBlogSection(posts) {
         post["Short preview"] ||
         post["Meta description"] ||
         ""
-      ).slice(0, 120);
+      ).slice(0, 100);
 
       return `
-        <div class="blog_cms_item group">
-          <a href="blog/${post.Slug}/"
-             class="block h-full bg-neutral-800/50 backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden hover:border-white/30 transition-all hover:-translate-y-1">
-            <div class="p-6">
-              <div class="mb-3">
-                <span class="text-xs uppercase tracking-wider text-white/40 font-medium">
-                  ${category}
-                </span>
-              </div>
-              <h3 class="text-xl font-semibold text-white mb-3 tracking-tight line-clamp-2">
-                ${post.Name}
-              </h3>
-              <p class="text-white/60 text-sm mb-4 line-clamp-2">
-                ${excerpt}
-              </p>
-              <div class="flex items-center text-white/40 text-sm group-hover:text-white/60 transition-colors">
-                <span>Read More</span>
-                <svg class="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                </svg>
-              </div>
-            </div>
-          </a>
-        </div>
+                <div role="listitem" class="blog_cms_item">
+                  <a tr-ajaxmodal-element="cms-link" data-theme="invert" href="blog/${post.Slug}/" class="blog_card_wrap u-vflex-left-between u-gap-medium w-inline-block">
+                    <div class="blog_card_header u-vflex-left-top u-gap-small">
+                      <div class="g_tag_wrap u-color-brand">${category}</div>
+                      <div class="blog_card_title u-text-large u-weight-medium">${post.Name}</div>
+                    </div>
+                    <div class="g_link-title_wrap u-hflex-between-center u-hflex-nowrap u-gap-xsmall">
+                      <div class="g_link-title_text u-line-clamp-2">${excerpt}</div>
+                      <div class="g_link-title_icon"><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewbox="0 0 18 19" fill="none">
+                          <path d="M1 17.4981L17 1.49811" stroke="currentColor" stroke-width="var(--svg-stroke-width--main)" stroke-miterlimit="10" vector-effect="non-scaling-stroke"></path>
+                          <path d="M16.9999 13.5407C16.9999 13.5407 13.1927 8.68158 16.9999 1.49811C9.81639 5.30525 4.95728 1.49811 4.95728 1.49811" stroke="currentColor" stroke-width="var(--svg-stroke-width--main)" stroke-linejoin="bevel" vector-effect="non-scaling-stroke"></path>
+                        </svg></div>
+                    </div>
+                  </a>
+                </div>
       `.trim();
     })
     .join("\n");
 
-  return `<div class="blog_cms_wrap">
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+  return `
+            <div class="blog_cms_wrap">
+              <div role="list" class="blog_cms_list u-grid-column-3">
 ${blogCardsHTML}
-  </div>
-</div>`.trim();
+              </div>
+            </div>
+  `.trim();
 }
 
 // Update homepage with blog posts
@@ -538,28 +531,18 @@ function updateHomepageWithBlogPosts(posts) {
   const indexPath = INDEX_HTML;
   let indexHTML = fs.readFileSync(indexPath, "utf-8");
 
-  // Find blog section (Tailwind version)
-  const blogSectionStart = indexHTML.indexOf('<div class="blog_cms_wrap">');
+  // Find and replace the blog section (lines 901-922)
+  const blogSectionStart = indexHTML.indexOf(
+    '<div class="blog_cms_wrap w-dyn-list">',
+  );
+  const blogSectionEnd = indexHTML.indexOf(
+    "</div>\n          </div>\n        </div>\n      </section>\n      <footer",
+    blogSectionStart,
+  );
 
-  if (blogSectionStart === -1) {
+  if (blogSectionStart === -1 || blogSectionEnd === -1) {
     console.log("⚠️  Could not find blog section in homepage");
     return;
-  }
-
-  // Find the closing </div> for blog_cms_wrap
-  let depth = 0;
-  let blogSectionEnd = blogSectionStart + '<div class="blog_cms_wrap">'.length;
-
-  for (let i = blogSectionEnd; i < indexHTML.length; i++) {
-    if (indexHTML.substr(i, 5) === "<div ") {
-      depth++;
-    } else if (indexHTML.substr(i, 6) === "</div>") {
-      if (depth === 0) {
-        blogSectionEnd = i + 6;
-        break;
-      }
-      depth--;
-    }
   }
 
   const newBlogSection = generateHomepageBlogSection(posts);
