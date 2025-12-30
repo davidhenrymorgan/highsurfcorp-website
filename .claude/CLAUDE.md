@@ -214,12 +214,23 @@ R2 Bucket (highsurfcorp):      # Image assets stored in Cloudflare R2
 - Implemented hybrid CSS approach (Tailwind for homepage, Webflow for blog pages)
 - Added structured data and enhanced analytics
 
+**Performance Optimization (December 30, 2025):**
+- **File Cleanup**: Removed 10 obsolete/unused HTML files (~900KB saved)
+  - Deleted: home.html, old-home.html, index-old-webflow.html
+  - Deleted: styleguide.html, example-content.html, reviews.html
+  - Deleted: coquina-rock-revetment.html, detail_brevard-county-coquina-seawall.html, detail_topics.html
+- **Font Optimization**: Removed 21 unnecessary Google Font loads from homepage (~300KB network savings)
+  - Homepage now only loads Montserrat + Poppins (via WebFont.load)
+  - Blog pages retain all 21 fonts for proper Webflow styling (injected via generate-blog.js)
+  - Expected performance: 0.5-1.5 seconds faster page load on homepage
+- **Bug Fix**: Renamed webflow.js to fix blog page console errors
+  - Changed: dist/js/high-surf-corp-v4-20-f4e9b7ff34488e0aa6.js → dist/js/webflow.js
+
 **Key Files:**
-- `dist/index.html` - New Tailwind-based homepage
-- `dist/index-old-webflow.html` - Backup of original Webflow homepage
-- `generate-blog.js` - Updated to work with new Tailwind structure
+- `dist/index.html` - Tailwind-based homepage (optimized, no extra fonts)
+- `dist/js/webflow.js` - Webflow JavaScript (renamed from hashed filename)
+- `generate-blog.js` - Injects all fonts into blog pages only (not homepage)
 - `generate-blog.js.backup` - Backup of original blog generator
-- `dist/home.html` - Original Tailwind template (can be deleted after verification)
 
 ## Code Quality Standards
 
