@@ -1,6 +1,6 @@
 # High Surf Corp Website
 
-Static website with blog for High Surf Corp - a family-owned business specializing in coquina, granite, and limestone seawalls in Brevard County, Florida.
+Marketing website with D1-powered dynamic blog for High Surf Corp - a family-owned business specializing in coquina, granite, and limestone seawalls in Brevard County, Florida.
 
 **Live Site:** https://highsurfcorp.com
 
@@ -18,19 +18,23 @@ git checkout development
 # Run local dev server
 npx wrangler dev
 # Visit http://localhost:8787/
+# Blog pages rendered dynamically from D1
 ```
 
 ## Project Structure
 
 ```
-├── wrangler.toml           # Cloudflare Workers config (includes D1 binding)
-├── generate-blog.js        # Blog generator (CSV → HTML)
+├── wrangler.toml           # Cloudflare Workers config (D1 binding)
+├── src/
+│   └── index.js            # Worker: blog routing & template rendering
+├── scripts/
+│   └── fix-image-urls.js   # URL transformation utility
+├── generate-blog.js        # Homepage widget generator (CSV → HTML)
 ├── generate-seed.js        # D1 seed generator (CSV → SQL)
 ├── schema.sql              # D1 database schema
 ├── seed.sql                # D1 seed data (generated)
 ├── dist/                   # Static site files
 │   ├── index.html          # Homepage (Tailwind CSS)
-│   ├── blog/               # Blog pages (23 posts)
 │   ├── contact/            # Contact pages
 │   ├── legal/              # Legal pages
 │   ├── css/                # Stylesheets
@@ -38,13 +42,15 @@ npx wrangler dev
 └── website-main/blog/      # Source CSV data
 ```
 
+**Note:** Blog pages (`/blog`, `/blog/:slug`) are rendered dynamically by the Worker from D1.
+
 ## Tech Stack
 
-- **Hosting:** Cloudflare Workers (static assets)
-- **Database:** Cloudflare D1 (`highsurf-cms`)
-- **Images:** Cloudflare R2 bucket
-- **CSS:** Tailwind (homepage) + Webflow (blog pages)
-- **Build:** Node.js scripts
+- **Hosting:** Cloudflare Workers (static + dynamic)
+- **Database:** Cloudflare D1 (`highsurf-cms`) - 23 posts, 65 topics
+- **Images:** Cloudflare R2 bucket (`highsurfcorp`)
+- **CSS:** Tailwind (homepage + blog) + Webflow (legacy)
+- **Blog Template:** aura.build design with dynamic rendering
 
 ## Git Workflow
 
@@ -55,9 +61,17 @@ npx wrangler dev
 
 ## Common Tasks
 
-### Regenerate Blog from CSV
+### Update Homepage Blog Widget
 ```bash
 node generate-blog.js
+# Updates dist/index.html with 3 most recent posts
+```
+
+### Update Blog Content in D1
+```bash
+# Edit CSV, regenerate seed, update D1
+node generate-seed.js
+npx wrangler d1 execute highsurf-cms --remote --file=./seed.sql
 ```
 
 ### Deploy to Production
@@ -80,6 +94,10 @@ npx wrangler d1 execute highsurf-cms --remote --command="SELECT COUNT(*) FROM po
 node generate-seed.js
 npx wrangler d1 execute highsurf-cms --remote --file=./schema.sql
 npx wrangler d1 execute highsurf-cms --remote --file=./seed.sql
+
+# Fix image URLs (Webflow → R2)
+node scripts/fix-image-urls.js > update-images.sql
+npx wrangler d1 execute highsurf-cms --remote --file=./update-images.sql
 ```
 
 ## Analytics

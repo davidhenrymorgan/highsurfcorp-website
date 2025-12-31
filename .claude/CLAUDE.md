@@ -54,17 +54,19 @@ git push origin development  # or feature branch name
 4. `main` branch auto-deploys to Cloudflare Worker (highsurfcorp.com)
 
 ## Project Overview
-- **Type**: Static marketing website with blog + CMS database
-- **Hosting**: Cloudflare Workers (static assets + D1 database)
+- **Type**: Marketing website with D1-powered dynamic blog
+- **Hosting**: Cloudflare Workers (static assets + D1 database + dynamic blog rendering)
 - **Domain**: highsurfcorp.com
 - **Source**: Migrated from Webflow CMS
 
 ### Architecture
-- **Platform**: Cloudflare Workers
+- **Platform**: Cloudflare Workers with D1 database
 - **Config**: `wrangler.toml` in project root
-- **Static Files**: Served from `dist/` directory
+- **Static Files**: Homepage and other static pages served from `dist/` directory
+- **Dynamic Blog**: Worker renders blog pages from D1 database at runtime
 - **Database**: Cloudflare D1 (`highsurf-cms`) - blog content stored in SQL
-- **Build Process**: Node.js scripts generate static HTML from CSV/D1 data
+- **Images**: Cloudflare R2 bucket (`highsurfcorp`) - all images served from R2
+- **Worker Code**: `src/index.js` handles routing and template rendering
 
 ### R2 Storage (Cloudflare R2 Bucket)
 - **Bucket Name**: `highsurfcorp`
@@ -168,27 +170,34 @@ npx wrangler d1 execute highsurf-cms --remote --file=./seed.sql
 - **Design**: Modern, dark theme with glassmorphic elements and Tailwind utilities
 - **Blog Integration**: Automatic widget injection via `generate-blog.js` (3 most recent posts)
 
-### Blog System
-- **Data Source**: CSV files exported from Webflow
-  - Blog posts: `website-main/blog/Copy of High Surf Corp V4.20 - Blog Posts.csv` (23 posts)
-  - Topics/categories: `website-main/blog/Copy of High Surf Corp V4.20 - Topics.csv` (65 topics)
-- **Generator**: `generate-blog.js` (Node.js script)
-- **Output**:
-  - Blog index: `dist/blog/index.html`
-  - Individual posts: `dist/blog/[slug]/index.html`
-  - Homepage widget: Updates `dist/index.html` with 3 most recent posts
+### Blog System (D1 Dynamic)
+- **Rendering**: Dynamic at runtime via Cloudflare Worker (`src/index.js`)
+- **Template**: aura.build design with Tailwind CSS (embedded in Worker)
+- **Database**: D1 (`highsurf-cms`) with 23 posts, 65 topics
+- **Routes**:
+  - `/blog` - Blog index page (dynamically rendered)
+  - `/blog/:slug` - Individual post pages (dynamically rendered)
+- **Data Source (for seeding)**: CSV files exported from Webflow
+  - Blog posts: `website-main/blog/Copy of High Surf Corp V4.20 - Blog Posts.csv`
+  - Topics/categories: `website-main/blog/Copy of High Surf Corp V4.20 - Topics.csv`
+- **Scripts**:
+  - `generate-blog.js` - Updates homepage widget with 3 most recent posts
+  - `generate-seed.js` - Converts CSV → SQL for D1 seeding
+  - `scripts/fix-image-urls.js` - Transforms Webflow CDN URLs to R2 URLs
 
 ### Build & Deployment Workflow
 
-**Regenerating Blog:**
+**Update Homepage Blog Widget:**
 ```bash
 node generate-blog.js
+# Updates dist/index.html with 3 most recent posts from CSV
 ```
 
 **Local Testing:**
 ```bash
 npx wrangler dev
 # Visit http://localhost:8787/
+# Blog pages are rendered dynamically from local D1
 ```
 
 **Deploy to Production:**
@@ -200,30 +209,43 @@ npx wrangler deploy
 # Deploys to highsurfcorp-website.workers.dev and highsurfcorp.com
 ```
 
-**Update Blog Content:**
+**Update Blog Content in D1:**
 1. Switch to development: `git checkout development`
 2. Edit CSV: `website-main/blog/Copy of High Surf Corp V4.20 - Blog Posts.csv`
-3. Run: `node generate-blog.js`
-4. Test: `npx wrangler dev`
-5. Commit: `git add . && git commit -m "feat: update blog content"`
-6. Push: `git push origin development`
-7. When ready: Create PR `development` → `main`, then deploy from `main`
+3. Regenerate seed: `node generate-seed.js`
+4. Update remote D1: `npx wrangler d1 execute highsurf-cms --remote --file=./seed.sql`
+5. Update homepage widget: `node generate-blog.js`
+6. Test: `npx wrangler dev`
+7. Commit: `git add . && git commit -m "feat: update blog content"`
+8. Push: `git push origin development`
+9. When ready: Create PR `development` → `main`, then deploy from `main`
+
+**Fix Image URLs (if needed):**
+```bash
+node scripts/fix-image-urls.js > update-images.sql
+npx wrangler d1 execute highsurf-cms --remote --file=./update-images.sql
+```
 
 ### Project Structure
 ```
 /
-├── wrangler.toml              # Cloudflare Workers config (includes D1 binding)
-├── generate-blog.js           # Blog static site generator (CSV → HTML)
+├── wrangler.toml              # Cloudflare Workers config (D1 binding, static assets)
+├── src/
+│   └── index.js               # Worker code: blog routing, template rendering
+├── scripts/
+│   └── fix-image-urls.js      # URL transformation utility (Webflow → R2)
+├── generate-blog.js           # Homepage blog widget generator (CSV → HTML)
 ├── generate-seed.js           # D1 seed generator (CSV → SQL)
 ├── schema.sql                 # D1 database schema (tables definition)
 ├── seed.sql                   # D1 seed data (generated, 88 INSERT statements)
+├── update-images.sql          # Image URL updates for D1 (generated)
 ├── dist/                      # Static assets (served by Workers)
 │   ├── index.html            # Homepage (includes blog widget)
-│   ├── blog/                 # Blog section
-│   │   ├── index.html        # Blog listing page
-│   │   └── [slug]/index.html # Individual blog posts (23)
+│   ├── contact/              # Contact pages
+│   ├── legal/                # Legal pages
 │   ├── css/                  # Stylesheets
 │   ├── js/                   # Client-side JavaScript
+│   ├── images/               # Local images (most served from R2)
 │   ├── _headers              # HTTP headers config
 │   └── _redirects            # URL redirect rules
 └── website-main/blog/        # Source CSV data
@@ -236,8 +258,10 @@ R2 Bucket (highsurfcorp):      # Image assets stored in Cloudflare R2
 
 D1 Database (highsurf-cms):    # Blog content stored in Cloudflare D1
 ├── topics (65 records)        # Blog categories/topics
-└── posts (23 records)         # Blog post content
+└── posts (23 records)         # Blog post content (dynamically rendered)
 ```
+
+**Note:** Blog pages (`/blog` and `/blog/:slug`) are NOT in `dist/` - they are rendered dynamically by the Worker from D1.
 
 ### Key Configuration Files
 - **wrangler.toml**: Cloudflare Workers deployment config
@@ -277,13 +301,25 @@ D1 Database (highsurf-cms):    # Blog content stored in Cloudflare D1
 
 ### Technical Details
 - **Database**: Cloudflare D1 (`highsurf-cms`) stores blog posts and topics
-- **Static Generation**: Blog HTML pre-rendered at build time from CSV data
-- **No Workers code yet**: Currently pure static asset serving (D1 ready for future dynamic features)
-- **SEO-friendly**: All content server-rendered in HTML
-- **Cache-friendly**: Static files cached at Cloudflare edge
-- **Framework**: Modern Tailwind CSS + Node.js build scripts
+- **Dynamic Blog**: Worker renders blog pages at runtime from D1 data
+- **Template Engine**: Simple `{{variable}}` replacement in embedded HTML templates
+- **Worker Features**: Date formatting, reading time calculation, related posts
+- **SEO-friendly**: All content server-rendered in HTML with proper meta tags
+- **Cache-friendly**: Blog posts cached for 1 hour, static files cached at edge
+- **Framework**: Tailwind CSS (blog) + Webflow CSS (legacy) + Node.js scripts
 
 ### Recent Changes (December 2025)
+
+**D1 Dynamic Blog Implementation (December 31, 2025):**
+- Replaced static blog HTML files with dynamic Worker-rendered pages
+- Blog posts now served from D1 database at runtime
+- Implemented aura.build template design with Tailwind CSS
+- Created blog index page with card grid layout
+- Added helper functions: `formatDate()`, `calculateReadingTime()`, `escapeHtml()`
+- Transformed all image URLs from Webflow CDN to R2 storage (20 posts updated)
+- Removed 24 static blog HTML files from `dist/blog/` (now dynamic)
+- Added `scripts/fix-image-urls.js` for URL transformation utility
+- Worker routes: `/blog` (index) and `/blog/:slug` (individual posts)
 
 **Homepage Rebuild:**
 - Replaced Webflow-based homepage with modern Tailwind CSS design
