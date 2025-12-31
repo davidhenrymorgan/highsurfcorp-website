@@ -321,6 +321,22 @@ D1 Database (highsurf-cms):    # Blog content stored in Cloudflare D1
 - Added `scripts/fix-image-urls.js` for URL transformation utility
 - Worker routes: `/blog` (index) and `/blog/:slug` (individual posts)
 
+**Template Standardization (December 31, 2025):**
+- Removed old Velos "Material/Spec List" section (VOL. III) from homepage
+- Moved blog section higher on homepage (now after Projects section)
+- Standardized footer across all pages (homepage, blog index, blog posts):
+  - Full High Surf Corp wordmark logo (viewBox="0 0 242.44 61.96")
+  - Newsletter signup with email input and "Connect" button
+  - Contact info: crew@highsurfcorp.com, (321) 821-4895, 330 5th Ave
+  - Four-column layout: Logo/Newsletter, High Surf Corp, Contact, Legal
+  - Copyright: "© 2026 High Surf Corp. All Rights Reserved."
+- Standardized navigation across blog pages (blog post and blog index):
+  - Links: Home, Projects, Blog, Free Estimate
+  - Added "Get a Quote" CTA button (matching homepage style)
+- Fixed broken Gallery link (was pointing to deleted coquina-rock-revetment.html)
+  - Changed to Projects link pointing to `/#projects` anchor on homepage
+- Homepage structure now: Hero → Projects → Blog → Careers → Contact → Footer
+
 **Homepage Rebuild:**
 - Replaced Webflow-based homepage with modern Tailwind CSS design
 - Maintained blog integration and automatic widget updates
