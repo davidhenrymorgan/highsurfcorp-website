@@ -150,8 +150,8 @@ fbq('track', 'PageView');
           <a href="index.html" class="text-white hover:text-white transition-colors">
             Home
           </a>
-          <a href="coquina-rock-revetment.html" class="hover:text-white transition-colors">
-            Gallery
+          <a href="#projects" class="hover:text-white transition-colors">
+            Projects
           </a>
           <a href="blog/" class="hover:text-white transition-colors">
             Blog
@@ -395,236 +395,106 @@ fbq('track', 'PageView');
       </div>
     </section>
 
-    <!-- Material / Spec List -->
-    <section class="bg-neutral-950 border-white/5 border-t pt-24 pr-6 pb-24 pl-6 relative" id="process">
-      <!-- Section Number -->
-      <div class="absolute top-12 right-6 md:right-12 z-0 opacity-10 font-bold text-[8rem] md:text-[10rem] leading-none text-white pointer-events-none select-none tracking-tighter">
-        VOL. III
-      </div>
+    <!-- Blog Section -->
+    <section class="py-24 bg-neutral-900 text-white relative overflow-hidden" id="blog">
+      <div class="absolute inset-0 opacity-[0.03]"
+           style="background-image: radial-gradient(#fff 1px, transparent 1px);
+                  background-size: 32px 32px;"></div>
 
-      <div class="w-full max-w-5xl mx-auto relative z-10">
-        <div class="text-center mb-16 animate-on-scroll [animation:animationIn_0.8s_ease-out_0.2s_both]">
-          <h3 class="text-3xl md:text-5xl font-bold tracking-tight text-white mb-4">
-            Tactile Substance
-          </h3>
-          <p class="text-white/50 font-light">
-            Engineered elements for the new era of durability.
-          </p>
+      <div class="max-w-7xl mx-auto px-6 md:px-12 relative z-10">
+        <div class="mb-16 animate-on-scroll [animation:animationIn_0.8s_ease-out_0.2s_both]">
+          <span class="text-xs uppercase tracking-[0.3em] text-white/40 font-medium mb-4 block">
+            Latest Insights
+          </span>
+          <h2 class="text-5xl md:text-7xl font-semibold tracking-tighter leading-[0.95]">
+            From Our <span class="text-white/30">Blog</span>
+          </h2>
         </div>
 
-        <div class="flex flex-col gap-4">
-          <!-- List Item 1 -->
-          <div class="group grid grid-cols-1 md:grid-cols-12 md:p-6 hover:bg-white/10 transition-all duration-300 animate-on-scroll [animation:animationIn_0.8s_ease-out_0.3s_both] bg-white/5 border-white/5 border rounded-2xl pt-4 pr-4 pb-4 pl-4 gap-x-6 gap-y-6 items-center">
-            <!-- Image & Name -->
-            <div class="col-span-1 md:col-span-4 flex items-center gap-6">
-              <div class="w-20 h-20 md:w-24 md:h-24 bg-white rounded-xl overflow-hidden shrink-0 relative flex items-center justify-center">
-                <img src="https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/33b2ce34-6e4a-4514-b20d-7104ecf14efd_320w.webp" class="w-full h-full object-cover" alt="Concrete Texture" style="">
+        <!-- BLOG WIDGET INJECTION POINT -->
+        <div class="blog_cms_wrap">
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<div class="blog_cms_item group">
+          <a href="blog/the-complete-guide-to-installing-a-coquina-rip-rap-seawall/"
+             class="block h-full bg-neutral-800/50 backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden hover:border-white/30 transition-all hover:-translate-y-1">
+            <div class="p-6">
+              <div class="mb-3">
+                <span class="text-xs uppercase tracking-wider text-white/40 font-medium">
+                  coquina
+                </span>
               </div>
-              <div class="">
-                <iconify-icon icon="solar:layers-minimalistic-linear" width="32" class="text-white/60 mb-1"></iconify-icon>
-                <h4 class="text-xl font-bold text-white tracking-tight">Coquina</h4>
-                <p class="text-xs text-white/40 mt-1 uppercase tracking-wider">
-                  Honed Finish
-                </p>
+              <h3 class="text-xl font-semibold text-white mb-3 tracking-tight line-clamp-2">
+                6 Steps: Installing a Coquina Rip Rap Shoreline
+              </h3>
+              <p class="text-white/60 text-sm mb-4 line-clamp-2">
+                Benefits of Coquina Seawalls
+              </p>
+              <div class="flex items-center text-white/40 text-sm group-hover:text-white/60 transition-colors">
+                <span>Read More</span>
+                <svg class="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
               </div>
             </div>
+          </a>
+        </div>
+<div class="blog_cms_item group">
+          <a href="blog/brevard-county-seawall-repair-installation/"
+             class="block h-full bg-neutral-800/50 backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden hover:border-white/30 transition-all hover:-translate-y-1">
+            <div class="p-6">
+              <div class="mb-3">
+                <span class="text-xs uppercase tracking-wider text-white/40 font-medium">
+                  General
+                </span>
+              </div>
+              <h3 class="text-xl font-semibold text-white mb-3 tracking-tight line-clamp-2">
+                Brevard County Shoreline Restoration
+              </h3>
+              <p class="text-white/60 text-sm mb-4 line-clamp-2">
+                Shoreline Restoration
+              </p>
+              <div class="flex items-center text-white/40 text-sm group-hover:text-white/60 transition-colors">
+                <span>Read More</span>
+                <svg class="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+              </div>
+            </div>
+          </a>
+        </div>
+<div class="blog_cms_item group">
+          <a href="blog/coquina-revetment-construction-techniques/"
+             class="block h-full bg-neutral-800/50 backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden hover:border-white/30 transition-all hover:-translate-y-1">
+            <div class="p-6">
+              <div class="mb-3">
+                <span class="text-xs uppercase tracking-wider text-white/40 font-medium">
+                  General
+                </span>
+              </div>
+              <h3 class="text-xl font-semibold text-white mb-3 tracking-tight line-clamp-2">
+                Coquina Revetment Construction Techniques
+              </h3>
+              <p class="text-white/60 text-sm mb-4 line-clamp-2">
+                Coquina revetment is a specialized shoreline protection technique that utilizes coquina, a sedimentary rock composed of
+              </p>
+              <div class="flex items-center text-white/40 text-sm group-hover:text-white/60 transition-colors">
+                <span>Read More</span>
+                <svg class="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+              </div>
+            </div>
+          </a>
+        </div>
+  </div>
+</div>
 
-            <!-- Tech Specs -->
-            <div class="col-span-1 md:col-span-6 grid grid-cols-3 gap-y-4 gap-x-2 border-l border-white/10 pl-6">
-              <div class="flex flex-col gap-1">
-                <div class="flex items-center gap-1.5 text-white/50 text-xs uppercase tracking-wide">
-                  <iconify-icon icon="solar:scale-linear" width="14" class=""></iconify-icon>
-                  Weight
-                </div>
-                <span class="text-white text-sm font-light">2800 kg/m³</span>
-              </div>
-              <div class="flex flex-col gap-1">
-                <div class="flex items-center gap-1.5 text-white/50 text-xs uppercase tracking-wide">
-                  <iconify-icon icon="solar:map-point-linear" width="14"></iconify-icon>
-                  Origin
-                </div>
-                <span class="text-sm font-light text-white">Brevard, FL</span>
-              </div>
-              <div class="flex flex-col gap-1">
-                <div class="flex items-center gap-1.5 text-white/50 text-xs uppercase tracking-wide">
-                  <iconify-icon icon="solar:shield-check-linear" width="14"></iconify-icon>
-                  Rating
-                </div>
-                <span class="text-white text-sm font-light">Class A1 Fire</span>
-              </div>
-              <div class="col-span-3 mt-2">
-                <div class="flex items-center justify-between text-xs text-white/30 mb-1">
-                  <span class="">Acoustic Damping</span>
-                  <span class="">Freq. Response</span>
-                </div>
-                <div class="w-full h-8 flex items-end gap-0.5 opacity-50">
-                  <div class="w-1 bg-white h-[40%] rounded-t-sm"></div>
-                  <div class="w-1 bg-white h-[60%] rounded-t-sm"></div>
-                  <div class="w-1 bg-white h-[80%] rounded-t-sm"></div>
-                  <div class="w-1 bg-white h-[65%] rounded-t-sm"></div>
-                  <div class="w-1 bg-white h-[50%] rounded-t-sm"></div>
-                  <div class="w-1 bg-white h-[45%] rounded-t-sm"></div>
-                  <div class="w-1 bg-white h-[60%] rounded-t-sm"></div>
-                  <div class="w-1 bg-white h-[75%] rounded-t-sm"></div>
-                  <div class="w-1 bg-white h-[90%] rounded-t-sm"></div>
-                  <div class="w-1 bg-white h-[70%] rounded-t-sm"></div>
-                  <div class="w-1 bg-white h-[55%] rounded-t-sm"></div>
-                  <div class="w-1 bg-white h-[40%] rounded-t-sm"></div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Price & Action -->
-            <div class="col-span-1 md:col-span-2 flex items-center justify-between md:justify-end gap-6">
-              <span class="text-xl font-bold tracking-tight text-white">
-                Tier S
-              </span>
-              <button class="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-white hover:text-black transition-colors group-hover:border-white">
-                <iconify-icon icon="solar:file-download-linear" width="18" class=""></iconify-icon>
-              </button>
-            </div>
-          </div>
-
-          <!-- List Item 2 -->
-          <div class="group grid grid-cols-1 md:grid-cols-12 gap-6 md:p-6 hover:bg-white/10 transition-all duration-300 animate-on-scroll [animation:animationIn_0.8s_ease-out_0.4s_both] bg-white/5 border-white/5 border rounded-2xl pt-4 pr-4 pb-4 pl-4 gap-x-6 gap-y-6 items-center">
-            <!-- Image & Name -->
-            <div class="col-span-1 md:col-span-4 flex items-center gap-6">
-              <div class="w-20 h-20 md:w-24 md:h-24 bg-white rounded-xl overflow-hidden shrink-0 relative flex items-center justify-center">
-                <img src="https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/1e4989cc-80c7-45b1-9eb3-3f72b473d778_320w.jpg" class="w-full h-full object-cover" alt="Timber Texture">
-              </div>
-              <div class="">
-                <iconify-icon icon="solar:tree-linear" width="32" class="text-white/60 mb-1"></iconify-icon>
-                <h4 class="text-xl font-bold text-white tracking-tight">Granite &amp; Limestone</h4>
-                <p class="text-xs text-white/40 mt-1 uppercase tracking-wider">
-                  Patina Green
-                </p>
-              </div>
-            </div>
-
-            <!-- Tech Specs -->
-            <div class="col-span-1 md:col-span-6 grid grid-cols-3 gap-y-4 gap-x-2 border-l border-white/10 pl-6">
-              <div class="flex flex-col gap-1">
-                <div class="flex items-center gap-1.5 text-white/50 text-xs uppercase tracking-wide">
-                  <iconify-icon icon="solar:clock-circle-linear" width="14"></iconify-icon>
-                  Life
-                </div>
-                <span class="text-white text-sm font-light">100+ Years</span>
-              </div>
-              <div class="flex flex-col gap-1">
-                <div class="flex items-center gap-1.5 text-white/50 text-xs uppercase tracking-wide">
-                  <iconify-icon icon="solar:check-circle-linear" width="14"></iconify-icon>
-                  Recycled
-                </div>
-                <span class="text-white text-sm font-light">95% Content</span>
-              </div>
-              <div class="flex flex-col gap-1">
-                <div class="flex items-center gap-1.5 text-white/50 text-xs uppercase tracking-wide">
-                  <iconify-icon icon="solar:umbrella-linear" width="14"></iconify-icon>
-                  Coating
-                </div>
-                <span class="text-white text-sm font-light">Self-Healing</span>
-              </div>
-              <div class="col-span-3 mt-2">
-                <div class="flex items-center justify-between text-xs text-white/30 mb-1">
-                  <span>Reflectivity Index</span>
-                  <span>Solar Gain</span>
-                </div>
-                <div class="flex gap-0.5 opacity-50 w-full h-8 gap-x-0.5 gap-y-0.5 items-end">
-                  <div class="w-1 bg-white h-[50%] rounded-t-sm"></div>
-                  <div class="w-1 bg-white h-[52%] rounded-t-sm"></div>
-                  <div class="w-1 bg-white h-[55%] rounded-t-sm"></div>
-                  <div class="w-1 bg-white h-[58%] rounded-t-sm"></div>
-                  <div class="w-1 bg-white h-[60%] rounded-t-sm"></div>
-                  <div class="w-1 bg-white h-[60%] rounded-t-sm"></div>
-                  <div class="w-1 bg-white h-[60%] rounded-t-sm"></div>
-                  <div class="w-1 bg-white h-[58%] rounded-t-sm"></div>
-                  <div class="w-1 bg-white h-[55%] rounded-t-sm"></div>
-                  <div class="w-1 bg-white h-[52%] rounded-t-sm"></div>
-                  <div class="w-1 bg-white h-[50%] rounded-t-sm"></div>
-                  <div class="w-1 bg-white h-[48%] rounded-t-sm"></div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Price & Action -->
-            <div class="col-span-1 md:col-span-2 flex items-center justify-between md:justify-end gap-6">
-              <span class="text-xl font-bold tracking-tight text-white">
-                Tier A
-              </span>
-              <button class="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-white hover:text-black transition-colors group-hover:border-white">
-                <iconify-icon icon="solar:file-download-linear" width="18"></iconify-icon>
-              </button>
-            </div>
-          </div><div class="group grid grid-cols-1 md:grid-cols-12 gap-6 md:p-6 hover:bg-white/10 transition-all duration-300 animate-on-scroll [animation:animationIn_0.8s_ease-out_0.4s_both] bg-white/5 border-white/5 border rounded-2xl pt-4 pr-4 pb-4 pl-4 gap-x-6 gap-y-6 items-center">
-            <!-- Image & Name -->
-            <div class="col-span-1 md:col-span-4 flex items-center gap-6">
-              <div class="w-20 h-20 md:w-24 md:h-24 bg-white rounded-xl overflow-hidden shrink-0 relative flex items-center justify-center">
-                <img src="https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/1e4989cc-80c7-45b1-9eb3-3f72b473d778_320w.jpg" class="w-full h-full object-cover" alt="Timber Texture">
-              </div>
-              <div class="">
-                <iconify-icon icon="solar:tree-linear" width="32" class="text-white/60 mb-1"></iconify-icon>
-                <h4 class="text-xl font-bold text-white tracking-tight">Tumbled Concrete</h4>
-                <p class="text-xs text-white/40 mt-1 uppercase tracking-wider">
-                  Patina Green
-                </p>
-              </div>
-            </div>
-
-            <!-- Tech Specs -->
-            <div class="col-span-1 md:col-span-6 grid grid-cols-3 gap-y-4 gap-x-2 border-l border-white/10 pl-6">
-              <div class="flex flex-col gap-1">
-                <div class="flex items-center gap-1.5 text-white/50 text-xs uppercase tracking-wide">
-                  <iconify-icon icon="solar:clock-circle-linear" width="14"></iconify-icon>
-                  Life
-                </div>
-                <span class="text-white text-sm font-light">100+ Years</span>
-              </div>
-              <div class="flex flex-col gap-1">
-                <div class="flex items-center gap-1.5 text-white/50 text-xs uppercase tracking-wide">
-                  <iconify-icon icon="solar:check-circle-linear" width="14"></iconify-icon>
-                  Recycled
-                </div>
-                <span class="text-white text-sm font-light">95% Content</span>
-              </div>
-              <div class="flex flex-col gap-1">
-                <div class="flex items-center gap-1.5 text-white/50 text-xs uppercase tracking-wide">
-                  <iconify-icon icon="solar:umbrella-linear" width="14" class=""></iconify-icon>
-                  Coating
-                </div>
-                <span class="text-white text-sm font-light">Self-Healing</span>
-              </div>
-              <div class="col-span-3 mt-2">
-                <div class="flex items-center justify-between text-xs text-white/30 mb-1">
-                  <span class="">Reflectivity Index</span>
-                  <span>Solar Gain</span>
-                </div>
-                <div class="w-full h-8 flex items-end gap-0.5 opacity-50">
-                  <div class="w-1 bg-white h-[50%] rounded-t-sm"></div>
-                  <div class="w-1 bg-white h-[52%] rounded-t-sm"></div>
-                  <div class="w-1 bg-white h-[55%] rounded-t-sm"></div>
-                  <div class="w-1 bg-white h-[58%] rounded-t-sm"></div>
-                  <div class="w-1 bg-white h-[60%] rounded-t-sm"></div>
-                  <div class="w-1 bg-white h-[60%] rounded-t-sm"></div>
-                  <div class="w-1 bg-white h-[60%] rounded-t-sm"></div>
-                  <div class="w-1 bg-white h-[58%] rounded-t-sm"></div>
-                  <div class="w-1 bg-white h-[55%] rounded-t-sm"></div>
-                  <div class="w-1 bg-white h-[52%] rounded-t-sm"></div>
-                  <div class="w-1 bg-white h-[50%] rounded-t-sm"></div>
-                  <div class="w-1 bg-white h-[48%] rounded-t-sm"></div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Price & Action -->
-            <div class="col-span-1 md:col-span-2 flex items-center justify-between md:justify-end gap-6">
-              <span class="text-xl font-bold tracking-tight text-white">
-                Tier A
-              </span>
-              <button class="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-white hover:text-black transition-colors group-hover:border-white">
-                <iconify-icon icon="solar:file-download-linear" width="18"></iconify-icon>
-              </button>
-            </div>
-          </div>
+        <div class="mt-12 flex justify-center">
+          <a href="blog/"
+             class="group flex items-center gap-3 px-8 py-4 bg-white/10 border border-white/20 text-white rounded-full hover:bg-white/20 transition-all">
+            <span class="font-medium tracking-wide">View All Articles</span>
+            <iconify-icon icon="solar:arrow-right-linear" width="20"></iconify-icon>
+          </a>
         </div>
       </div>
     </section>
@@ -947,110 +817,6 @@ fbq('track', 'PageView');
     </div>
   </div>
 </section>
-
-    <!-- Blog Section -->
-    <section class="py-24 bg-neutral-900 text-white relative overflow-hidden" id="blog">
-      <div class="absolute inset-0 opacity-[0.03]"
-           style="background-image: radial-gradient(#fff 1px, transparent 1px);
-                  background-size: 32px 32px;"></div>
-
-      <div class="max-w-7xl mx-auto px-6 md:px-12 relative z-10">
-        <div class="mb-16 animate-on-scroll [animation:animationIn_0.8s_ease-out_0.2s_both]">
-          <span class="text-xs uppercase tracking-[0.3em] text-white/40 font-medium mb-4 block">
-            Latest Insights
-          </span>
-          <h2 class="text-5xl md:text-7xl font-semibold tracking-tighter leading-[0.95]">
-            From Our <span class="text-white/30">Blog</span>
-          </h2>
-        </div>
-
-        <!-- BLOG WIDGET INJECTION POINT -->
-        <div class="blog_cms_wrap">
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-<div class="blog_cms_item group">
-          <a href="blog/the-complete-guide-to-installing-a-coquina-rip-rap-seawall/"
-             class="block h-full bg-neutral-800/50 backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden hover:border-white/30 transition-all hover:-translate-y-1">
-            <div class="p-6">
-              <div class="mb-3">
-                <span class="text-xs uppercase tracking-wider text-white/40 font-medium">
-                  coquina
-                </span>
-              </div>
-              <h3 class="text-xl font-semibold text-white mb-3 tracking-tight line-clamp-2">
-                6 Steps: Installing a Coquina Rip Rap Shoreline
-              </h3>
-              <p class="text-white/60 text-sm mb-4 line-clamp-2">
-                Benefits of Coquina Seawalls
-              </p>
-              <div class="flex items-center text-white/40 text-sm group-hover:text-white/60 transition-colors">
-                <span>Read More</span>
-                <svg class="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                </svg>
-              </div>
-            </div>
-          </a>
-        </div>
-<div class="blog_cms_item group">
-          <a href="blog/brevard-county-seawall-repair-installation/"
-             class="block h-full bg-neutral-800/50 backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden hover:border-white/30 transition-all hover:-translate-y-1">
-            <div class="p-6">
-              <div class="mb-3">
-                <span class="text-xs uppercase tracking-wider text-white/40 font-medium">
-                  General
-                </span>
-              </div>
-              <h3 class="text-xl font-semibold text-white mb-3 tracking-tight line-clamp-2">
-                Brevard County Shoreline Restoration
-              </h3>
-              <p class="text-white/60 text-sm mb-4 line-clamp-2">
-                Shoreline Restoration
-              </p>
-              <div class="flex items-center text-white/40 text-sm group-hover:text-white/60 transition-colors">
-                <span>Read More</span>
-                <svg class="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                </svg>
-              </div>
-            </div>
-          </a>
-        </div>
-<div class="blog_cms_item group">
-          <a href="blog/coquina-revetment-construction-techniques/"
-             class="block h-full bg-neutral-800/50 backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden hover:border-white/30 transition-all hover:-translate-y-1">
-            <div class="p-6">
-              <div class="mb-3">
-                <span class="text-xs uppercase tracking-wider text-white/40 font-medium">
-                  General
-                </span>
-              </div>
-              <h3 class="text-xl font-semibold text-white mb-3 tracking-tight line-clamp-2">
-                Coquina Revetment Construction Techniques
-              </h3>
-              <p class="text-white/60 text-sm mb-4 line-clamp-2">
-                Coquina revetment is a specialized shoreline protection technique that utilizes coquina, a sedimentary rock composed of 
-              </p>
-              <div class="flex items-center text-white/40 text-sm group-hover:text-white/60 transition-colors">
-                <span>Read More</span>
-                <svg class="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                </svg>
-              </div>
-            </div>
-          </a>
-        </div>
-  </div>
-</div>
-
-        <div class="mt-12 flex justify-center">
-          <a href="blog/"
-             class="group flex items-center gap-3 px-8 py-4 bg-white/10 border border-white/20 text-white rounded-full hover:bg-white/20 transition-all">
-            <span class="font-medium tracking-wide">View All Articles</span>
-            <iconify-icon icon="solar:arrow-right-linear" width="20"></iconify-icon>
-          </a>
-        </div>
-      </div>
-    </section>
 
     <!-- Footer -->
     <footer class="z-10 text-white bg-black border-white/10 border-t pt-16 pr-6 pb-16 pl-6 relative">
