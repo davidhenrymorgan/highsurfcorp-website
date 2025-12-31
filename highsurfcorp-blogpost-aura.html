@@ -1,0 +1,379 @@
+<html lang="en" class="scroll-smooth"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>High Surf Corp - Protecting Your Shoreline</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet">
+    <style>
+      body { font-family: 'Inter', sans-serif; }
+      /* Override previous font classes to ensure Inter is used everywhere */
+      .font-serif, .font-bricolage { font-family: 'Inter', sans-serif !important; }
+      .hide-scrollbar::-webkit-scrollbar { display: none; }
+      .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      /* Global Grid Lines - Adjusted for light mode visibility */
+      .grid-lines {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      max-width: 80rem; 
+      margin: 0 auto;
+      pointer-events: none;
+      z-index: 5;
+      display: flex;
+      justify-content: space-between;
+      padding: 0 1.5rem; 
+      opacity: 0.05;
+      }
+      @media (min-width: 768px) { .grid-lines { padding: 0 3rem; } }
+      .grid-line { width: 1px; height: 100%; background-color: #000; }
+      
+      /* Animation Utilities */
+      @keyframes slideUpFade {
+      0% { opacity: 0; transform: translateY(20px); }
+      100% { opacity: 1; transform: translateY(0); }
+      }
+      .animate-slide-up { animation: slideUpFade 0.8s ease-out forwards; }
+      
+      /* In-view Animation Logic */
+      @keyframes animationIn {
+      0% { opacity: 0; transform: translateY(20px); filter: blur(4px); }
+      100% { opacity: 1; transform: translateY(0); filter: blur(0px); }
+      }
+      
+      .drop-cap::first-letter {
+        float: left;
+        font-size: 4.5rem;
+        line-height: 0.8;
+        font-weight: 600;
+        margin-right: 0.75rem;
+        margin-top: 0.25rem;
+      }
+    </style>
+    <script>
+      (function () {
+      const style = document.createElement("style");
+      style.textContent = `
+      .animate-on-scroll { animation-play-state: paused !important; }
+      .animate-on-scroll.animate { animation-play-state: running !important; }
+      `;
+      document.head.appendChild(style);
+      const once = true;
+      if (!window.__inViewIO) {
+      window.__inViewIO = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+      entry.target.classList.add("animate");
+      if (once) window.__inViewIO.unobserve(entry.target);
+      }
+      });
+      }, { threshold: 0.05, rootMargin: "0px 0px -5% 0px" });
+      }
+      window.initInViewAnimations = function (selector = ".animate-on-scroll") {
+      document.querySelectorAll(selector).forEach((el) => {
+      window.__inViewIO.observe(el);
+      });
+      };
+      document.addEventListener("DOMContentLoaded", () => initInViewAnimations());
+      })();
+    </script>
+</head>
+  <!-- Changed bg to white for blog readability, kept text dark -->
+  <body class="bg-white text-neutral-900 w-full overflow-x-hidden selection:bg-neutral-900 selection:text-white relative font-light antialiased">
+    
+    <!-- Vertical Lines Container (Dark mode adapted) -->
+    <div class="grid-lines">
+      <div class="grid-line"></div>
+      <div class="grid-line hidden md:block"></div>
+      <div class="grid-line hidden md:block"></div>
+      <div class="grid-line"></div>
+    </div>
+
+    <!-- Navigation (Pill Shaped - Dark to contrast with light page) -->
+    <div class="fixed top-6 left-0 right-0 z-50 flex justify-center px-4 animate-slide-up [animation-delay:0.2s] opacity-0">
+      <nav class="w-full max-w-4xl flex items-center justify-between px-2 py-2 pr-6 border border-white/10 bg-neutral-900/95 backdrop-blur-xl rounded-full shadow-2xl transition-all duration-300 text-white">
+        <!-- Logo Area -->
+        <a href="#" class="flex items-center gap-3 pl-4 hover:opacity-80 transition-opacity">
+          <div class="flex text-black bg-white w-8 h-8 rounded-full items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 1280 1024" class="w-[20px] h-[20px]" stroke-width="2" style="width: 20px; height: 20px;">
+              <path fill="currentColor" d="M889.528 963.542c-52.647-.537-99.46-4.81-146.393-6.416-30.117-1.03-60.223-2.424-90.275-4.87-58.234-4.739-115.574-13.54-169.943-36.344-34.842-14.613-66.005-35.168-94.31-59.933-50.112-43.845-91.157-95.007-122.398-153.999-22.13-41.788-36.066-86.341-43.96-132.669-17.712-103.953-.471-200.873 59.483-289.11 44.458-65.43 102.773-114.94 171.06-153.77 34.699-19.73 71.577-32.916 110.212-42.218 51.49-12.398 103.263-22.479 156.497-21.49 69.904 1.3 136.825 15.342 199.073 48.43 16.837 8.949 31.99 20.307 46.017 33.077 35.434 32.258 66.6 68.208 92.096 108.907 2.72 4.342 4.813 9.09 7.031 13.728.675 1.41 1.453 3.194.178 4.64-1.573 1.784-3.507.808-5.168.049-7.585-3.47-13.878-8.676-19.05-15.137-15.2-18.988-31.153-37.212-48.156-54.696-48.923-50.305-109.873-73.384-177.81-82.038-44.126-5.621-87.434-.396-129.71 11.45-39.615 11.1-74.792 31.582-105.706 58.98-51.448 45.599-84.84 102.731-106.158 167.447-12.555 38.112-20.597 77.23-25.257 117.082-7.66 65.517 10.932 122.62 52.823 173.297 37.798 45.726 83.477 81.443 133.944 111.724 67.522 40.515 139.078 71.814 214.572 93.982 49.617 14.569 100.202 25.116 151.347 32.4 28.41 4.046 57.172 5.923 85.927 6.454 43.17.796 85.807-3.638 127.834-13.702 9.805-2.348 19.153-6.062 28.682-9.238 5.1-1.7 10.204-3.47 15.632-3.741 2.791-.14 5.895-.37 7.274 2.849 1.253 2.925-.166 5.492-1.945 7.763-3.933 5.021-9.533 7.458-15.325 9.4-25.923 8.686-51.67 17.978-77.872 25.728-35.842 10.6-70.867 23.761-107.293 32.593-45.652 11.07-91.722 17.624-138.69 18.066-13.31.125-26.586 1.764-34.263 1.325" class=""></path>
+              <path fill="currentColor" d="M16.283 802.634c1.909-29.552 11.155-57.344 20.13-85.156 18.41-57.06 41.302-112.355 66.598-166.656 24.486-52.562 49.295-104.974 74.044-157.414 16.863-35.73 33.866-71.395 50.808-107.088 2.308-4.863 4.548-9.802 8.015-13.956 2.11-2.527 4.14-6.942 8.23-4.561 4.114 2.394 1.448 6.298.044 9.357-3.607 7.86-7.816 15.462-11.112 23.445-22.747 55.09-46.403 109.771-60.416 168.112-19.173 79.826-10.49 156.771 23.03 230.784 48.196 106.42 127.515 182.514 232.14 232.928 11.377 5.482 23.348 9.5 35.469 13.105 4.515 1.343 10.59 2.71 9.812 9.05-.71 5.79-6.564 5.725-11.113 6.534-7.01 1.245-13.962-.47-20.964-.465-52.575.04-105.15-.224-157.724-.21-36.442.01-72.185-6.267-107.671-13.204-40.717-7.96-78.914-23.217-112.407-48.35-29.121-21.852-45.27-51.09-46.897-87.859-.123-2.793-.016-5.597-.016-8.396"></path>
+            </svg>
+          </div>
+          <span class="font-bold text-lg tracking-tight">High Surf Corp</span>
+        </a>
+
+        <!-- Links -->
+        <div class="hidden md:flex items-center gap-8 text-sm font-medium text-white/60">
+          <a href="#" class="text-white hover:text-white transition-colors">Journal</a>
+          <a href="#" class="hover:text-white transition-colors">Case Studies</a>
+          <a href="#" class="hover:text-white transition-colors">Methodology</a>
+          <a href="#" class="hover:text-white transition-colors">Contact</a>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex items-center gap-2">
+           <button class="w-10 h-10 rounded-full flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 transition-colors">
+            <iconify-icon icon="solar:share-linear" width="20"></iconify-icon>
+          </button>
+          <button class="relative w-10 h-10 rounded-full flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 transition-colors group">
+            <iconify-icon icon="solar:menu-dots-square-linear" width="20"></iconify-icon>
+          </button>
+        </div>
+      </nav>
+    </div>
+
+    <!-- Blog Header Section -->
+    <header class="relative pt-32 pb-16 md:pt-48 md:pb-24 px-6">
+      <div class="max-w-7xl mx-auto text-center relative z-10">
+        <!-- Date / Category -->
+        <div class="inline-flex items-center gap-3 px-3 py-1.5 rounded-full border border-neutral-200 bg-neutral-50/50 text-xs font-medium text-neutral-500 mb-8 animate-slide-up [animation-delay:0.3s] opacity-0">
+          <span class="uppercase tracking-wider">Engineering</span>
+          <span class="w-1 h-1 rounded-full bg-neutral-300"></span>
+          <span>October 24, 2023</span>
+        </div>
+
+        <!-- Title -->
+        <h1 class="text-5xl md:text-7xl lg:text-8xl font-semibold tracking-tighter text-neutral-900 mb-8 max-w-5xl mx-auto leading-[0.9] animate-slide-up [animation-delay:0.4s] opacity-0">
+          Protecting Your <br class="hidden md:block">
+          <span class="text-neutral-400">Shoreline.</span>
+        </h1>
+
+        <!-- Author / Meta -->
+        <div class="flex items-center justify-center gap-4 animate-slide-up [animation-delay:0.5s] opacity-0">
+            <div class="w-10 h-10 rounded-full bg-neutral-100 overflow-hidden border border-neutral-200">
+                <img src="https://i.pravatar.cc/150?u=a042581f4e29026024d" alt="Author" class="w-full h-full object-cover opacity-80">
+            </div>
+            <div class="text-left">
+                <p class="text-sm font-medium text-neutral-900 leading-none">Alexander Vane</p>
+                <p class="text-xs text-neutral-500 mt-1">Lead Structural Engineer</p>
+            </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Full Width Hero Image -->
+    <div class="w-full max-w-[95rem] mx-auto px-4 md:px-8 mb-20 md:mb-32 animate-slide-up [animation-delay:0.6s] opacity-0">
+      <div class="relative w-full aspect-[4/3] md:aspect-[21/9] bg-neutral-100 rounded-3xl md:rounded-[2.5rem] overflow-hidden shadow-2xl">
+        <img src="https://pub-8a557d48118e46a38c0007cee5e58bd9.r2.dev/images/High-Surf-Corp-Merritt-Island_1High%20Surf%20Corp%20Merritt%20Island.avif" alt="Shoreline protection engineering" class="w-full h-full object-cover">
+        <!-- Overlay Gradient -->
+        <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none"></div>
+      </div>
+      <div class="mt-4 flex justify-between items-start px-2">
+        <p class="text-xs text-neutral-400 max-w-xs">Figure 1.1 — Coquina revetment installation along the eastern barrier island coast.</p>
+        <div class="hidden md:flex gap-2">
+             <button class="p-2 text-neutral-400 hover:text-neutral-900 transition-colors"><iconify-icon icon="solar:maximize-square-linear" width="20"></iconify-icon></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Article Content -->
+    <article class="relative z-10 px-6 pb-32">
+        <div class="max-w-2xl mx-auto">
+            
+            <!-- Lead Paragraph -->
+            <div class="text-xl md:text-2xl leading-relaxed font-light text-neutral-600 mb-12 animate-on-scroll [animation:animationIn_0.8s_ease-out_0.2s_both]">
+                <p class="drop-cap text-neutral-900">The boundary between land and sea is not a line, but a negotiation.</p>
+                <p>For decades, property owners have relied on rigid vertical structures to define this boundary. But as tides shift and storm surges intensify, the philosophy of resistance is giving way to a more sophisticated approach: dissipation.</p>
+            </div>
+
+            <!-- Divider -->
+            <div class="w-full h-px bg-neutral-100 mb-12 animate-on-scroll"></div>
+
+            <!-- Body Text -->
+            <div class="prose prose-neutral prose-lg text-neutral-600 font-light leading-8">
+                <p class="mb-8 animate-on-scroll [animation:animationIn_0.8s_ease-out_0.3s_both]">
+                    In Brevard County, the unique geological composition of the shoreline demands a specific engineering response. The standard concrete seawall, while effective in calm waters, often creates a "scouring" effect during high-energy events. The wave energy hits the vertical face, reflects downward, and excavates the sand at the toe of the wall. Over time, this undermines the very structure meant to protect the land.
+                </p>
+
+                <h2 class="text-3xl font-semibold tracking-tight text-neutral-900 mt-16 mb-6 animate-on-scroll">The Return to Roughness</h2>
+                
+                <p class="mb-8 animate-on-scroll">
+                    Engineering satisfaction today comes from texture. By introducing <strong>coquina revetments</strong>—sloped structures made of irregular native limestone—we change the physics of the wave impact. Instead of reflecting energy, the porous nature of the rock absorbs it. The water rushes into the voids between the stones, losing velocity and force before it can retreat.
+                </p>
+
+                <blockquote class="my-12 pl-8 border-l-2 border-neutral-900 italic text-2xl text-neutral-900 font-medium tracking-tight animate-on-scroll">
+                    "We are not building walls to stop the ocean. We are building systems to converse with it."
+                </blockquote>
+
+                <p class="mb-8 animate-on-scroll">
+                    This method, known as "living shorelines" in some circles, is more than an ecological preference; it is a structural imperative for longevity. A rigid wall creates a binary failure state: it is either standing, or it has failed. A revetment, however, is adaptive. It can settle, shift slightly, and remain functional.
+                </p>
+
+                <h3 class="text-2xl font-semibold tracking-tight text-neutral-900 mt-12 mb-4 animate-on-scroll">Material Selection</h3>
+                
+                <p class="mb-8 animate-on-scroll">
+                    Not all stone is equal. We source high-density coquina from deep inland quarries, ensuring a calcium carbonate content that naturally cements over time. When placed in the intertidal zone, this rock becomes a substrate for marine life—oysters, barnacles, and algae—which essentially creates a "biocrete" layer, further armoring the shoreline against erosion.
+                </p>
+
+                <!-- In-article Image -->
+                <figure class="my-16 -mx-6 md:-mx-12 animate-on-scroll">
+                    <img src="https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/33b2ce34-6e4a-4514-b20d-7104ecf14efd_320w.webp" alt="Detailed texture of coquina stone" class="w-full h-auto rounded-2xl bg-neutral-100">
+                    <figcaption class="mt-4 text-center text-xs text-neutral-400 uppercase tracking-widest">Fig 2. Travertine &amp; Coquina Composition</figcaption>
+                </figure>
+
+                <p class="mb-8 animate-on-scroll">
+                    The lifespan of these installations exceeds traditional concrete by nearly double, assuming proper maintenance. While the initial footprint is larger—requiring a slope rather than a vertical cut—the reduction in hydrostatic pressure behind the barrier protects the uplands from the sinkholes common behind aging sea walls.
+                </p>
+
+                <p class="mb-8 animate-on-scroll">
+                    Protecting your legacy requires looking beyond the next hurricane season and envisioning the coastline of the next century. It requires materials that don't just resist nature, but emulate its most durable forms.
+                </p>
+            </div>
+
+            <!-- Tags -->
+            <div class="mt-20 pt-8 border-t border-neutral-100 flex flex-wrap gap-2 animate-on-scroll">
+                <span class="px-3 py-1 bg-neutral-50 border border-neutral-200 rounded-full text-xs font-medium text-neutral-500 uppercase tracking-wide">Infrastructure</span>
+                <span class="px-3 py-1 bg-neutral-50 border border-neutral-200 rounded-full text-xs font-medium text-neutral-500 uppercase tracking-wide">Materials</span>
+                <span class="px-3 py-1 bg-neutral-50 border border-neutral-200 rounded-full text-xs font-medium text-neutral-500 uppercase tracking-wide">Sustainability</span>
+            </div>
+
+            <!-- Share -->
+            <div class="mt-12 flex items-center justify-between animate-on-scroll">
+                <div class="flex items-center gap-4">
+                    <button class="w-12 h-12 rounded-full border border-neutral-200 flex items-center justify-center text-neutral-500 hover:border-black hover:text-black transition-all">
+                        <iconify-icon icon="solar:copy-linear" width="20"></iconify-icon>
+                    </button>
+                    <button class="w-12 h-12 rounded-full border border-neutral-200 flex items-center justify-center text-neutral-500 hover:border-black hover:text-black transition-all">
+                        <iconify-icon icon="brandico:twitter-bird" width="18"></iconify-icon>
+                    </button>
+                    <button class="w-12 h-12 rounded-full border border-neutral-200 flex items-center justify-center text-neutral-500 hover:border-black hover:text-black transition-all">
+                        <iconify-icon icon="brandico:linkedin" width="18"></iconify-icon>
+                    </button>
+                </div>
+                <span class="text-sm text-neutral-400 font-medium">Share this article</span>
+            </div>
+
+        </div>
+    </article>
+
+    <!-- Next Article / Related -->
+    <section class="bg-[#f8f8f8] border-t border-neutral-200 py-24 px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex justify-between items-end mb-12">
+                <h3 class="text-2xl font-semibold tracking-tight text-neutral-900">Read Next</h3>
+                <a href="#" class="text-sm font-medium text-neutral-500 hover:text-neutral-900 transition-colors flex items-center gap-2">
+                    View Journal <iconify-icon icon="solar:arrow-right-linear"></iconify-icon>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                 <!-- Related Card 1 -->
+                <a href="#" class="group block">
+                    <div class="aspect-[4/3] bg-white rounded-2xl overflow-hidden mb-6 relative">
+                         <img src="https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/1e4989cc-80c7-45b1-9eb3-3f72b473d778_320w.jpg" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90">
+                    </div>
+                    <div class="flex items-center gap-2 text-xs font-medium text-neutral-400 uppercase tracking-wider mb-2">
+                        <span>Design</span>
+                        <span class="w-1 h-1 rounded-full bg-neutral-300"></span>
+                        <span>Nov 02</span>
+                    </div>
+                    <h4 class="text-lg font-semibold text-neutral-900 leading-tight group-hover:text-neutral-600 transition-colors">
+                        Oxidized Copper: A Study in Patina
+                    </h4>
+                </a>
+
+                <!-- Related Card 2 -->
+                <a href="#" class="group block">
+                    <div class="aspect-[4/3] bg-white rounded-2xl overflow-hidden mb-6 relative">
+                         <img src="https://pub-8a557d48118e46a38c0007cee5e58bd9.r2.dev/images/coquina-wall-barge-access_1coquina%20wall%20barge%20access.avif" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90">
+                    </div>
+                    <div class="flex items-center gap-2 text-xs font-medium text-neutral-400 uppercase tracking-wider mb-2">
+                        <span>Projects</span>
+                        <span class="w-1 h-1 rounded-full bg-neutral-300"></span>
+                        <span>Oct 15</span>
+                    </div>
+                    <h4 class="text-lg font-semibold text-neutral-900 leading-tight group-hover:text-neutral-600 transition-colors">
+                        Industrial Access Points
+                    </h4>
+                </a>
+
+                 <!-- Related Card 3 -->
+                <a href="#" class="group block">
+                    <div class="aspect-[4/3] bg-white rounded-2xl overflow-hidden mb-6 relative">
+                         <img src="https://pub-8a557d48118e46a38c0007cee5e58bd9.r2.dev/images/highsurfcorp-hirams-small.webp" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90">
+                    </div>
+                    <div class="flex items-center gap-2 text-xs font-medium text-neutral-400 uppercase tracking-wider mb-2">
+                        <span>Methodology</span>
+                        <span class="w-1 h-1 rounded-full bg-neutral-300"></span>
+                        <span>Sep 28</span>
+                    </div>
+                    <h4 class="text-lg font-semibold text-neutral-900 leading-tight group-hover:text-neutral-600 transition-colors">
+                        The Physics of Dissipation
+                    </h4>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer (High Surf Corp) -->
+    <footer class="bg-black text-white py-16 px-6 border-t border-white/10 relative z-10">
+      <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
+        <div class="col-span-1 md:col-span-2">
+          <div class="flex items-center gap-3 mb-6">
+            <div class="flex text-black bg-white w-8 h-8 rounded-full items-center justify-center">
+                <!-- Reusing Navbar SVG Logo -->
+                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 1280 1024" class="w-[20px] h-[20px]" stroke-width="2" style="width: 20px; height: 20px;">
+                    <path fill="currentColor" d="M889.528 963.542c-52.647-.537-99.46-4.81-146.393-6.416-30.117-1.03-60.223-2.424-90.275-4.87-58.234-4.739-115.574-13.54-169.943-36.344-34.842-14.613-66.005-35.168-94.31-59.933-50.112-43.845-91.157-95.007-122.398-153.999-22.13-41.788-36.066-86.341-43.96-132.669-17.712-103.953-.471-200.873 59.483-289.11 44.458-65.43 102.773-114.94 171.06-153.77 34.699-19.73 71.577-32.916 110.212-42.218 51.49-12.398 103.263-22.479 156.497-21.49 69.904 1.3 136.825 15.342 199.073 48.43 16.837 8.949 31.99 20.307 46.017 33.077 35.434 32.258 66.6 68.208 92.096 108.907 2.72 4.342 4.813 9.09 7.031 13.728.675 1.41 1.453 3.194.178 4.64-1.573 1.784-3.507.808-5.168.049-7.585-3.47-13.878-8.676-19.05-15.137-15.2-18.988-31.153-37.212-48.156-54.696-48.923-50.305-109.873-73.384-177.81-82.038-44.126-5.621-87.434-.396-129.71 11.45-39.615 11.1-74.792 31.582-105.706 58.98-51.448 45.599-84.84 102.731-106.158 167.447-12.555 38.112-20.597 77.23-25.257 117.082-7.66 65.517 10.932 122.62 52.823 173.297 37.798 45.726 83.477 81.443 133.944 111.724 67.522 40.515 139.078 71.814 214.572 93.982 49.617 14.569 100.202 25.116 151.347 32.4 28.41 4.046 57.172 5.923 85.927 6.454 43.17.796 85.807-3.638 127.834-13.702 9.805-2.348 19.153-6.062 28.682-9.238 5.1-1.7 10.204-3.47 15.632-3.741 2.791-.14 5.895-.37 7.274 2.849 1.253 2.925-.166 5.492-1.945 7.763-3.933 5.021-9.533 7.458-15.325 9.4-25.923 8.686-51.67 17.978-77.872 25.728-35.842 10.6-70.867 23.761-107.293 32.593-45.652 11.07-91.722 17.624-138.69 18.066-13.31.125-26.586 1.764-34.263 1.325" class=""></path>
+                    <path fill="currentColor" d="M16.283 802.634c1.909-29.552 11.155-57.344 20.13-85.156 18.41-57.06 41.302-112.355 66.598-166.656 24.486-52.562 49.295-104.974 74.044-157.414 16.863-35.73 33.866-71.395 50.808-107.088 2.308-4.863 4.548-9.802 8.015-13.956 2.11-2.527 4.14-6.942 8.23-4.561 4.114 2.394 1.448 6.298.044 9.357-3.607 7.86-7.816 15.462-11.112 23.445-22.747 55.09-46.403 109.771-60.416 168.112-19.173 79.826-10.49 156.771 23.03 230.784 48.196 106.42 127.515 182.514 232.14 232.928 11.377 5.482 23.348 9.5 35.469 13.105 4.515 1.343 10.59 2.71 9.812 9.05-.71 5.79-6.564 5.725-11.113 6.534-7.01 1.245-13.962-.47-20.964-.465-52.575.04-105.15-.224-157.724-.21-36.442.01-72.185-6.267-107.671-13.204-40.717-7.96-78.914-23.217-112.407-48.35-29.121-21.852-45.27-51.09-46.897-87.859-.123-2.793-.016-5.597-.016-8.396"></path>
+                </svg>
+            </div>
+            <h2 class="text-2xl font-bold tracking-tight">High Surf Corp</h2>
+          </div>
+          <p class="text-white/50 max-w-sm mb-8 font-light leading-relaxed">
+            Engineering resilience where the ocean meets the earth. Sustainable shoreline protection for the modern coast.
+          </p>
+
+          <div class="flex gap-4">
+            <input type="email" placeholder="Email address" class="bg-white/5 border border-white/10 rounded-full px-6 py-3 w-64 focus:outline-none focus:border-white/30 transition-colors placeholder:text-white/20 font-light">
+            <button class="bg-white text-black px-6 py-3 rounded-full font-medium hover:bg-neutral-200 transition-colors">
+              Subscribe
+            </button>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-4">
+          <h4 class="font-bold tracking-tight text-lg mb-2">Explore</h4>
+          <a href="#" class="text-white/60 hover:text-white transition-colors font-light">
+            About Us
+          </a>
+          <a href="#" class="text-white/60 hover:text-white transition-colors font-light">
+            Our Services
+          </a>
+          <a href="#" class="text-white/60 hover:text-white transition-colors font-light">
+            Methodology
+          </a>
+          <a href="#" class="text-white/60 hover:text-white transition-colors font-light">
+            Journal
+          </a>
+        </div>
+
+        <div class="flex flex-col gap-4">
+          <h4 class="font-bold tracking-tight text-lg mb-2">Company</h4>
+          <a href="#" class="text-white/60 hover:text-white transition-colors font-light">
+            Contact
+          </a>
+          <a href="#" class="text-white/60 hover:text-white transition-colors font-light">
+            Careers
+          </a>
+          <a href="#" class="text-white/60 hover:text-white transition-colors font-light">
+            Privacy Policy
+          </a>
+          <a href="#" class="text-white/60 hover:text-white transition-colors font-light">
+            Terms of Service
+          </a>
+        </div>
+      </div>
+
+      <div class="max-w-7xl mx-auto mt-16 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center text-sm text-white/40 font-light">
+        <p>© 2024 High Surf Corp. All rights reserved.</p>
+        <div class="flex gap-6 mt-4 md:mt-0">
+            <a href="#" class="hover:text-white transition-colors"><iconify-icon icon="brandico:twitter-bird" width="16"></iconify-icon></a>
+            <a href="#" class="hover:text-white transition-colors"><iconify-icon icon="brandico:instagram" width="16"></iconify-icon></a>
+            <a href="#" class="hover:text-white transition-colors"><iconify-icon icon="brandico:linkedin" width="16"></iconify-icon></a>
+        </div>
+      </div>
+    </footer>
+  
+</body></html>

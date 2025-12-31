@@ -17,6 +17,10 @@ const TOPICS_CSV = path.join(
 const OUTPUT_DIR = path.join(__dirname, "dist/blog");
 const INDEX_HTML = path.join(__dirname, "dist/index.html");
 
+// Font links for blog pages (removed from homepage for performance)
+// Blog pages use various font classes from Webflow, so they need all fonts
+const BLOG_FONTS = `<link id="all-fonts-link-font-geist" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&display=swap"><style id="all-fonts-style-font-geist">.font-geist { font-family: 'Geist', sans-serif !important; }</style><link id="all-fonts-link-font-roboto" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap"><style id="all-fonts-style-font-roboto">.font-roboto { font-family: 'Roboto', sans-serif !important; }</style><link id="all-fonts-link-font-montserrat" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap"><style id="all-fonts-style-font-montserrat">.font-montserrat { font-family: 'Montserrat', sans-serif !important; }</style><link id="all-fonts-link-font-poppins" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"><style id="all-fonts-style-font-poppins">.font-poppins { font-family: 'Poppins', sans-serif !important; }</style><link id="all-fonts-link-font-playfair" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;900&display=swap"><style id="all-fonts-style-font-playfair">.font-playfair { font-family: 'Playfair Display', serif !important; }</style><link id="all-fonts-link-font-instrument-serif" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:wght@400;500;600;700&display=swap"><style id="all-fonts-style-font-instrument-serif">.font-instrument-serif { font-family: 'Instrument Serif', serif !important; }</style><link id="all-fonts-link-font-merriweather" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700;900&display=swap"><style id="all-fonts-style-font-merriweather">.font-merriweather { font-family: 'Merriweather', serif !important; }</style><link id="all-fonts-link-font-bricolage" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@300;400;500;600;700&display=swap"><style id="all-fonts-style-font-bricolage">.font-bricolage { font-family: 'Bricolage Grotesque', sans-serif !important; }</style><link id="all-fonts-link-font-jakarta" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"><style id="all-fonts-style-font-jakarta">.font-jakarta { font-family: 'Plus Jakarta Sans', sans-serif !important; }</style><link id="all-fonts-link-font-manrope" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap"><style id="all-fonts-style-font-manrope">.font-manrope { font-family: 'Manrope', sans-serif !important; }</style><link id="all-fonts-link-font-space-grotesk" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap"><style id="all-fonts-style-font-space-grotesk">.font-space-grotesk { font-family: 'Space Grotesk', sans-serif !important; }</style><link id="all-fonts-link-font-work-sans" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700;800&display=swap"><style id="all-fonts-style-font-work-sans">.font-work-sans { font-family: 'Work Sans', sans-serif !important; }</style><link id="all-fonts-link-font-pt-serif" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=PT+Serif:wght@400;700&display=swap"><style id="all-fonts-style-font-pt-serif">.font-pt-serif { font-family: 'PT Serif', serif !important; }</style><link id="all-fonts-link-font-geist-mono" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500;600;700&display=swap"><style id="all-fonts-style-font-geist-mono">.font-geist-mono { font-family: 'Geist Mono', monospace !important; }</style><link id="all-fonts-link-font-space-mono" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap"><style id="all-fonts-style-font-space-mono">.font-space-mono { font-family: 'Space Mono', monospace !important; }</style><link id="all-fonts-link-font-quicksand" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap"><style id="all-fonts-style-font-quicksand">.font-quicksand { font-family: 'Quicksand', sans-serif !important; }</style><link id="all-fonts-link-font-nunito" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800&display=swap"><style id="all-fonts-style-font-nunito">.font-nunito { font-family: 'Nunito', sans-serif !important; }</style><link id="all-fonts-link-font-newsreader" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400..800&display=swap"><style id="all-fonts-style-font-newsreader">.font-newsreader { font-family: 'Newsreader', serif !important; }</style><link id="all-fonts-link-font-google-sans-flex" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400;500;600;700&display=swap"><style id="all-fonts-style-font-google-sans-flex">.font-google-sans-flex { font-family: 'Google Sans Flex', sans-serif !important; }</style><link id="all-fonts-link-font-oswald" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&display=swap"><style id="all-fonts-style-font-oswald">.font-oswald { font-family: 'Oswald', sans-serif !important; }</style><link id="all-fonts-link-font-dm-sans" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap"><style id="all-fonts-style-font-dm-sans">.font-dm-sans { font-family: 'DM Sans', sans-serif !important; }</style>`;
+
 // Parse CSV line (simple parser for quoted fields)
 function parseCSVLine(line) {
   const result = [];
@@ -189,9 +193,9 @@ async function readCSV(filePath) {
 function extractNavigation() {
   const indexHTML = fs.readFileSync(INDEX_HTML, "utf-8");
 
-  // Extract header navigation
+  // Extract Tailwind navigation (pill-shaped fixed nav)
   const navMatch = indexHTML.match(
-    /<header class="nav_wrap"[\s\S]*?<\/header>/,
+    /<div class="fixed top-6[\s\S]*?<\/nav>[\s\S]*?<\/div>/,
   );
   const headerNav = navMatch ? navMatch[0] : "";
 
@@ -294,6 +298,7 @@ function generateBlogIndex(posts, topics, { headerNav, footer, head }) {
   <meta property="og:type" content="website">
   <meta content="width=device-width, initial-scale=1" name="viewport">
   ${head}
+  ${BLOG_FONTS}
 </head>
 <body>
   <div class="page_wrap">
@@ -360,6 +365,7 @@ function generatePostPage(post, { headerNav, footer, head }) {
   <meta property="article:published_time" content="${post["Published On"]}">
   <meta content="width=device-width, initial-scale=1" name="viewport">
   ${head}
+  ${BLOG_FONTS}
   <style>
     .blog-post-content h2 {
       font-size: var(--h3--font-size);
@@ -495,35 +501,42 @@ function generateHomepageBlogSection(posts) {
         post["Short preview"] ||
         post["Meta description"] ||
         ""
-      ).slice(0, 100);
+      ).slice(0, 120);
 
       return `
-                <div role="listitem" class="blog_cms_item">
-                  <a tr-ajaxmodal-element="cms-link" data-theme="invert" href="blog/${post.Slug}/" class="blog_card_wrap u-vflex-left-between u-gap-medium w-inline-block">
-                    <div class="blog_card_header u-vflex-left-top u-gap-small">
-                      <div class="g_tag_wrap u-color-brand">${category}</div>
-                      <div class="blog_card_title u-text-large u-weight-medium">${post.Name}</div>
-                    </div>
-                    <div class="g_link-title_wrap u-hflex-between-center u-hflex-nowrap u-gap-xsmall">
-                      <div class="g_link-title_text u-line-clamp-2">${excerpt}</div>
-                      <div class="g_link-title_icon"><svg xmlns="http://www.w3.org/2000/svg" width="100%" viewbox="0 0 18 19" fill="none">
-                          <path d="M1 17.4981L17 1.49811" stroke="currentColor" stroke-width="var(--svg-stroke-width--main)" stroke-miterlimit="10" vector-effect="non-scaling-stroke"></path>
-                          <path d="M16.9999 13.5407C16.9999 13.5407 13.1927 8.68158 16.9999 1.49811C9.81639 5.30525 4.95728 1.49811 4.95728 1.49811" stroke="currentColor" stroke-width="var(--svg-stroke-width--main)" stroke-linejoin="bevel" vector-effect="non-scaling-stroke"></path>
-                        </svg></div>
-                    </div>
-                  </a>
-                </div>
+        <div class="blog_cms_item group">
+          <a href="blog/${post.Slug}/"
+             class="block h-full bg-neutral-800/50 backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden hover:border-white/30 transition-all hover:-translate-y-1">
+            <div class="p-6">
+              <div class="mb-3">
+                <span class="text-xs uppercase tracking-wider text-white/40 font-medium">
+                  ${category}
+                </span>
+              </div>
+              <h3 class="text-xl font-semibold text-white mb-3 tracking-tight line-clamp-2">
+                ${post.Name}
+              </h3>
+              <p class="text-white/60 text-sm mb-4 line-clamp-2">
+                ${excerpt}
+              </p>
+              <div class="flex items-center text-white/40 text-sm group-hover:text-white/60 transition-colors">
+                <span>Read More</span>
+                <svg class="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+              </div>
+            </div>
+          </a>
+        </div>
       `.trim();
     })
     .join("\n");
 
-  return `
-            <div class="blog_cms_wrap">
-              <div role="list" class="blog_cms_list u-grid-column-3">
+  return `<div class="blog_cms_wrap">
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
 ${blogCardsHTML}
-              </div>
-            </div>
-  `.trim();
+  </div>
+</div>`.trim();
 }
 
 // Update homepage with blog posts
@@ -531,18 +544,28 @@ function updateHomepageWithBlogPosts(posts) {
   const indexPath = INDEX_HTML;
   let indexHTML = fs.readFileSync(indexPath, "utf-8");
 
-  // Find and replace the blog section (lines 901-922)
-  const blogSectionStart = indexHTML.indexOf(
-    '<div class="blog_cms_wrap w-dyn-list">',
-  );
-  const blogSectionEnd = indexHTML.indexOf(
-    "</div>\n          </div>\n        </div>\n      </section>\n      <footer",
-    blogSectionStart,
-  );
+  // Find blog section (Tailwind version)
+  const blogSectionStart = indexHTML.indexOf('<div class="blog_cms_wrap">');
 
-  if (blogSectionStart === -1 || blogSectionEnd === -1) {
+  if (blogSectionStart === -1) {
     console.log("⚠️  Could not find blog section in homepage");
     return;
+  }
+
+  // Find the closing </div> for blog_cms_wrap
+  let depth = 0;
+  let blogSectionEnd = blogSectionStart + '<div class="blog_cms_wrap">'.length;
+
+  for (let i = blogSectionEnd; i < indexHTML.length; i++) {
+    if (indexHTML.substr(i, 5) === "<div ") {
+      depth++;
+    } else if (indexHTML.substr(i, 6) === "</div>") {
+      if (depth === 0) {
+        blogSectionEnd = i + 6;
+        break;
+      }
+      depth--;
+    }
   }
 
   const newBlogSection = generateHomepageBlogSection(posts);
