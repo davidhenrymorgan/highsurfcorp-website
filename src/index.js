@@ -66,33 +66,16 @@ function escapeHtml(str) {
 // ============================================================================
 
 /**
- * Create an HTML response with caching headers and optional gzip compression
+ * Create an HTML response with caching headers
+ * Note: Cloudflare automatically applies gzip/brotli compression at the edge
  */
-function htmlResponse(html, cacheSeconds = 3600, request = null) {
-  const headers = {
-    "Content-Type": "text/html; charset=utf-8",
-    "Cache-Control": `public, max-age=${cacheSeconds}`,
-    Vary: "Accept-Encoding",
-  };
-
-  // Check if client accepts gzip
-  const acceptEncoding = request?.headers?.get("Accept-Encoding") || "";
-  if (acceptEncoding.includes("gzip")) {
-    // Compress with gzip using CompressionStream
-    const encoder = new TextEncoder();
-    const stream = new ReadableStream({
-      start(controller) {
-        controller.enqueue(encoder.encode(html));
-        controller.close();
-      },
-    });
-    const compressedStream = stream.pipeThrough(new CompressionStream("gzip"));
-    headers["Content-Encoding"] = "gzip";
-    return new Response(compressedStream, { headers });
-  }
-
-  // Return uncompressed if gzip not supported
-  return new Response(html, { headers });
+function htmlResponse(html, cacheSeconds = 3600) {
+  return new Response(html, {
+    headers: {
+      "Content-Type": "text/html; charset=utf-8",
+      "Cache-Control": `public, max-age=${cacheSeconds}`,
+    },
+  });
 }
 
 /**
@@ -473,7 +456,7 @@ async function handleStaticPageWithComponents(request, env, pathname, ctx) {
   // Inject mobile menu script before </body>
   html = html.replace("</body>", ctx.mobileMenuScript + "</body>");
 
-  return htmlResponse(html, 3600, request);
+  return htmlResponse(html, 3600);
 }
 
 // ============================================================================
@@ -948,7 +931,7 @@ async function handleBlogPost(request, url, env, ctx) {
     // Render template with context (with gzip compression)
     const html = renderBlogPost(post, related.results, ctx);
 
-    return htmlResponse(html, 3600, request);
+    return htmlResponse(html, 3600);
   } catch (err) {
     // Database errors throw with status 503
     if (err.status === 503) {
@@ -992,7 +975,7 @@ async function handleBlogIndex(request, env, ctx) {
     const pagination = { page, totalPages, totalPosts };
     const html = renderBlogIndex(posts.results, ctx, pagination);
 
-    return htmlResponse(html, 1800, request);
+    return htmlResponse(html, 1800);
   } catch (err) {
     // Database errors throw with status 503
     if (err.status === 503) {
