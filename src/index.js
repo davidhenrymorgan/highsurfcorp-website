@@ -191,7 +191,7 @@ function getBlogPostTemplate() {
 
         <div class="hidden md:flex items-center gap-8 text-sm font-medium text-white/60">
           <a href="/" class="hover:text-white transition-colors">Home</a>
-          <a href="/#projects" class="hover:text-white transition-colors">Projects</a>
+          <a href="/#process" class="hover:text-white transition-colors">Our Process</a>
           <a href="/blog" class="text-white hover:text-white transition-colors">Blog</a>
           <a href="/contact/brevard-county-free-estimate.html" class="hover:text-white transition-colors">Free Estimate</a>
         </div>
@@ -330,7 +330,7 @@ function getBlogPostTemplate() {
         <div class="flex flex-col gap-4">
           <h4 class="font-bold tracking-tight text-lg mb-2">High Surf Corp</h4>
           <a href="/" class="text-white/60 hover:text-white transition-colors font-light">Home</a>
-          <a href="/#projects" class="text-white/60 hover:text-white transition-colors font-light">Projects</a>
+          <a href="/#process" class="text-white/60 hover:text-white transition-colors font-light">Our Process</a>
           <a href="/blog" class="text-white/60 hover:text-white transition-colors font-light">Blog</a>
           <a href="/contact/brevard-county-free-estimate.html" class="text-white/60 hover:text-white transition-colors font-light">Free Estimate</a>
         </div>
@@ -425,7 +425,7 @@ function getBlogIndexTemplate() {
 
         <div class="hidden md:flex items-center gap-8 text-sm font-medium text-white/60">
           <a href="/" class="hover:text-white transition-colors">Home</a>
-          <a href="/#projects" class="hover:text-white transition-colors">Projects</a>
+          <a href="/#process" class="hover:text-white transition-colors">Our Process</a>
           <a href="/blog" class="text-white hover:text-white transition-colors">Blog</a>
           <a href="/contact/brevard-county-free-estimate.html" class="hover:text-white transition-colors">Free Estimate</a>
         </div>
@@ -494,7 +494,7 @@ function getBlogIndexTemplate() {
         <div class="flex flex-col gap-4">
           <h4 class="font-bold tracking-tight text-lg mb-2">High Surf Corp</h4>
           <a href="/" class="text-white/60 hover:text-white transition-colors font-light">Home</a>
-          <a href="/#projects" class="text-white/60 hover:text-white transition-colors font-light">Projects</a>
+          <a href="/#process" class="text-white/60 hover:text-white transition-colors font-light">Our Process</a>
           <a href="/blog" class="text-white/60 hover:text-white transition-colors font-light">Blog</a>
           <a href="/contact/brevard-county-free-estimate.html" class="text-white/60 hover:text-white transition-colors font-light">Free Estimate</a>
         </div>

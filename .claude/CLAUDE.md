@@ -321,9 +321,23 @@ D1 Database (highsurf-cms):    # Blog content stored in Cloudflare D1
 - Added `scripts/fix-image-urls.js` for URL transformation utility
 - Worker routes: `/blog` (index) and `/blog/:slug` (individual posts)
 
+**Homepage Sections Reorganization (December 31, 2025):**
+- **Blog Section** (id="blog", light background): Now displays 3 featured blog post cards
+  - Large image cards with hover effects, category badges, "Read Article" CTA
+  - Links directly to blog posts, "View All Articles" button to /blog
+  - Header: "From Our Blog" with "Latest Insights" subtitle
+- **Our Process Section** (id="process", dark background): New section with 3 process cards
+  - Step 1: Property Assessment - professional analysis before determining seawall candidacy
+  - Step 2: Materials & Approach - materials/design discussion, land vs barge installation with hydraulic grapple claw
+  - Step 3: Proposal & Permitting - detailed estimate, permitting process (weeks to months)
+  - "Get Your Free Assessment" CTA button
+- Navigation updated across all pages: "Projects" → "Our Process" (→ #process)
+- Hero "Explore Portfolio" → "Explore Our Blog" (→ #blog)
+- Removed Careers section (leftover template content)
+- Homepage structure now: Hero → Blog Posts (light) → Our Process (dark) → Contact → Footer
+
 **Template Standardization (December 31, 2025):**
 - Removed old Velos "Material/Spec List" section (VOL. III) from homepage
-- Moved blog section higher on homepage (now after Projects section)
 - Standardized footer across all pages (homepage, blog index, blog posts):
   - Full High Surf Corp wordmark logo (viewBox="0 0 242.44 61.96")
   - Newsletter signup with email input and "Connect" button
@@ -331,11 +345,9 @@ D1 Database (highsurf-cms):    # Blog content stored in Cloudflare D1
   - Four-column layout: Logo/Newsletter, High Surf Corp, Contact, Legal
   - Copyright: "© 2026 High Surf Corp. All Rights Reserved."
 - Standardized navigation across blog pages (blog post and blog index):
-  - Links: Home, Projects, Blog, Free Estimate
+  - Links: Home, Our Process, Blog, Free Estimate
   - Added "Get a Quote" CTA button (matching homepage style)
-- Fixed broken Gallery link (was pointing to deleted coquina-rock-revetment.html)
-  - Changed to Projects link pointing to `/#projects` anchor on homepage
-- Homepage structure now: Hero → Projects → Blog → Careers → Contact → Footer
+- Fixed broken links across all pages (contact, legal) to use #process anchor
 
 **Homepage Rebuild:**
 - Replaced Webflow-based homepage with modern Tailwind CSS design
