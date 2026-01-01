@@ -100,6 +100,43 @@ function errorResponse(message, status, logDetail = null) {
   return new Response(message, { status });
 }
 
+/**
+ * Safe database query wrapper - catches D1 errors and returns 503
+ * Never leaks SQL syntax to users
+ */
+async function safeDbQuery(db, sql, params = []) {
+  try {
+    const stmt = db.prepare(sql);
+    if (params.length > 0) {
+      return await stmt.bind(...params).all();
+    }
+    return await stmt.all();
+  } catch (err) {
+    console.error("D1 Database Error:", { message: err.message, sql });
+    const error = new Error("Database unavailable");
+    error.status = 503;
+    throw error;
+  }
+}
+
+/**
+ * Safe database query for single result
+ */
+async function safeDbFirst(db, sql, params = []) {
+  try {
+    const stmt = db.prepare(sql);
+    if (params.length > 0) {
+      return await stmt.bind(...params).first();
+    }
+    return await stmt.first();
+  } catch (err) {
+    console.error("D1 Database Error:", { message: err.message, sql });
+    const error = new Error("Database unavailable");
+    error.status = 503;
+    throw error;
+  }
+}
+
 // ============================================================================
 // REQUEST CONTEXT
 // ============================================================================
@@ -842,58 +879,76 @@ function renderBlogIndex(posts, ctx) {
 // ============================================================================
 
 async function handleBlogPost(url, env, ctx) {
-  // Initialize context (renders nav/footer once)
-  initContext(ctx);
+  try {
+    // Initialize context (renders nav/footer once)
+    initContext(ctx);
 
-  const slug = url.pathname.split("/blog/")[1].replace(/\/$/, "");
+    const slug = url.pathname.split("/blog/")[1].replace(/\/$/, "");
 
-  if (!slug) {
-    return handleBlogIndex(env, ctx);
+    if (!slug) {
+      return handleBlogIndex(env, ctx);
+    }
+
+    // Query post from D1 (safe - never leaks SQL errors)
+    const post = await safeDbFirst(
+      env.DB,
+      "SELECT * FROM posts WHERE slug = ? AND draft = 0 AND archived = 0",
+      [slug],
+    );
+
+    if (!post) {
+      return errorResponse("Post not found", 404);
+    }
+
+    // Query related posts (safe - never leaks SQL errors)
+    const related = await safeDbQuery(
+      env.DB,
+      `SELECT slug, title, thumbnail_image, hero_image, category, short_tag, published_at
+       FROM posts
+       WHERE slug != ? AND draft = 0 AND archived = 0
+       ORDER BY published_at DESC
+       LIMIT 3`,
+      [slug],
+    );
+
+    // Render template with context
+    const html = renderBlogPost(post, related.results, ctx);
+
+    return htmlResponse(html);
+  } catch (err) {
+    // Database errors throw with status 503
+    if (err.status === 503) {
+      return errorResponse("Service temporarily unavailable", 503);
+    }
+    // Re-throw unexpected errors
+    throw err;
   }
-
-  // Query post from D1
-  const post = await env.DB.prepare(
-    "SELECT * FROM posts WHERE slug = ? AND draft = 0 AND archived = 0",
-  )
-    .bind(slug)
-    .first();
-
-  if (!post) {
-    return errorResponse("Post not found", 404);
-  }
-
-  // Query related posts
-  const related = await env.DB.prepare(
-    `SELECT slug, title, thumbnail_image, hero_image, category, short_tag, published_at
-     FROM posts
-     WHERE slug != ? AND draft = 0 AND archived = 0
-     ORDER BY published_at DESC
-     LIMIT 3`,
-  )
-    .bind(slug)
-    .all();
-
-  // Render template with context
-  const html = renderBlogPost(post, related.results, ctx);
-
-  return htmlResponse(html);
 }
 
 async function handleBlogIndex(env, ctx) {
-  // Initialize context (renders nav/footer once)
-  initContext(ctx);
+  try {
+    // Initialize context (renders nav/footer once)
+    initContext(ctx);
 
-  // Query all posts
-  const posts = await env.DB.prepare(
-    `SELECT slug, title, thumbnail_image, hero_image, category, short_tag, short_preview, published_at, featured
-     FROM posts
-     WHERE draft = 0 AND archived = 0
-     ORDER BY published_at DESC`,
-  ).all();
+    // Query all posts (safe - never leaks SQL errors)
+    const posts = await safeDbQuery(
+      env.DB,
+      `SELECT slug, title, thumbnail_image, hero_image, category, short_tag, short_preview, published_at, featured
+       FROM posts
+       WHERE draft = 0 AND archived = 0
+       ORDER BY published_at DESC`,
+    );
 
-  const html = renderBlogIndex(posts.results, ctx);
+    const html = renderBlogIndex(posts.results, ctx);
 
-  return htmlResponse(html, 1800);
+    return htmlResponse(html, 1800);
+  } catch (err) {
+    // Database errors throw with status 503
+    if (err.status === 503) {
+      return errorResponse("Service temporarily unavailable", 503);
+    }
+    throw err;
+  }
 }
 
 // ============================================================================
