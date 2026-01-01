@@ -1,7 +1,7 @@
 -- =============================================
 -- High Surf Corp CMS Seed Data for Cloudflare D1
 -- Database: highsurf-cms
--- Generated: 2025-12-30T21:48:06.436Z
+-- Generated: 2026-01-01T22:03:46.679Z
 -- =============================================
 
 -- Insert Topics (65 records)
@@ -592,12 +592,13 @@ INSERT INTO topics (id, name, slug, created_at, updated_at, published_at) VALUES
 
 
 -- Insert Posts (23 records)
-INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, featured, short_preview, title_variation, meta_description, category, body, seo_description, introduction, description_variation, archived, draft, created_at, updated_at, published_at) VALUES (
+INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, hero_image_url, featured, short_preview, title_variation, meta_description, category, body, seo_description, introduction, description_variation, archived, draft, created_at, updated_at, published_at) VALUES (
   '68fc859a95b7d8d6466cceec',
   '6 Steps: Installing a Coquina Rip Rap Shoreline',
   'the-complete-guide-to-installing-a-coquina-rip-rap-seawall',
   '101',
   'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466ccf5c_66acbea9daf293df2737a9ad_6691e5983938d1b973cc92b3_coquina%252520rock%252520revetment01%252520(1).jpeg',
+  'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466ccf5a_66acbea9daf293df2737a9a7_6691e593c4cef4c48e1a4b99_coquina%252520rock%252520revetment-10890px%252520(1).jpeg',
   'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466ccf5a_66acbea9daf293df2737a9a7_6691e593c4cef4c48e1a4b99_coquina%252520rock%252520revetment-10890px%252520(1).jpeg',
   0,
   'Benefits of Coquina Seawalls',
@@ -615,12 +616,13 @@ INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, feat
   'Wed Nov 05 2025 08:59:16 GMT+0000 (Coordinated Universal Time)'
 );
 
-INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, featured, short_preview, title_variation, meta_description, category, body, seo_description, introduction, description_variation, archived, draft, created_at, updated_at, published_at) VALUES (
+INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, hero_image_url, featured, short_preview, title_variation, meta_description, category, body, seo_description, introduction, description_variation, archived, draft, created_at, updated_at, published_at) VALUES (
   '68fc859a95b7d8d6466cced7',
   'Brevard County Shoreline Restoration',
   'brevard-county-seawall-repair-installation',
   NULL,
   'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466ccf3c_66acbeaaed06071358ebccb5_665fb6ab5df2b704b56617d0_Merrit%252520Island%252520Coquina%252520Seawall.webp',
+  'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466ccf38_66acbeaaed06071358ebccb1_66aab25bf633c32a18abbd7b_Coquina%252520Seawall%252520Merritt%252520Island%252520Florida.webp',
   'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466ccf38_66acbeaaed06071358ebccb1_66aab25bf633c32a18abbd7b_Coquina%252520Seawall%252520Merritt%252520Island%252520Florida.webp',
   0,
   'Shoreline Restoration',
@@ -638,11 +640,12 @@ INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, feat
   'Wed Nov 05 2025 08:59:16 GMT+0000 (Coordinated Universal Time)'
 );
 
-INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, featured, short_preview, title_variation, meta_description, category, body, seo_description, introduction, description_variation, archived, draft, created_at, updated_at, published_at) VALUES (
+INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, hero_image_url, featured, short_preview, title_variation, meta_description, category, body, seo_description, introduction, description_variation, archived, draft, created_at, updated_at, published_at) VALUES (
   '68fc859a95b7d8d6466ccf03',
   'Coquina Revetment Construction Techniques',
   'coquina-revetment-construction-techniques',
   'Construction',
+  'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466ccf59_66e2fbcb16794d63f064ba3b_66acbea892d49194f8f8e829_6691dcc379e22a360a043601_665fabd9acac3f992d97704d_Rock_20Job_20Card-2topaz-enhance-2.9x.jpeg',
   'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466ccf59_66e2fbcb16794d63f064ba3b_66acbea892d49194f8f8e829_6691dcc379e22a360a043601_665fabd9acac3f992d97704d_Rock_20Job_20Card-2topaz-enhance-2.9x.jpeg',
   'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466ccf59_66e2fbcb16794d63f064ba3b_66acbea892d49194f8f8e829_6691dcc379e22a360a043601_665fabd9acac3f992d97704d_Rock_20Job_20Card-2topaz-enhance-2.9x.jpeg',
   0,
@@ -661,12 +664,13 @@ INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, feat
   'Wed Nov 05 2025 08:59:16 GMT+0000 (Coordinated Universal Time)'
 );
 
-INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, featured, short_preview, title_variation, meta_description, category, body, seo_description, introduction, description_variation, archived, draft, created_at, updated_at, published_at) VALUES (
+INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, hero_image_url, featured, short_preview, title_variation, meta_description, category, body, seo_description, introduction, description_variation, archived, draft, created_at, updated_at, published_at) VALUES (
   '68fc859a95b7d8d6466ccf00',
   'Coquina Revetments - Brevard County Waterfront Homeowners',
   'coquina-revetments---brevard-county-waterfront-homeowners',
   'Coquina Rock Revetment',
   'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466ccf60_66acbea89b20eb25841956ba_66a328b8bad39cc346b392bb_coquina%252520revetments%2525201920px-min.jpeg',
+  'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466ccf61_66acbea89b20eb25841956b6_66a328b488ff884d0fdf6347_Coquina%252520revetments-min.jpeg',
   'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466ccf61_66acbea89b20eb25841956b6_66a328b488ff884d0fdf6347_Coquina%252520revetments-min.jpeg',
   1,
   'Coquina Rock Seawalls: The Ultimate Guide for Brevard County Waterfront Property Owners',
@@ -684,12 +688,13 @@ INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, feat
   'Wed Nov 05 2025 08:59:16 GMT+0000 (Coordinated Universal Time)'
 );
 
-INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, featured, short_preview, title_variation, meta_description, category, body, seo_description, introduction, description_variation, archived, draft, created_at, updated_at, published_at) VALUES (
+INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, hero_image_url, featured, short_preview, title_variation, meta_description, category, body, seo_description, introduction, description_variation, archived, draft, created_at, updated_at, published_at) VALUES (
   '68fc859a95b7d8d6466ccecf',
   'Coquina Rock vs. Other Materials: Why It’s Ideal for Shorelines',
   'coquina-rock-why-its-ideal-for-seawalls',
   NULL,
   'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466cce8d_66acbead0b2d2162648c4c0e_665fba8bfd3595d238f3264c_Upfront%252520Pricing%252520Coquina%252520Seawall%252520Installers-1.webp',
+  'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466cce62_66acbead0b2d2162648c4c0a_665b9ce499da99dfe43df63a_oquina%252520rock.webp',
   'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466cce62_66acbead0b2d2162648c4c0a_665b9ce499da99dfe43df63a_oquina%252520rock.webp',
   0,
   'What Is Coquina Rock?',
@@ -707,12 +712,13 @@ INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, feat
   'Wed Nov 05 2025 08:59:16 GMT+0000 (Coordinated Universal Time)'
 );
 
-INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, featured, short_preview, title_variation, meta_description, category, body, seo_description, introduction, description_variation, archived, draft, created_at, updated_at, published_at) VALUES (
+INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, hero_image_url, featured, short_preview, title_variation, meta_description, category, body, seo_description, introduction, description_variation, archived, draft, created_at, updated_at, published_at) VALUES (
   '68fc859a95b7d8d6466cceeb',
   'Crushed Coquina Landscaping',
   'crushed-coquina-landscaping',
   NULL,
   'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466ccf3d_66acbeaafae3bdc4f7c234bf_66aab25bf633c32a18abbd78_Crushed%252520Coquina-landscape.webp',
+  'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466ccf3e_66acbeaafae3bdc4f7c234bb_66aab25bf633c32a18abbc5d_665a59c6ce0ecae7707515d3_665495268eb54a3e5d8702e9_crushed%2525252520coquina%2525252520high%2525252520surf%2525252520corp.jpeg',
   'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466ccf3e_66acbeaafae3bdc4f7c234bb_66aab25bf633c32a18abbc5d_665a59c6ce0ecae7707515d3_665495268eb54a3e5d8702e9_crushed%2525252520coquina%2525252520high%2525252520surf%2525252520corp.jpeg',
   0,
   'Landscaping Solutions',
@@ -730,12 +736,13 @@ INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, feat
   'Wed Nov 05 2025 08:59:16 GMT+0000 (Coordinated Universal Time)'
 );
 
-INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, featured, short_preview, title_variation, meta_description, category, body, seo_description, introduction, description_variation, archived, draft, created_at, updated_at, published_at) VALUES (
+INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, hero_image_url, featured, short_preview, title_variation, meta_description, category, body, seo_description, introduction, description_variation, archived, draft, created_at, updated_at, published_at) VALUES (
   '68fc859a95b7d8d6466ccf04',
   'Everything You Need to Know About Rip Rap Shoreline',
   'everything-you-need-to-know-about-rip-rap-shoreline',
   'Pros & cons',
   'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466ccf63_66acbea997eaadad21919cec_66aab25bf633c32a18abbd76_Rip%252520Rap%252520Seawall%252520Residential.webp',
+  'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466ccf64_66acbea997eaadad21919ce8_66aab25bf633c32a18abbd73_IMG_3898.webp',
   'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466ccf64_66acbea997eaadad21919ce8_66aab25bf633c32a18abbd73_IMG_3898.webp',
   1,
   'What is a Rip Rap Seawall?',
@@ -753,12 +760,13 @@ INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, feat
   'Wed Nov 05 2025 08:59:16 GMT+0000 (Coordinated Universal Time)'
 );
 
-INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, featured, short_preview, title_variation, meta_description, category, body, seo_description, introduction, description_variation, archived, draft, created_at, updated_at, published_at) VALUES (
+INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, hero_image_url, featured, short_preview, title_variation, meta_description, category, body, seo_description, introduction, description_variation, archived, draft, created_at, updated_at, published_at) VALUES (
   '68fc859a95b7d8d6466cced2',
   'Expert Seawall Installation: Steps and Material Choices',
   'expert-seawall-installation-steps-and-material-choices-by-high-surf-corp',
   NULL,
   'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466ccf08_66acbeaa901ee3ad660ecd33_667099ab52f25f1926912e6e_Coquina%252520Seawall%252520about%252520us.webp',
+  'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466ccf09_66acbeacf5a9a09a7287b997_667099f1173b93f833adab73_Hirams%252520Old%252520New.webp',
   'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466ccf09_66acbeacf5a9a09a7287b997_667099f1173b93f833adab73_Hirams%252520Old%252520New.webp',
   0,
   'High Surf Corp delivers premium seawall installations in Brevard County.',
@@ -776,12 +784,13 @@ INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, feat
   'Wed Nov 05 2025 08:59:16 GMT+0000 (Coordinated Universal Time)'
 );
 
-INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, featured, short_preview, title_variation, meta_description, category, body, seo_description, introduction, description_variation, archived, draft, created_at, updated_at, published_at) VALUES (
+INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, hero_image_url, featured, short_preview, title_variation, meta_description, category, body, seo_description, introduction, description_variation, archived, draft, created_at, updated_at, published_at) VALUES (
   '68fc859a95b7d8d6466cced8',
   'Guide to Rock Revetment Installation',
   'rock-revetment-installation-florida',
   NULL,
   'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466ccf3b_66acbeabce05fd584aca7ce0_66603f511c9625c9bcbfdda1_Guide%252520to%252520rock%252520revetment.webp',
+  'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466ccf37_66acbeabce05fd584aca7cd0_66603f4cc171ce8f626ddb4e_Guide%252520to%252520rock%252520revetment-thumbnail.webp',
   'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466ccf37_66acbeabce05fd584aca7cd0_66603f4cc171ce8f626ddb4e_Guide%252520to%252520rock%252520revetment-thumbnail.webp',
   0,
   'Rock Revetment',
@@ -799,12 +808,13 @@ INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, feat
   'Wed Nov 05 2025 08:59:16 GMT+0000 (Coordinated Universal Time)'
 );
 
-INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, featured, short_preview, title_variation, meta_description, category, body, seo_description, introduction, description_variation, archived, draft, created_at, updated_at, published_at) VALUES (
+INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, hero_image_url, featured, short_preview, title_variation, meta_description, category, body, seo_description, introduction, description_variation, archived, draft, created_at, updated_at, published_at) VALUES (
   '68fc859a95b7d8d6466ccecd',
   'Installation via Water Access',
   'florida-seawall-installation-repair-barge-vs-land-based',
   NULL,
   'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466cce8b_66acbeac0cbf02f1de5d4ee1_665fc5f265aedb77d0209119_Florida%252520Coquina%252520Rock%252520Seawall%252520Repair-%252520Barge%252520vs.%252520Land-Based%252520.webp',
+  'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466cce8c_66acbeac0cbf02f1de5d4f0c_66aab25bf633c32a18abbc07_665a59c51fe8ead9de732268_665455e35e7934edc14f695d_thumb.jpeg',
   'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466cce8c_66acbeac0cbf02f1de5d4f0c_66aab25bf633c32a18abbc07_665a59c51fe8ead9de732268_665455e35e7934edc14f695d_thumb.jpeg',
   0,
   'Seawall Installation via Barge',
@@ -822,12 +832,13 @@ INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, feat
   'Wed Nov 05 2025 08:59:16 GMT+0000 (Coordinated Universal Time)'
 );
 
-INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, featured, short_preview, title_variation, meta_description, category, body, seo_description, introduction, description_variation, archived, draft, created_at, updated_at, published_at) VALUES (
+INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, hero_image_url, featured, short_preview, title_variation, meta_description, category, body, seo_description, introduction, description_variation, archived, draft, created_at, updated_at, published_at) VALUES (
   '68fc859a95b7d8d6466cceed',
   'Land vs. Barge: Rock Revetment Shoreline Installation',
   'land-vs-barge-seawall-installation-comparison',
   'Installation',
   'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466ccf5f_66acbea86514d98ba7068aea_66a550d15402b6b7b14ef06d_Install%252520barge1-min.jpeg',
+  'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466ccf5e_66acbea86514d98ba7068af0_66a550d67843648bf2e349bd_install%252520barge2-min.jpeg',
   'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466ccf5e_66acbea86514d98ba7068af0_66a550d67843648bf2e349bd_install%252520barge2-min.jpeg',
   0,
   'Rock Revetment: Land vs. Barge',
@@ -845,12 +856,13 @@ INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, feat
   'Wed Nov 05 2025 08:59:16 GMT+0000 (Coordinated Universal Time)'
 );
 
-INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, featured, short_preview, title_variation, meta_description, category, body, seo_description, introduction, description_variation, archived, draft, created_at, updated_at, published_at) VALUES (
+INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, hero_image_url, featured, short_preview, title_variation, meta_description, category, body, seo_description, introduction, description_variation, archived, draft, created_at, updated_at, published_at) VALUES (
   '68fc859a95b7d8d6466cced3',
   'Limestone vs. Coquina Rock Shorelines - Choose The Right One For Your Property',
   'coquina-seawalls-vs-limestone-seawalls-brevard-county-fl',
   NULL,
   'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466ccf07_66acbeab5ba2410f27f09f49_66aab25bf633c32a18abbd7d_Limestone%252520seawall-florida.webp',
+  'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466ccf0a_66acbeab5ba2410f27f09f4e_66aab25bf633c32a18abbc04_665a59c55138dc13a9984acd_66549f3f4beddad20337d8dd_Limestone%2525252520Seawall-min.jpeg',
   'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466ccf0a_66acbeab5ba2410f27f09f4e_66aab25bf633c32a18abbc04_665a59c55138dc13a9984acd_66549f3f4beddad20337d8dd_Limestone%2525252520Seawall-min.jpeg',
   1,
   'Pros & cons of seawall materials.',
@@ -868,12 +880,13 @@ INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, feat
   'Wed Nov 05 2025 08:59:16 GMT+0000 (Coordinated Universal Time)'
 );
 
-INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, featured, short_preview, title_variation, meta_description, category, body, seo_description, introduction, description_variation, archived, draft, created_at, updated_at, published_at) VALUES (
+INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, hero_image_url, featured, short_preview, title_variation, meta_description, category, body, seo_description, introduction, description_variation, archived, draft, created_at, updated_at, published_at) VALUES (
   '68fc859a95b7d8d6466ccf05',
   'Living Shorelines: A Nature-Based Solution to Environmental Threats',
   'living-shorelines-a-nature-based-solution-to-environmental-threats',
   'Environment',
   'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466ccf67_Living%20Shorelines-%20A%20Nature-Based%20Solution%20to%20Environmental%20Threats%20.png',
+  'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466ccf65_IMG_3875-min.jpeg',
   'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466ccf65_IMG_3875-min.jpeg',
   0,
   'Living shorelines offer a sustainable way to combat the environmental threats facing coastal areas like the Indian River Lagoon.',
@@ -891,11 +904,12 @@ INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, feat
   'Wed Nov 05 2025 08:59:16 GMT+0000 (Coordinated Universal Time)'
 );
 
-INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, featured, short_preview, title_variation, meta_description, category, body, seo_description, introduction, description_variation, archived, draft, created_at, updated_at, published_at) VALUES (
+INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, hero_image_url, featured, short_preview, title_variation, meta_description, category, body, seo_description, introduction, description_variation, archived, draft, created_at, updated_at, published_at) VALUES (
   '68fc859a95b7d8d6466ccf02',
   'Pros and Cons of Shorelines with Coquina, Granite, and Limestone in Brevard County',
   'pros-and-cons-of-building-seawalls-with-coquina-granite-and-limestone-in-brevard-county',
   'Materials',
+  NULL,
   NULL,
   NULL,
   0,
@@ -914,12 +928,13 @@ INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, feat
   'Wed Nov 05 2025 08:59:16 GMT+0000 (Coordinated Universal Time)'
 );
 
-INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, featured, short_preview, title_variation, meta_description, category, body, seo_description, introduction, description_variation, archived, draft, created_at, updated_at, published_at) VALUES (
+INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, hero_image_url, featured, short_preview, title_variation, meta_description, category, body, seo_description, introduction, description_variation, archived, draft, created_at, updated_at, published_at) VALUES (
   '68fc859a95b7d8d6466cced4',
   'Residential Shoreline Construction and Repair - Brevard County FL.',
   'residential-seawall-construction-and-repair-brevard-county-fl',
   NULL,
   'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466ccf33_66acbeac0b2d2162648c4ace_665fc95426c34c1136878a3a_Seawall.webp',
+  'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466ccf34_66acbeac0b2d2162648c4aca_665fc97ac11c66ccc049bc69_Seawall-square.webp',
   'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466ccf34_66acbeac0b2d2162648c4aca_665fc97ac11c66ccc049bc69_Seawall-square.webp',
   1,
   'Ultimate Guide to Coquina Seawalls',
@@ -937,12 +952,13 @@ INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, feat
   'Wed Nov 05 2025 08:59:16 GMT+0000 (Coordinated Universal Time)'
 );
 
-INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, featured, short_preview, title_variation, meta_description, category, body, seo_description, introduction, description_variation, archived, draft, created_at, updated_at, published_at) VALUES (
+INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, hero_image_url, featured, short_preview, title_variation, meta_description, category, body, seo_description, introduction, description_variation, archived, draft, created_at, updated_at, published_at) VALUES (
   '68fc859a95b7d8d6466cced0',
   'Rip Rap For Erosion Control',
   'rip-rap-seawalls-for-erosion-control',
   NULL,
   'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466cceee_66acbeac8ac32aa4142c63c6_665fc8ac26c34c113687106e_Rip%252520Rap%252520Seawall%252520in%252520Florida.webp',
+  'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466cce97_66acbeac8ac32aa4142c63cf_665fc8f32ca965fcd59459b2_Rip%252520Rap%252520Seawall%252520in%252520Florida-thumbnail.webp',
   'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466cce97_66acbeac8ac32aa4142c63cf_665fc8f32ca965fcd59459b2_Rip%252520Rap%252520Seawall%252520in%252520Florida-thumbnail.webp',
   1,
   'Why Rip Rap Seawalls Are Essential',
@@ -960,12 +976,13 @@ INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, feat
   'Wed Nov 05 2025 08:59:16 GMT+0000 (Coordinated Universal Time)'
 );
 
-INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, featured, short_preview, title_variation, meta_description, category, body, seo_description, introduction, description_variation, archived, draft, created_at, updated_at, published_at) VALUES (
+INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, hero_image_url, featured, short_preview, title_variation, meta_description, category, body, seo_description, introduction, description_variation, archived, draft, created_at, updated_at, published_at) VALUES (
   '68fc859a95b7d8d6466cced6',
   'Rock Revetment: Coquina Shorelines',
   'coquina-seawall-installation-and-repair',
   NULL,
   'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466ccf3a_66acbea95b647a7f6a031ae4_66aab25bf633c32a18abbd72_Rock%252520Job%252520Card.webp',
+  'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466ccf39_66acbea95b647a7f6a031ae4_66aab25bf633c32a18abbd72_Rock%252520Job%252520Card.webp',
   'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466ccf39_66acbea95b647a7f6a031ae4_66aab25bf633c32a18abbd72_Rock%252520Job%252520Card.webp',
   0,
   'Residential Seawall Projects',
@@ -983,12 +1000,13 @@ INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, feat
   'Wed Nov 05 2025 08:59:16 GMT+0000 (Coordinated Universal Time)'
 );
 
-INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, featured, short_preview, title_variation, meta_description, category, body, seo_description, introduction, description_variation, archived, draft, created_at, updated_at, published_at) VALUES (
+INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, hero_image_url, featured, short_preview, title_variation, meta_description, category, body, seo_description, introduction, description_variation, archived, draft, created_at, updated_at, published_at) VALUES (
   '68fc859a95b7d8d6466ccece',
   'Shoreline Construction and Repair',
   'seawall-construction-and-repair',
   NULL,
   'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466cce8f_66acbeaddc53faaf858be571_665fc37eb8fd9918c6003a17_High%252520Surf%252520Corp%252520SeaWall%252520installation%252520and%252520repair-min.webp',
+  'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466cce8e_66acbeaddc53faaf858be575_665b938ce4ddba6ce2ccbc04_Residential%252520Seawall%252520Construction%252520and%252520Repair%252520-2.webp',
   'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466cce8e_66acbeaddc53faaf858be575_665b938ce4ddba6ce2ccbc04_Residential%252520Seawall%252520Construction%252520and%252520Repair%252520-2.webp',
   1,
   'Benefits of Coquina Rock Seawalls',
@@ -1006,12 +1024,13 @@ INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, feat
   'Wed Nov 05 2025 08:59:16 GMT+0000 (Coordinated Universal Time)'
 );
 
-INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, featured, short_preview, title_variation, meta_description, category, body, seo_description, introduction, description_variation, archived, draft, created_at, updated_at, published_at) VALUES (
+INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, hero_image_url, featured, short_preview, title_variation, meta_description, category, body, seo_description, introduction, description_variation, archived, draft, created_at, updated_at, published_at) VALUES (
   '68fc859a95b7d8d6466cceb9',
   'The Versatility of Coquina Rock: From Nature to Shorelines',
   'the-versatility-of-coquina-rock-from-nature-to-seawalls',
   NULL,
   'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466ccdf4_66b03a130c5debd30ed91087_9700%2520Drone%2520Phototopaz-exposure-sharpen-color-min.jpeg',
+  'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466cce88_66b03a0140aa38c5741a2663_750px-min.jpeg',
   'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466cce88_66b03a0140aa38c5741a2663_750px-min.jpeg',
   0,
   'Coquina Rock in Seawall Construction',
@@ -1029,11 +1048,12 @@ INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, feat
   'Wed Nov 05 2025 08:59:16 GMT+0000 (Coordinated Universal Time)'
 );
 
-INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, featured, short_preview, title_variation, meta_description, category, body, seo_description, introduction, description_variation, archived, draft, created_at, updated_at, published_at) VALUES (
+INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, hero_image_url, featured, short_preview, title_variation, meta_description, category, body, seo_description, introduction, description_variation, archived, draft, created_at, updated_at, published_at) VALUES (
   '68fc859a95b7d8d6466cced1',
   'Understanding Rock Revetments: A Robust Solution for Coastal Protection',
   'understanding-rock-revetments-a-robust-solution-for-coastal-protection',
   NULL,
+  'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466cce8a_66acbead184b4ec374b21a0e_66aab25bf633c32a18abbcf2_HOME%252520HERO.webp',
   'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466cce8a_66acbead184b4ec374b21a0e_66aab25bf633c32a18abbcf2_HOME%252520HERO.webp',
   'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466cce8a_66acbead184b4ec374b21a0e_66aab25bf633c32a18abbcf2_HOME%252520HERO.webp',
   0,
@@ -1052,11 +1072,12 @@ INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, feat
   'Wed Nov 05 2025 08:59:16 GMT+0000 (Coordinated Universal Time)'
 );
 
-INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, featured, short_preview, title_variation, meta_description, category, body, seo_description, introduction, description_variation, archived, draft, created_at, updated_at, published_at) VALUES (
+INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, hero_image_url, featured, short_preview, title_variation, meta_description, category, body, seo_description, introduction, description_variation, archived, draft, created_at, updated_at, published_at) VALUES (
   '68fc859a95b7d8d6466ccf01',
   'What are the key factors to consider when choosing between coquina, granite, and limestone',
   'what-are-the-key-factors-to-consider-when-choosing-between-coquina-granite-and-limestone',
   'Learn',
+  NULL,
   NULL,
   NULL,
   0,
@@ -1075,12 +1096,13 @@ INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, feat
   'Wed Nov 05 2025 08:59:16 GMT+0000 (Coordinated Universal Time)'
 );
 
-INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, featured, short_preview, title_variation, meta_description, category, body, seo_description, introduction, description_variation, archived, draft, created_at, updated_at, published_at) VALUES (
+INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, hero_image_url, featured, short_preview, title_variation, meta_description, category, body, seo_description, introduction, description_variation, archived, draft, created_at, updated_at, published_at) VALUES (
   '68fc859a95b7d8d6466cceba',
   'What is Rock Revetment?',
   'what-is-rock-revetment',
   'Rock Revetment: Superior Shoreline Protection',
   'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466cce33_66b037bffb8c0f4d76786242_ai-hirams-good-min.jpeg',
+  'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466cce14_66b03610bf779e8be43883eb_hirams%2520thumb-min.jpeg',
   'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466cce14_66b03610bf779e8be43883eb_hirams%2520thumb-min.jpeg',
   0,
   'Rock revetment is a coastal defense mechanism designed to protect shorelines from erosion caused by wave action, storm surges, and currents.',
@@ -1098,12 +1120,13 @@ INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, feat
   'Wed Nov 05 2025 08:59:16 GMT+0000 (Coordinated Universal Time)'
 );
 
-INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, featured, short_preview, title_variation, meta_description, category, body, seo_description, introduction, description_variation, archived, draft, created_at, updated_at, published_at) VALUES (
+INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, hero_image_url, featured, short_preview, title_variation, meta_description, category, body, seo_description, introduction, description_variation, archived, draft, created_at, updated_at, published_at) VALUES (
   '68fc859a95b7d8d6466cced5',
   'What''s A Rip Rap Seawall?',
   'rip-rap-seawalls',
   NULL,
   'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466ccf08_66acbeaa901ee3ad660ecd33_667099ab52f25f1926912e6e_Coquina%252520Seawall%252520about%252520us.webp',
+  'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466ccf36_66acbeaa901ee3ad660ecd1d_66709a361ab1ff1f7647ad44_Highsurfcorp%252520Install%252520Home-min.jpeg',
   'https://cdn.prod.website-files.com/68fc859a95b7d8d6466ccd6c/68fc859a95b7d8d6466ccf36_66acbeaa901ee3ad660ecd1d_66709a361ab1ff1f7647ad44_Highsurfcorp%252520Install%252520Home-min.jpeg',
   0,
   'Seawall Construction',

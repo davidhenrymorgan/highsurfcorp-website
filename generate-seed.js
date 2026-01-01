@@ -62,6 +62,32 @@ function boolToInt(str) {
   return str === "true" ? 1 : 0;
 }
 
+// Extract first image URL from HTML body
+function extractFirstImageUrl(html) {
+  if (!html) return null;
+  const match = html.match(/<img[^>]+src=["']([^"']+)["']/i);
+  return match ? match[1] : null;
+}
+
+// Compute hero_image_url using priority logic
+// Priority: thumbnail_image → hero_image → first <img> from body
+function computeHeroImageUrl(post) {
+  // 1. thumbnail_image (if non-empty)
+  const thumbnail = post["Thumbnail image"]?.trim();
+  if (thumbnail) return thumbnail;
+
+  // 2. hero_image (if non-empty)
+  const hero = post["Hero image"]?.trim();
+  if (hero) return hero;
+
+  // 3. First <img src="..."> from body
+  const body = post["Post body"];
+  const bodyImg = extractFirstImageUrl(body);
+  if (bodyImg) return bodyImg;
+
+  return null;
+}
+
 // Read CSV file
 async function readCSV(filePath) {
   return new Promise((resolve, reject) => {
@@ -122,13 +148,17 @@ function generateTopicInsert(topic) {
 
 // Generate INSERT statement for posts
 function generatePostInsert(post) {
-  return `INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, featured, short_preview, title_variation, meta_description, category, body, seo_description, introduction, description_variation, archived, draft, created_at, updated_at, published_at) VALUES (
+  // Compute hero_image_url at seed time
+  const heroImageUrl = computeHeroImageUrl(post);
+
+  return `INSERT INTO posts (id, title, slug, short_tag, hero_image, thumbnail_image, hero_image_url, featured, short_preview, title_variation, meta_description, category, body, seo_description, introduction, description_variation, archived, draft, created_at, updated_at, published_at) VALUES (
   ${escapeSql(post["Item ID"])},
   ${escapeSql(post["Name"])},
   ${escapeSql(post["Slug"])},
   ${escapeSql(post["Short Tag"])},
   ${escapeSql(post["Hero image"])},
   ${escapeSql(post["Thumbnail image"])},
+  ${escapeSql(heroImageUrl)},
   ${boolToInt(post["Feature?"])},
   ${escapeSql(post["Short preview"])},
   ${escapeSql(post["Title variation"])},

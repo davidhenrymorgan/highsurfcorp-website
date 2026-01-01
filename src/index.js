@@ -692,13 +692,13 @@ function getRelatedPostCard(post) {
   const date = formatDate(post.published_at);
   const category = post.category || post.short_tag || "Article";
   const shortDate = date.split(",")[0]; // "Nov 05"
-  const imgSrc = post.thumbnail_image || post.hero_image || "";
-  const fallbackImg = post._fallbackImage || "";
+  const imgSrc =
+    post.thumbnail_image || post.hero_image || post.hero_image_url || "";
 
   return `
     <a href="/blog/${post.slug}" class="group block">
       <div class="aspect-[4/3] bg-gradient-to-br from-neutral-200 to-neutral-300 rounded-2xl overflow-hidden mb-6 relative">
-        ${imgSrc ? `<img src="${imgSrc}" ${fallbackImg ? `data-fallback="${fallbackImg}"` : ""} onerror="this.onerror=null;if(this.dataset.fallback){this.src=this.dataset.fallback}else{this.style.display='none'}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90" alt="${escapeHtml(post.title)}">` : ""}
+        ${imgSrc ? `<img src="${imgSrc}" onerror="this.onerror=null;this.style.display='none'" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90" alt="${escapeHtml(post.title)}">` : ""}
       </div>
       <div class="flex items-center gap-2 text-xs font-medium text-neutral-400 uppercase tracking-wider mb-2">
         <span>${escapeHtml(category)}</span>
@@ -796,7 +796,10 @@ function renderBlogPost(post, relatedPosts, ctx) {
   html = html.replace(/\{\{category\}\}/g, escapeHtml(category));
   html = html.replace(/\{\{published_date\}\}/g, publishedDate);
   html = html.replace(/\{\{reading_time\}\}/g, readingTime);
-  html = html.replace(/\{\{hero_image\}\}/g, post.hero_image || "");
+  html = html.replace(
+    /\{\{hero_image\}\}/g,
+    post.hero_image || post.hero_image_url || "",
+  );
   html = html.replace(
     /\{\{meta_description\}\}/g,
     escapeHtml(post.meta_description || post.short_preview || ""),
@@ -840,7 +843,7 @@ function renderBlogIndex(posts, ctx, pagination = { page: 1, totalPages: 1 }) {
         <div class="max-w-7xl mx-auto">
           <a href="/blog/${featuredPost.slug}" class="group block">
             <div class="relative aspect-[21/9] bg-neutral-100 rounded-3xl overflow-hidden mb-8">
-              <img src="${featuredPost.hero_image}" alt="${escapeHtml(featuredPost.title)}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+              <img src="${featuredPost.hero_image || featuredPost.hero_image_url || featuredPost.thumbnail_image || ""}" alt="${escapeHtml(featuredPost.title)}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
               <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
               <div class="absolute bottom-0 left-0 right-0 p-8 md:p-12">
                 <div class="flex items-center gap-3 mb-4">
@@ -863,13 +866,13 @@ function renderBlogIndex(posts, ctx, pagination = { page: 1, totalPages: 1 }) {
       const date = formatDate(post.published_at);
       const category = post.category || post.short_tag || "Article";
       const shortDate = date.split(",")[0];
-      const imgSrc = post.thumbnail_image || post.hero_image || "";
-      const fallbackImg = post.body ? extractFirstImageUrl(post.body) : "";
+      const imgSrc =
+        post.thumbnail_image || post.hero_image || post.hero_image_url || "";
 
       return `
         <a href="/blog/${post.slug}" class="group block">
           <div class="aspect-[4/3] bg-gradient-to-br from-neutral-200 to-neutral-300 rounded-2xl overflow-hidden mb-6">
-            ${imgSrc ? `<img src="${imgSrc}" ${fallbackImg ? `data-fallback="${fallbackImg}"` : ""} onerror="this.onerror=null;if(this.dataset.fallback){this.src=this.dataset.fallback}else{this.style.display='none'}" alt="${escapeHtml(post.title)}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">` : ""}
+            ${imgSrc ? `<img src="${imgSrc}" onerror="this.onerror=null;this.style.display='none'" alt="${escapeHtml(post.title)}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">` : ""}
           </div>
           <div class="flex items-center gap-2 text-xs font-medium text-neutral-400 uppercase tracking-wider mb-2">
             <span>${escapeHtml(category)}</span>
@@ -933,7 +936,7 @@ async function handleBlogPost(request, url, env, ctx) {
     // Query related posts (safe - never leaks SQL errors)
     const related = await safeDbQuery(
       env.DB,
-      `SELECT slug, title, thumbnail_image, hero_image, category, short_tag, published_at
+      `SELECT slug, title, thumbnail_image, hero_image, hero_image_url, category, short_tag, published_at
        FROM posts
        WHERE slug != ? AND draft = 0 AND archived = 0
        ORDER BY published_at DESC
@@ -975,10 +978,10 @@ async function handleBlogIndex(request, env, ctx) {
     const totalPages = Math.ceil(totalPosts / limit);
 
     // Query paginated posts (safe - never leaks SQL errors)
-    // Include body for extracting fallback images when thumbnail fails
+    // Now: remove body, and include hero_image_url
     const posts = await safeDbQuery(
       env.DB,
-      `SELECT slug, title, thumbnail_image, hero_image, category, short_tag, short_preview, published_at, featured, body
+      `SELECT slug, title, thumbnail_image, hero_image, hero_image_url, category, short_tag, short_preview, published_at, featured
        FROM posts
        WHERE draft = 0 AND archived = 0
        ORDER BY published_at DESC
