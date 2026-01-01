@@ -768,6 +768,7 @@ function getBlogIndexTemplate(ctx) {
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {{posts_grid}}
         </div>
+        {{pagination}}
       </div>
     </section>
 
@@ -827,11 +828,12 @@ function renderBlogPost(post, relatedPosts, ctx) {
   return html;
 }
 
-function renderBlogIndex(posts, ctx) {
+function renderBlogIndex(posts, ctx, pagination = { page: 1, totalPages: 1 }) {
   const template = getBlogIndexTemplate(ctx);
 
-  // Find featured post
-  const featuredPost = posts.find((p) => p.featured === 1);
+  // Find featured post (only show on first page)
+  const featuredPost =
+    pagination.page === 1 ? posts.find((p) => p.featured === 1) : null;
 
   // Featured section HTML
   let featuredHtml = "";
@@ -860,9 +862,9 @@ function renderBlogIndex(posts, ctx) {
     `;
   }
 
-  // Posts grid HTML
+  // Posts grid HTML (exclude featured post on first page)
   const postsHtml = posts
-    .filter((p) => p.featured !== 1)
+    .filter((p) => !(pagination.page === 1 && p.featured === 1))
     .map((post) => {
       const date = formatDate(post.published_at);
       const category = post.category || post.short_tag || "Article";
@@ -885,9 +887,23 @@ function renderBlogIndex(posts, ctx) {
     })
     .join("");
 
+  // Pagination HTML
+  let paginationHtml = "";
+  if (pagination.totalPages > 1) {
+    const { page, totalPages } = pagination;
+    paginationHtml = `
+      <nav class="flex justify-center items-center gap-4 mt-16" aria-label="Pagination">
+        ${page > 1 ? `<a href="/blog?page=${page - 1}" class="px-4 py-2 text-sm font-medium text-neutral-600 hover:text-neutral-900 transition-colors">← Previous</a>` : `<span class="px-4 py-2 text-sm font-medium text-neutral-300">← Previous</span>`}
+        <span class="text-sm text-neutral-500">Page ${page} of ${totalPages}</span>
+        ${page < totalPages ? `<a href="/blog?page=${page + 1}" class="px-4 py-2 text-sm font-medium text-neutral-600 hover:text-neutral-900 transition-colors">Next →</a>` : `<span class="px-4 py-2 text-sm font-medium text-neutral-300">Next →</span>`}
+      </nav>
+    `;
+  }
+
   let html = template;
   html = html.replace(/\{\{featured_section\}\}/g, featuredHtml);
   html = html.replace(/\{\{posts_grid\}\}/g, postsHtml);
+  html = html.replace(/\{\{pagination\}\}/g, paginationHtml);
 
   return html;
 }
@@ -948,16 +964,33 @@ async function handleBlogIndex(request, env, ctx) {
     // Initialize context (renders nav/footer once)
     initContext(ctx);
 
-    // Query all posts (safe - never leaks SQL errors)
+    // Parse pagination parameters
+    const url = new URL(request.url);
+    const page = Math.max(1, parseInt(url.searchParams.get("page") || "1", 10));
+    const limit = 20;
+    const offset = (page - 1) * limit;
+
+    // Get total count for pagination
+    const countResult = await safeDbQuery(
+      env.DB,
+      "SELECT COUNT(*) as total FROM posts WHERE draft = 0 AND archived = 0",
+    );
+    const totalPosts = countResult.results[0]?.total || 0;
+    const totalPages = Math.ceil(totalPosts / limit);
+
+    // Query paginated posts (safe - never leaks SQL errors)
     const posts = await safeDbQuery(
       env.DB,
       `SELECT slug, title, thumbnail_image, hero_image, category, short_tag, short_preview, published_at, featured
        FROM posts
        WHERE draft = 0 AND archived = 0
-       ORDER BY published_at DESC`,
+       ORDER BY published_at DESC
+       LIMIT ? OFFSET ?`,
+      [limit, offset],
     );
 
-    const html = renderBlogIndex(posts.results, ctx);
+    const pagination = { page, totalPages, totalPosts };
+    const html = renderBlogIndex(posts.results, ctx, pagination);
 
     return htmlResponse(html, 1800, request);
   } catch (err) {
