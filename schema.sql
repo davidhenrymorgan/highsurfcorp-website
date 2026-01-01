@@ -2,10 +2,12 @@
 -- High Surf Corp CMS Schema for Cloudflare D1
 -- Database: highsurf-cms
 -- =============================================
-
--- Drop existing tables if they exist
-DROP TABLE IF EXISTS posts;
-DROP TABLE IF EXISTS topics;
+--
+-- DEPRECATED: Use migrations/ for versioned schema changes.
+-- Run: node src/migrate.js --remote
+--
+-- This file is kept for reference only. Do NOT execute directly.
+-- =============================================
 
 -- Topics/Categories table
 CREATE TABLE topics (
