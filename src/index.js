@@ -66,15 +66,33 @@ function escapeHtml(str) {
 // ============================================================================
 
 /**
- * Create an HTML response with caching headers
+ * Create an HTML response with caching headers and optional gzip compression
  */
-function htmlResponse(html, cacheSeconds = 3600) {
-  return new Response(html, {
-    headers: {
-      "Content-Type": "text/html; charset=utf-8",
-      "Cache-Control": `public, max-age=${cacheSeconds}`,
-    },
-  });
+function htmlResponse(html, cacheSeconds = 3600, request = null) {
+  const headers = {
+    "Content-Type": "text/html; charset=utf-8",
+    "Cache-Control": `public, max-age=${cacheSeconds}`,
+    Vary: "Accept-Encoding",
+  };
+
+  // Check if client accepts gzip
+  const acceptEncoding = request?.headers?.get("Accept-Encoding") || "";
+  if (acceptEncoding.includes("gzip")) {
+    // Compress with gzip using CompressionStream
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(encoder.encode(html));
+        controller.close();
+      },
+    });
+    const compressedStream = stream.pipeThrough(new CompressionStream("gzip"));
+    headers["Content-Encoding"] = "gzip";
+    return new Response(compressedStream, { headers });
+  }
+
+  // Return uncompressed if gzip not supported
+  return new Response(html, { headers });
 }
 
 /**
@@ -455,7 +473,7 @@ async function handleStaticPageWithComponents(request, env, pathname, ctx) {
   // Inject mobile menu script before </body>
   html = html.replace("</body>", ctx.mobileMenuScript + "</body>");
 
-  return htmlResponse(html);
+  return htmlResponse(html, 3600, request);
 }
 
 // ============================================================================
@@ -878,7 +896,7 @@ function renderBlogIndex(posts, ctx) {
 // ROUTE HANDLERS
 // ============================================================================
 
-async function handleBlogPost(url, env, ctx) {
+async function handleBlogPost(request, url, env, ctx) {
   try {
     // Initialize context (renders nav/footer once)
     initContext(ctx);
@@ -886,7 +904,7 @@ async function handleBlogPost(url, env, ctx) {
     const slug = url.pathname.split("/blog/")[1].replace(/\/$/, "");
 
     if (!slug) {
-      return handleBlogIndex(env, ctx);
+      return handleBlogIndex(request, env, ctx);
     }
 
     // Query post from D1 (safe - never leaks SQL errors)
@@ -911,10 +929,10 @@ async function handleBlogPost(url, env, ctx) {
       [slug],
     );
 
-    // Render template with context
+    // Render template with context (with gzip compression)
     const html = renderBlogPost(post, related.results, ctx);
 
-    return htmlResponse(html);
+    return htmlResponse(html, 3600, request);
   } catch (err) {
     // Database errors throw with status 503
     if (err.status === 503) {
@@ -925,7 +943,7 @@ async function handleBlogPost(url, env, ctx) {
   }
 }
 
-async function handleBlogIndex(env, ctx) {
+async function handleBlogIndex(request, env, ctx) {
   try {
     // Initialize context (renders nav/footer once)
     initContext(ctx);
@@ -941,7 +959,7 @@ async function handleBlogIndex(env, ctx) {
 
     const html = renderBlogIndex(posts.results, ctx);
 
-    return htmlResponse(html, 1800);
+    return htmlResponse(html, 1800, request);
   } catch (err) {
     // Database errors throw with status 503
     if (err.status === 503) {
@@ -1149,12 +1167,12 @@ export default {
 
     // Route: /blog/:slug - Individual post
     if (url.pathname.match(/^\/blog\/[^/]+\/?$/)) {
-      return handleBlogPost(url, env, ctx);
+      return handleBlogPost(request, url, env, ctx);
     }
 
     // Route: /blog - Blog index
     if (url.pathname === "/blog" || url.pathname === "/blog/") {
-      return handleBlogIndex(env, ctx);
+      return handleBlogIndex(request, env, ctx);
     }
 
     // Route: Legal pages - Transform with reusable components
