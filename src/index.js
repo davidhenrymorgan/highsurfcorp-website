@@ -227,7 +227,7 @@ function getNavigationHTML(options = {}) {
           <a href="/contact/brevard-county-free-estimate" class="hidden md:block bg-white text-black px-4 py-2 rounded-full text-sm font-medium hover:bg-neutral-200 transition-colors">
             Get a Quote
           </a>
-          <button id="mobile-menu-button" class="md:hidden relative w-12 h-12 rounded-full flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 transition-colors group">
+          <button id="mobile-menu-button" class="md:hidden relative w-12 h-12 rounded-full flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 transition-colors group" aria-label="Open navigation menu">
             <iconify-icon icon="solar:menu-dots-square-linear" width="20"></iconify-icon>
             <span class="absolute top-2 right-2 w-1.5 h-1.5 bg-white rounded-full scale-0 group-hover:scale-100 transition-transform duration-300"></span>
           </button>
@@ -245,7 +245,7 @@ function getNavigationHTML(options = {}) {
         <div class="flex flex-col h-full p-6">
           <!-- Close Button -->
           <div class="flex justify-end mb-8">
-            <button id="mobile-nav-close" class="w-12 h-12 rounded-full flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 transition-colors">
+            <button id="mobile-nav-close" class="w-12 h-12 rounded-full flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 transition-colors" aria-label="Close navigation menu">
               <iconify-icon icon="solar:close-circle-linear" width="24"></iconify-icon>
             </button>
           </div>
@@ -484,6 +484,13 @@ function getBlogPostTemplate(ctx) {
     <meta property="og:image" content="{{hero_image}}">
     <meta property="og:type" content="article">
     <link rel="canonical" href="https://highsurfcorp.com/blog/{{slug}}">
+    <!-- LCP Optimization: Preconnect to critical origins -->
+    <link rel="preconnect" href="https://pub-8a557d48118e46a38c0007cee5e58bd9.r2.dev" crossorigin>
+    <link rel="dns-prefetch" href="https://pub-8a557d48118e46a38c0007cee5e58bd9.r2.dev">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- LCP Optimization: Preload hero image -->
+    <link rel="preload" as="image" href="{{hero_image}}" fetchpriority="high">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
     <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
@@ -612,7 +619,7 @@ function getBlogPostTemplate(ctx) {
     <!-- Full Width Hero Image -->
     <div class="w-full max-w-[95rem] mx-auto px-4 md:px-8 mb-20 md:mb-32 animate-slide-up [animation-delay:0.6s] opacity-0">
       <div class="relative w-full aspect-[4/3] sm:aspect-video md:aspect-[21/9] bg-neutral-100 rounded-3xl md:rounded-[2.5rem] overflow-hidden shadow-2xl">
-        <img src="{{hero_image}}" alt="{{title}}" class="w-full h-full object-cover">
+        <img src="{{hero_image}}" alt="{{title}}" class="w-full h-full object-cover" fetchpriority="high">
         <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none"></div>
       </div>
     </div>
@@ -698,7 +705,7 @@ function getRelatedPostCard(post) {
   return `
     <a href="/blog/${post.slug}" class="group block">
       <div class="aspect-[4/3] bg-gradient-to-br from-neutral-200 to-neutral-300 rounded-2xl overflow-hidden mb-6 relative">
-        ${imgSrc ? `<img src="${imgSrc}" onerror="this.onerror=null;this.style.display='none'" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90" alt="${escapeHtml(post.title)}">` : ""}
+        ${imgSrc ? `<img src="${imgSrc}" loading="lazy" onerror="this.onerror=null;this.style.display='none'" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90" alt="${escapeHtml(post.title)}">` : ""}
       </div>
       <div class="flex items-center gap-2 text-xs font-medium text-neutral-400 uppercase tracking-wider mb-2">
         <span>${escapeHtml(category)}</span>
@@ -724,6 +731,11 @@ function getBlogIndexTemplate(ctx) {
     <title>Journal | High Surf Corp</title>
     <meta name="description" content="Insights on shoreline protection, seawall construction, and coastal engineering from High Surf Corp.">
     <link rel="canonical" href="https://highsurfcorp.com/blog">
+    <!-- LCP Optimization: Preconnect to critical origins -->
+    <link rel="preconnect" href="https://pub-8a557d48118e46a38c0007cee5e58bd9.r2.dev" crossorigin>
+    <link rel="dns-prefetch" href="https://pub-8a557d48118e46a38c0007cee5e58bd9.r2.dev">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -872,7 +884,7 @@ function renderBlogIndex(posts, ctx, pagination = { page: 1, totalPages: 1 }) {
       return `
         <a href="/blog/${post.slug}" class="group block">
           <div class="aspect-[4/3] bg-gradient-to-br from-neutral-200 to-neutral-300 rounded-2xl overflow-hidden mb-6">
-            ${imgSrc ? `<img src="${imgSrc}" onerror="this.onerror=null;this.style.display='none'" alt="${escapeHtml(post.title)}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">` : ""}
+            ${imgSrc ? `<img src="${imgSrc}" loading="lazy" onerror="this.onerror=null;this.style.display='none'" alt="${escapeHtml(post.title)}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">` : ""}
           </div>
           <div class="flex items-center gap-2 text-xs font-medium text-neutral-400 uppercase tracking-wider mb-2">
             <span>${escapeHtml(category)}</span>

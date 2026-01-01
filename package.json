@@ -4,14 +4,22 @@
   "description": "High Surf Corp marketing website with blog and contact form",
   "scripts": {
     "build": "node generate-blog.js",
+    "minify:css": "cleancss -o dist/css/normalize.css dist/css/normalize.css && cleancss -o dist/css/components.css dist/css/components.css && cleancss -o dist/css/high-surf-corp-v4-20-f4e9b7ff34488e0aa6.css dist/css/high-surf-corp-v4-20-f4e9b7ff34488e0aa6.css",
+    "minify:js": "terser dist/js/webflow.js -o dist/js/webflow.js -c -m",
+    "minify": "npm run minify:css && npm run minify:js",
+    "optimize:images": "node scripts/optimize-images.js",
     "dev": "npm run build && npx wrangler dev",
-    "deploy": "npm run build && npx wrangler deploy"
+    "deploy": "npm run build && npx wrangler deploy",
+    "deploy:prod": "npm run build && npm run minify && npx wrangler deploy"
   },
   "dependencies": {
     "resend": "^4.0.1"
   },
   "devDependencies": {
-    "wrangler": "^3.84.1"
+    "wrangler": "^3.84.1",
+    "terser": "^5.31.0",
+    "clean-css-cli": "^5.6.3",
+    "sharp": "^0.33.2"
   },
   "keywords": [
     "cloudflare",
