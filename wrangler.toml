@@ -5,10 +5,14 @@ main = "src/index.js"
 # Workers Static Assets configuration
 [assets]
 directory = "./dist"
-# Serve index.html for the root path and directory paths
-html_handling = "auto-trailing-slash"
+# Disable automatic html handling since we route everything through Worker
+html_handling = "none"
 # Use 404.html for not found pages
 not_found_handling = "404-page"
+# Route all requests through Worker first (allows transformation of legal/contact pages)
+run_worker_first = true
+# Binding for fetching assets from Worker code
+binding = "ASSETS"
 
 # D1 Database Binding (for CMS content)
 [[d1_databases]]
