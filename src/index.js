@@ -101,6 +101,43 @@ function errorResponse(message, status, logDetail = null) {
 }
 
 // ============================================================================
+// REQUEST CONTEXT
+// ============================================================================
+
+/**
+ * Create a request context with pre-rendered nav/footer components.
+ * Call once per request, pass to all handlers.
+ */
+function createRequestContext() {
+  return {
+    nav: {
+      home: null,
+      blog: null,
+      contact: null,
+      legal: null,
+    },
+    footer: null,
+    _initialized: false,
+  };
+}
+
+/**
+ * Initialize the context with pre-rendered components (lazy).
+ * Call this before using nav/footer in handlers.
+ */
+function initContext(ctx) {
+  if (ctx._initialized) return ctx;
+  ctx.nav.home = getNavigationHTML({ activePage: "home" });
+  ctx.nav.blog = getNavigationHTML({ activePage: "blog" });
+  ctx.nav.contact = getNavigationHTML({ activePage: "contact" });
+  ctx.nav.legal = getNavigationHTML({ activePage: "legal" });
+  ctx.footer = getFooterHTML();
+  ctx.mobileMenuScript = getMobileMenuScript();
+  ctx._initialized = true;
+  return ctx;
+}
+
+// ============================================================================
 // REUSABLE COMPONENT TEMPLATES
 // ============================================================================
 
@@ -315,7 +352,10 @@ function getMobileMenuScript() {
 /**
  * Transform static HTML pages with reusable nav/footer components
  */
-async function handleStaticPageWithComponents(request, env, pathname) {
+async function handleStaticPageWithComponents(request, env, pathname, ctx) {
+  // Initialize context if needed (renders nav/footer once)
+  initContext(ctx);
+
   // Ensure pathname has .html extension for asset lookup
   let assetPath = pathname;
   if (!pathname.endsWith(".html")) {
@@ -341,6 +381,9 @@ async function handleStaticPageWithComponents(request, env, pathname) {
   if (pathname.includes("/contact/")) activePage = "contact";
   if (pathname.includes("/legal/")) activePage = "legal";
 
+  // Get pre-rendered nav from context
+  const navHtml = ctx.nav[activePage] || ctx.nav.home;
+
   // Add required dependencies to <head> if not present
   const headAdditions = `
     <script src="https://cdn.tailwindcss.com"></script>
@@ -357,28 +400,23 @@ async function handleStaticPageWithComponents(request, env, pathname) {
   // Inject Tailwind CDN before </head>
   html = html.replace("</head>", headAdditions + "</head>");
 
-  // Replace Webflow navigation with standardized nav
-  // Match from <header class="nav_wrap"> to </header>
+  // Replace Webflow navigation with standardized nav from context
   const navPattern = /<header class="nav_wrap">[\s\S]*?<\/header>/;
   if (navPattern.test(html)) {
-    html = html.replace(navPattern, getNavigationHTML({ activePage }));
+    html = html.replace(navPattern, navHtml);
   } else {
     // If no Webflow nav found, inject our nav after <body>
-    html = html.replace(
-      /<body[^>]*>/,
-      "$&\n" + getNavigationHTML({ activePage }),
-    );
+    html = html.replace(/<body[^>]*>/, "$&\n" + navHtml);
   }
 
-  // Replace Webflow footer with standardized footer
-  // Match from <footer... to </footer>
+  // Replace Webflow footer with standardized footer from context
   html = html.replace(
     /<footer[^>]*data-brand[^>]*>[\s\S]*?<\/footer>/,
-    getFooterHTML(),
+    ctx.footer,
   );
 
   // Inject mobile menu script before </body>
-  html = html.replace("</body>", getMobileMenuScript() + "</body>");
+  html = html.replace("</body>", ctx.mobileMenuScript + "</body>");
 
   return htmlResponse(html);
 }
@@ -387,7 +425,7 @@ async function handleStaticPageWithComponents(request, env, pathname) {
 // BLOG POST TEMPLATE
 // ============================================================================
 
-function getBlogPostTemplate() {
+function getBlogPostTemplate(ctx) {
   return `<!DOCTYPE html>
 <html lang="en" class="scroll-smooth"><head>
     <meta charset="UTF-8">
@@ -498,7 +536,7 @@ function getBlogPostTemplate() {
       <div class="grid-line"></div>
     </div>
 
-    \${getNavigationHTML({ activePage: 'blog' })}
+    ${ctx.nav.blog}
 
     <!-- Blog Header Section -->
     <header class="relative pt-32 pb-16 md:pt-48 md:pb-24 px-6">
@@ -592,9 +630,9 @@ function getBlogPostTemplate() {
       </div>
     </section>
 
-    ${getFooterHTML()}
+    ${ctx.footer}
 
-    ${getMobileMenuScript()}
+    ${ctx.mobileMenuScript}
 
 </body></html>`;
 }
@@ -629,7 +667,7 @@ function getRelatedPostCard(post) {
 // BLOG INDEX TEMPLATE
 // ============================================================================
 
-function getBlogIndexTemplate() {
+function getBlogIndexTemplate(ctx) {
   return `<!DOCTYPE html>
 <html lang="en" class="scroll-smooth"><head>
     <meta charset="UTF-8">
@@ -651,7 +689,7 @@ function getBlogIndexTemplate() {
 </head>
 <body class="bg-white text-neutral-900 w-full overflow-x-hidden selection:bg-neutral-900 selection:text-white font-light antialiased">
 
-    ${getNavigationHTML({ activePage: "blog" })}
+    ${ctx.nav.blog}
 
     <!-- Header -->
     <header class="relative pt-32 pb-16 md:pt-40 md:pb-20 px-6">
@@ -678,9 +716,9 @@ function getBlogIndexTemplate() {
       </div>
     </section>
 
-    ${getFooterHTML()}
+    ${ctx.footer}
 
-    ${getMobileMenuScript()}
+    ${ctx.mobileMenuScript}
 
 </body></html>`;
 }
@@ -689,8 +727,8 @@ function getBlogIndexTemplate() {
 // RENDER FUNCTIONS
 // ============================================================================
 
-function renderBlogPost(post, relatedPosts) {
-  const template = getBlogPostTemplate();
+function renderBlogPost(post, relatedPosts, ctx) {
+  const template = getBlogPostTemplate(ctx);
   const category = post.category || post.short_tag || "Article";
   const publishedDate = formatDate(post.published_at);
   const readingTime = calculateReadingTime(post.body);
@@ -734,8 +772,8 @@ function renderBlogPost(post, relatedPosts) {
   return html;
 }
 
-function renderBlogIndex(posts) {
-  const template = getBlogIndexTemplate();
+function renderBlogIndex(posts, ctx) {
+  const template = getBlogIndexTemplate(ctx);
 
   // Find featured post
   const featuredPost = posts.find((p) => p.featured === 1);
@@ -803,11 +841,14 @@ function renderBlogIndex(posts) {
 // ROUTE HANDLERS
 // ============================================================================
 
-async function handleBlogPost(url, env) {
+async function handleBlogPost(url, env, ctx) {
+  // Initialize context (renders nav/footer once)
+  initContext(ctx);
+
   const slug = url.pathname.split("/blog/")[1].replace(/\/$/, "");
 
   if (!slug) {
-    return handleBlogIndex(env);
+    return handleBlogIndex(env, ctx);
   }
 
   // Query post from D1
@@ -832,13 +873,16 @@ async function handleBlogPost(url, env) {
     .bind(slug)
     .all();
 
-  // Render template
-  const html = renderBlogPost(post, related.results);
+  // Render template with context
+  const html = renderBlogPost(post, related.results, ctx);
 
   return htmlResponse(html);
 }
 
-async function handleBlogIndex(env) {
+async function handleBlogIndex(env, ctx) {
+  // Initialize context (renders nav/footer once)
+  initContext(ctx);
+
   // Query all posts
   const posts = await env.DB.prepare(
     `SELECT slug, title, thumbnail_image, hero_image, category, short_tag, short_preview, published_at, featured
@@ -847,7 +891,7 @@ async function handleBlogIndex(env) {
      ORDER BY published_at DESC`,
   ).all();
 
-  const html = renderBlogIndex(posts.results);
+  const html = renderBlogIndex(posts.results, ctx);
 
   return htmlResponse(html, 1800);
 }
@@ -1040,6 +1084,9 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
+    // Create request context once (lazy-initialized when needed)
+    const ctx = createRequestContext();
+
     // Route: /api/contact - Contact form submission
     if (url.pathname === "/api/contact" && request.method === "POST") {
       return handleContactForm(request, env);
@@ -1047,12 +1094,12 @@ export default {
 
     // Route: /blog/:slug - Individual post
     if (url.pathname.match(/^\/blog\/[^/]+\/?$/)) {
-      return handleBlogPost(url, env);
+      return handleBlogPost(url, env, ctx);
     }
 
     // Route: /blog - Blog index
     if (url.pathname === "/blog" || url.pathname === "/blog/") {
-      return handleBlogIndex(env);
+      return handleBlogIndex(env, ctx);
     }
 
     // Route: Legal pages - Transform with reusable components
@@ -1062,7 +1109,7 @@ export default {
       url.pathname !== "/legal/" &&
       !url.pathname.endsWith(".html")
     ) {
-      return handleStaticPageWithComponents(request, env, url.pathname);
+      return handleStaticPageWithComponents(request, env, url.pathname, ctx);
     }
 
     // Route: Contact pages - Transform with reusable components
@@ -1072,7 +1119,7 @@ export default {
       url.pathname !== "/contact/" &&
       !url.pathname.endsWith(".html")
     ) {
-      return handleStaticPageWithComponents(request, env, url.pathname);
+      return handleStaticPageWithComponents(request, env, url.pathname, ctx);
     }
 
     // Route: Homepage - map / to /index.html
