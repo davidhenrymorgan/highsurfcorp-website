@@ -62,6 +62,45 @@ function escapeHtml(str) {
 }
 
 // ============================================================================
+// RESPONSE HELPERS
+// ============================================================================
+
+/**
+ * Create an HTML response with caching headers
+ */
+function htmlResponse(html, cacheSeconds = 3600) {
+  return new Response(html, {
+    headers: {
+      "Content-Type": "text/html; charset=utf-8",
+      "Cache-Control": `public, max-age=${cacheSeconds}`,
+    },
+  });
+}
+
+/**
+ * Create a JSON response
+ */
+function jsonResponse(data, status = 200) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+    },
+  });
+}
+
+/**
+ * Create an error response (logs detail locally, returns generic message to user)
+ */
+function errorResponse(message, status, logDetail = null) {
+  if (logDetail) {
+    console.error(`[${status}] ${message}:`, logDetail);
+  }
+  return new Response(message, { status });
+}
+
+// ============================================================================
 // REUSABLE COMPONENT TEMPLATES
 // ============================================================================
 
@@ -341,12 +380,7 @@ async function handleStaticPageWithComponents(request, env, pathname) {
   // Inject mobile menu script before </body>
   html = html.replace("</body>", getMobileMenuScript() + "</body>");
 
-  return new Response(html, {
-    headers: {
-      "Content-Type": "text/html",
-      "Cache-Control": "public, max-age=3600",
-    },
-  });
+  return htmlResponse(html);
 }
 
 // ============================================================================
@@ -784,8 +818,7 @@ async function handleBlogPost(url, env) {
     .first();
 
   if (!post) {
-    // Return 404
-    return new Response("Post not found", { status: 404 });
+    return errorResponse("Post not found", 404);
   }
 
   // Query related posts
@@ -802,12 +835,7 @@ async function handleBlogPost(url, env) {
   // Render template
   const html = renderBlogPost(post, related.results);
 
-  return new Response(html, {
-    headers: {
-      "Content-Type": "text/html",
-      "Cache-Control": "public, max-age=3600",
-    },
-  });
+  return htmlResponse(html);
 }
 
 async function handleBlogIndex(env) {
@@ -821,12 +849,7 @@ async function handleBlogIndex(env) {
 
   const html = renderBlogIndex(posts.results);
 
-  return new Response(html, {
-    headers: {
-      "Content-Type": "text/html",
-      "Cache-Control": "public, max-age=1800",
-    },
-  });
+  return htmlResponse(html, 1800);
 }
 
 // ============================================================================
@@ -846,29 +869,20 @@ async function handleContactForm(request, env) {
 
     // Validate required fields
     if (!name || !email || !phone) {
-      return new Response(
-        JSON.stringify({
+      return jsonResponse(
+        {
           success: false,
           error: "Please fill in all required fields (Name, Email, Phone)",
-        }),
-        {
-          status: 400,
-          headers: { "Content-Type": "application/json" },
         },
+        400,
       );
     }
 
     // Basic email validation
     if (!email.includes("@")) {
-      return new Response(
-        JSON.stringify({
-          success: false,
-          error: "Please enter a valid email address",
-        }),
-        {
-          status: 400,
-          headers: { "Content-Type": "application/json" },
-        },
+      return jsonResponse(
+        { success: false, error: "Please enter a valid email address" },
+        400,
       );
     }
 
@@ -966,16 +980,13 @@ async function handleContactForm(request, env) {
     // Check for Resend API key
     if (!env.RESEND_API_KEY) {
       console.error("RESEND_API_KEY not configured");
-      return new Response(
-        JSON.stringify({
+      return jsonResponse(
+        {
           success: false,
           error:
             "Email service not configured. Please call us at (321) 821-4895.",
-        }),
-        {
-          status: 500,
-          headers: { "Content-Type": "application/json" },
         },
+        500,
       );
     }
 
@@ -1004,32 +1015,19 @@ async function handleContactForm(request, env) {
     const resendData = await resendResponse.json();
     console.log("Email sent successfully:", resendData.id);
 
-    // Success response
-    return new Response(
-      JSON.stringify({
-        success: true,
-        message: "Thank you! We'll contact you within 24 hours.",
-      }),
-      {
-        status: 200,
-        headers: {
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*",
-        },
-      },
-    );
+    return jsonResponse({
+      success: true,
+      message: "Thank you! We'll contact you within 24 hours.",
+    });
   } catch (error) {
     console.error("Form submission error:", error);
-    return new Response(
-      JSON.stringify({
+    return jsonResponse(
+      {
         success: false,
         error:
           "Something went wrong. Please call us at (321) 821-4895 or try again later.",
-      }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
       },
+      500,
     );
   }
 }
@@ -1088,6 +1086,6 @@ export default {
     // Fallback to static assets
     return env.ASSETS
       ? env.ASSETS.fetch(request)
-      : new Response("Not found", { status: 404 });
+      : errorResponse("Not found", 404);
   },
 };
