@@ -210,12 +210,12 @@ function getNavigationHTML(options = {}) {
           <a href="/" class="${homeClass} transition-colors">Home</a>
           <a href="/#process" class="text-white/60 hover:text-white transition-colors">Our Process</a>
           <a href="/blog" class="${blogClass} transition-colors">Blog</a>
-          <a href="/contact/brevard-county-free-estimate.html" class="${contactClass} transition-colors">Contact</a>
+          <a href="/contact/brevard-county-free-estimate" class="${contactClass} transition-colors">Contact</a>
         </div>
 
         <!-- Actions -->
         <div class="flex items-center gap-2">
-          <a href="/contact/brevard-county-free-estimate.html" class="hidden md:block bg-white text-black px-4 py-2 rounded-full text-sm font-medium hover:bg-neutral-200 transition-colors">
+          <a href="/contact/brevard-county-free-estimate" class="hidden md:block bg-white text-black px-4 py-2 rounded-full text-sm font-medium hover:bg-neutral-200 transition-colors">
             Get a Quote
           </a>
           <button id="mobile-menu-button" class="md:hidden relative w-12 h-12 rounded-full flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 transition-colors group">
@@ -246,10 +246,10 @@ function getNavigationHTML(options = {}) {
             <a href="/" class="text-white hover:text-white/70 transition-colors py-3 border-b border-white/10">Home</a>
             <a href="/#process" class="text-white/80 hover:text-white transition-colors py-3 border-b border-white/10">Our Process</a>
             <a href="/blog" class="text-white/80 hover:text-white transition-colors py-3 border-b border-white/10">Blog</a>
-            <a href="/contact/brevard-county-free-estimate.html" class="text-white/80 hover:text-white transition-colors py-3 border-b border-white/10">Contact</a>
+            <a href="/contact/brevard-county-free-estimate" class="text-white/80 hover:text-white transition-colors py-3 border-b border-white/10">Contact</a>
 
             <!-- CTA Button -->
-            <a href="/contact/brevard-county-free-estimate.html" class="mt-8 w-full bg-white text-neutral-900 font-semibold py-4 px-6 rounded-xl hover:bg-white/90 transition-colors text-center">
+            <a href="/contact/brevard-county-free-estimate" class="mt-8 w-full bg-white text-neutral-900 font-semibold py-4 px-6 rounded-xl hover:bg-white/90 transition-colors text-center">
               Get a Free Estimate
             </a>
           </nav>
@@ -295,7 +295,7 @@ function getFooterHTML() {
           <a href="/" class="text-white/60 hover:text-white transition-colors font-light">Home</a>
           <a href="/#process" class="text-white/60 hover:text-white transition-colors font-light">Our Process</a>
           <a href="/blog" class="text-white/60 hover:text-white transition-colors font-light">Blog</a>
-          <a href="/contact/brevard-county-free-estimate.html" class="text-white/60 hover:text-white transition-colors font-light">Free Estimate</a>
+          <a href="/contact/brevard-county-free-estimate" class="text-white/60 hover:text-white transition-colors font-light">Free Estimate</a>
         </div>
 
         <div class="flex flex-col gap-4">
@@ -307,8 +307,8 @@ function getFooterHTML() {
 
         <div class="flex flex-col gap-4">
           <h4 class="font-bold tracking-tight text-lg mb-2">Legal</h4>
-          <a href="/legal/privacy-policy.html" class="text-white/60 hover:text-white transition-colors font-light">Privacy Policy</a>
-          <a href="/legal/terms-conditions.html" class="text-white/60 hover:text-white transition-colors font-light">Terms & Conditions</a>
+          <a href="/legal/privacy-policy" class="text-white/60 hover:text-white transition-colors font-light">Privacy Policy</a>
+          <a href="/legal/terms-conditions" class="text-white/60 hover:text-white transition-colors font-light">Terms & Conditions</a>
         </div>
       </div>
 
@@ -1132,7 +1132,7 @@ async function handleContactForm(request, env) {
       },
       body: JSON.stringify({
         from: "High Surf Corp Website <website@send.highsurfcorp.com>",
-        to: ["crew@highsurfcorp.com", "idavidmorganh@gmail.com"],
+        to: ["crew@highsurfcorp.com"],
         reply_to: email,
         subject: `New Lead: ${name}${budgetDisplay ? ` (${budgetDisplay})` : ""} - ${zip || "No Zip"}`,
         html: emailHTML,
