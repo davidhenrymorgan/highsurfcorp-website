@@ -79,29 +79,51 @@
     </style>
     <script>
       (function () {
+      // Check for prefers-reduced-motion
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
       const style = document.createElement("style");
-      style.textContent = `
-      .animate-on-scroll { animation-play-state: paused !important; }
-      .animate-on-scroll.animate { animation-play-state: running !important; }
-      `;
+      if (prefersReducedMotion) {
+        // Disable animations for users who prefer reduced motion
+        style.textContent = `
+        .animate-on-scroll,
+        .animate-slide-up,
+        .animate-cinematic,
+        .animate-shimmer-effect {
+          animation: none !important;
+          opacity: 1 !important;
+          transform: none !important;
+        }
+        `;
+      } else {
+        // Normal animation behavior
+        style.textContent = `
+        .animate-on-scroll { animation-play-state: paused !important; }
+        .animate-on-scroll.animate { animation-play-state: running !important; }
+        `;
+      }
       document.head.appendChild(style);
-      const once = true;
-      if (!window.__inViewIO) {
-      window.__inViewIO = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-      entry.target.classList.add("animate");
-      if (once) window.__inViewIO.unobserve(entry.target);
+
+      // Only set up IntersectionObserver if animations are enabled
+      if (!prefersReducedMotion) {
+        const once = true;
+        if (!window.__inViewIO) {
+        window.__inViewIO = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+        entry.target.classList.add("animate");
+        if (once) window.__inViewIO.unobserve(entry.target);
+        }
+        });
+        }, { threshold: 0.1, rootMargin: "0px 0px -5% 0px" });
+        }
+        window.initInViewAnimations = function (selector = ".animate-on-scroll") {
+        document.querySelectorAll(selector).forEach((el) => {
+        window.__inViewIO.observe(el);
+        });
+        };
+        document.addEventListener("DOMContentLoaded", () => initInViewAnimations());
       }
-      });
-      }, { threshold: 0.1, rootMargin: "0px 0px -5% 0px" });
-      }
-      window.initInViewAnimations = function (selector = ".animate-on-scroll") {
-      document.querySelectorAll(selector).forEach((el) => {
-      window.__inViewIO.observe(el);
-      });
-      };
-      document.addEventListener("DOMContentLoaded", () => initInViewAnimations());
       })();
     </script>
   <link href="images/favicon.png" rel="shortcut icon" type="image/x-icon">
@@ -163,10 +185,10 @@ fbq('track', 'PageView');
 
         <!-- Actions -->
         <div class="flex items-center gap-2">
-          <button class="w-10 h-10 rounded-full flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 transition-colors">
+          <button class="w-12 h-12 rounded-full flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 transition-colors">
             <iconify-icon icon="solar:magnifer-linear" width="20" class=""></iconify-icon>
           </button>
-          <button class="relative w-10 h-10 rounded-full flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 transition-colors group">
+          <button id="mobile-menu-button" class="md:hidden relative w-12 h-12 rounded-full flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 transition-colors group">
             <iconify-icon icon="solar:menu-dots-square-linear" width="20" class=""></iconify-icon>
             <span class="absolute top-2 right-2 w-1.5 h-1.5 bg-white rounded-full scale-0 group-hover:scale-100 transition-transform duration-300"></span>
           </button>
@@ -174,11 +196,110 @@ fbq('track', 'PageView');
       </nav>
     </div>
 
+    <!-- Mobile Navigation Drawer -->
+    <div id="mobile-nav-drawer" class="fixed inset-0 z-[60] pointer-events-none">
+      <!-- Backdrop -->
+      <div id="mobile-nav-backdrop" class="absolute inset-0 bg-black/80 backdrop-blur-sm opacity-0 transition-opacity duration-300"></div>
+
+      <!-- Drawer -->
+      <div id="mobile-nav-content" class="absolute top-0 right-0 h-full w-[80%] max-w-sm bg-neutral-900 shadow-2xl transform translate-x-full transition-transform duration-300 ease-out">
+        <div class="flex flex-col h-full p-6">
+          <!-- Close Button -->
+          <div class="flex justify-end mb-8">
+            <button id="mobile-nav-close" class="w-12 h-12 rounded-full flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 transition-colors">
+              <iconify-icon icon="solar:close-circle-linear" width="24"></iconify-icon>
+            </button>
+          </div>
+
+          <!-- Navigation Links -->
+          <nav class="flex flex-col gap-6 text-lg font-medium">
+            <a href="index.html" class="text-white hover:text-white/70 transition-colors py-3 border-b border-white/10">
+              Home
+            </a>
+            <a href="#process" class="text-white/80 hover:text-white transition-colors py-3 border-b border-white/10">
+              Our Process
+            </a>
+            <a href="blog/" class="text-white/80 hover:text-white transition-colors py-3 border-b border-white/10">
+              Blog
+            </a>
+            <a href="contact/brevard-county-free-estimate.html" class="text-white/80 hover:text-white transition-colors py-3 border-b border-white/10">
+              Contact
+            </a>
+
+            <!-- CTA Button -->
+            <a href="contact/brevard-county-free-estimate.html" class="mt-8 w-full bg-white text-neutral-900 font-semibold py-4 px-6 rounded-xl hover:bg-white/90 transition-colors text-center">
+              Get a Free Estimate
+            </a>
+          </nav>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Mobile Navigation Drawer
+      (function() {
+        const menuButton = document.getElementById('mobile-menu-button');
+        const closeButton = document.getElementById('mobile-nav-close');
+        const drawer = document.getElementById('mobile-nav-drawer');
+        const backdrop = document.getElementById('mobile-nav-backdrop');
+        const content = document.getElementById('mobile-nav-content');
+        const navLinks = document.querySelectorAll('#mobile-nav-content a');
+
+        function openDrawer() {
+          drawer.classList.remove('pointer-events-none');
+          drawer.classList.add('pointer-events-auto');
+          setTimeout(() => {
+            backdrop.classList.remove('opacity-0');
+            backdrop.classList.add('opacity-100');
+            content.classList.remove('translate-x-full');
+            content.classList.add('translate-x-0');
+          }, 10);
+          document.body.style.overflow = 'hidden';
+        }
+
+        function closeDrawer() {
+          backdrop.classList.remove('opacity-100');
+          backdrop.classList.add('opacity-0');
+          content.classList.remove('translate-x-0');
+          content.classList.add('translate-x-full');
+          setTimeout(() => {
+            drawer.classList.remove('pointer-events-auto');
+            drawer.classList.add('pointer-events-none');
+            document.body.style.overflow = '';
+          }, 300);
+        }
+
+        if (menuButton) {
+          menuButton.addEventListener('click', openDrawer);
+        }
+
+        if (closeButton) {
+          closeButton.addEventListener('click', closeDrawer);
+        }
+
+        if (backdrop) {
+          backdrop.addEventListener('click', closeDrawer);
+        }
+
+        // Close drawer when clicking navigation links
+        navLinks.forEach(link => {
+          link.addEventListener('click', closeDrawer);
+        });
+
+        // Close on escape key
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape' && !drawer.classList.contains('pointer-events-none')) {
+            closeDrawer();
+          }
+        });
+      })();
+    </script>
+
     <!-- Hero Section -->
     <header class="relative w-full h-screen overflow-hidden flex flex-col justify-end pb-12 md:pb-24">
       <!-- Background Image Layer with Cinematic Animation -->
       <div class="absolute inset-0 z-0 bg-black">
-        <video src="https://player.vimeo.com/progressive_redirect/playback/1009108643/rendition/1080p/file.mp4?loc=external&amp;signature=0fd366a40a779073adfab86c14ee0db8f36832bd321b8a0ff398afe102a08342" autoplay="" loop="" muted="" playsinline="" class="w-full h-full object-cover animate-cinematic opacity-0"></video>
+        <video src="https://player.vimeo.com/progressive_redirect/playback/1009108643/rendition/1080p/file.mp4?loc=external&amp;signature=0fd366a40a779073adfab86c14ee0db8f36832bd321b8a0ff398afe102a08342" autoplay="" loop="" muted="" playsinline="" preload="none" class="w-full h-full object-cover animate-cinematic opacity-0"></video>
         <!-- Overlays -->
         <div class="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/20 to-transparent opacity-80"></div>
         <div class="bg-black/10 mix-blend-overlay absolute top-0 right-0 bottom-0 left-0"></div>
@@ -202,14 +323,14 @@ fbq('track', 'PageView');
     </div>
 
     <h1 class="text-white leading-[0.85] tracking-tight font-semibold">
-      <span class="block text-[7vw] md:text-[4.5rem] lg:text-[5.5rem] animate-slide-up [animation-delay:1.4s] text-white tracking-tighter opacity-0 mix-blend-normal pb-7 drop-shadow-2xl">
+      <span class="block text-4xl sm:text-5xl md:text-[4.5rem] lg:text-[5.5rem] animate-slide-up [animation-delay:1.4s] text-white tracking-tighter opacity-0 mix-blend-normal pb-7 drop-shadow-2xl">
               SHORELINE
             </span>
       <div class="flex items-baseline gap-4 md:gap-8 -mt-2 md:-mt-8 animate-slide-up [animation-delay:1.6s] opacity-0">
-        <span class="text-[7vw] md:text-[4.5rem] lg:text-[5.5rem] font-light text-white/50 tracking-tighter">
+        <span class="text-4xl sm:text-5xl md:text-[4.5rem] lg:text-[5.5rem] font-light text-white/50 tracking-tighter">
                 &amp;
               </span>
-        <span class="text-[7vw] md:text-[4.5rem] lg:text-[5.5rem] text-white drop-shadow-2xl tracking-tighter">
+        <span class="text-4xl sm:text-5xl md:text-[4.5rem] lg:text-[5.5rem] text-white drop-shadow-2xl tracking-tighter">
                 SECURITY
               </span>
       </div>
@@ -295,7 +416,7 @@ fbq('track', 'PageView');
         <!-- Blog Posts Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           <!-- Blog Card 1 -->
-          <a href="blog/the-complete-guide-to-installing-a-coquina-rip-rap-seawall/" class="group relative h-[520px] w-full bg-[#151515] rounded-[32px] overflow-hidden flex flex-col justify-between p-8 transition-transform duration-500 hover:-translate-y-2 hover:shadow-2xl animate-on-scroll [animation:animationIn_0.8s_ease-out_0.3s_both]">
+          <a href="blog/the-complete-guide-to-installing-a-coquina-rip-rap-seawall/" class="group relative h-[350px] md:h-[520px] w-full bg-[#151515] rounded-[32px] overflow-hidden flex flex-col justify-between p-8 transition-transform duration-500 hover:-translate-y-2 active:-translate-y-2 hover:shadow-2xl active:shadow-2xl animate-on-scroll [animation:animationIn_0.8s_ease-out_0.3s_both]">
             <div class="absolute top-0 right-0 p-6 opacity-40 z-20 group-hover:opacity-100 transition-opacity">
               <div class="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center bg-white/5 backdrop-blur-sm text-white">
                 <iconify-icon icon="solar:arrow-right-up-linear" width="24"></iconify-icon>
@@ -322,7 +443,7 @@ fbq('track', 'PageView');
           </a>
 
           <!-- Blog Card 2 -->
-          <a href="blog/brevard-county-seawall-repair-installation/" class="group relative h-[520px] w-full bg-[#151515] rounded-[32px] overflow-hidden flex flex-col justify-between p-8 transition-transform duration-500 hover:-translate-y-2 hover:shadow-2xl animate-on-scroll [animation:animationIn_0.8s_ease-out_0.4s_both]">
+          <a href="blog/brevard-county-seawall-repair-installation/" class="group relative h-[350px] md:h-[520px] w-full bg-[#151515] rounded-[32px] overflow-hidden flex flex-col justify-between p-8 transition-transform duration-500 hover:-translate-y-2 active:-translate-y-2 hover:shadow-2xl active:shadow-2xl animate-on-scroll [animation:animationIn_0.8s_ease-out_0.4s_both]">
             <div class="absolute top-0 right-0 p-6 opacity-40 z-20 group-hover:opacity-100 transition-opacity">
               <div class="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center bg-white/5 backdrop-blur-sm text-white">
                 <iconify-icon icon="solar:arrow-right-up-linear" width="24"></iconify-icon>
@@ -350,7 +471,7 @@ fbq('track', 'PageView');
           </a>
 
           <!-- Blog Card 3 -->
-          <a href="blog/coquina-revetment-construction-techniques/" class="group relative h-[520px] w-full bg-[#151515] rounded-[32px] overflow-hidden flex flex-col justify-between p-8 transition-transform duration-500 hover:-translate-y-2 hover:shadow-2xl animate-on-scroll [animation:animationIn_0.8s_ease-out_0.5s_both]">
+          <a href="blog/coquina-revetment-construction-techniques/" class="group relative h-[350px] md:h-[520px] w-full bg-[#151515] rounded-[32px] overflow-hidden flex flex-col justify-between p-8 transition-transform duration-500 hover:-translate-y-2 active:-translate-y-2 hover:shadow-2xl active:shadow-2xl animate-on-scroll [animation:animationIn_0.8s_ease-out_0.5s_both]">
             <div class="absolute top-0 right-0 p-6 opacity-40 z-20 group-hover:opacity-100 transition-opacity">
               <div class="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center bg-white/5 backdrop-blur-sm text-white">
                 <iconify-icon icon="solar:arrow-right-up-linear" width="24"></iconify-icon>
@@ -405,7 +526,7 @@ fbq('track', 'PageView');
         <!-- Process Cards Grid -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
           <!-- Process Card 1: Property Assessment -->
-          <div class="group block h-full bg-neutral-800/50 backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden hover:border-white/20 hover:shadow-2xl hover:scale-[1.02] transition-all duration-300">
+          <div class="group block h-full bg-neutral-800/50 backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden hover:border-white/20 active:border-white/20 hover:shadow-2xl active:shadow-2xl hover:scale-[1.02] active:scale-[1.02] transition-all duration-300">
             <div class="p-8">
               <div class="mb-6 flex items-center justify-center w-16 h-16 rounded-full bg-white/10 text-white">
                 <iconify-icon icon="solar:clipboard-check-linear" width="32"></iconify-icon>
@@ -425,7 +546,7 @@ fbq('track', 'PageView');
           </div>
 
           <!-- Process Card 2: Materials & Approach -->
-          <div class="group block h-full bg-neutral-800/50 backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden hover:border-white/20 hover:shadow-2xl hover:scale-[1.02] transition-all duration-300">
+          <div class="group block h-full bg-neutral-800/50 backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden hover:border-white/20 active:border-white/20 hover:shadow-2xl active:shadow-2xl hover:scale-[1.02] active:scale-[1.02] transition-all duration-300">
             <div class="p-8">
               <div class="mb-6 flex items-center justify-center w-16 h-16 rounded-full bg-white/10 text-white">
                 <iconify-icon icon="solar:tuning-2-linear" width="32"></iconify-icon>
@@ -445,7 +566,7 @@ fbq('track', 'PageView');
           </div>
 
           <!-- Process Card 3: Proposal & Permitting -->
-          <div class="group block h-full bg-neutral-800/50 backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden hover:border-white/20 hover:shadow-2xl hover:scale-[1.02] transition-all duration-300">
+          <div class="group block h-full bg-neutral-800/50 backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden hover:border-white/20 active:border-white/20 hover:shadow-2xl active:shadow-2xl hover:scale-[1.02] active:scale-[1.02] transition-all duration-300">
             <div class="p-8">
               <div class="mb-6 flex items-center justify-center w-16 h-16 rounded-full bg-white/10 text-white">
                 <iconify-icon icon="solar:document-text-linear" width="32"></iconify-icon>
@@ -684,9 +805,9 @@ fbq('track', 'PageView');
             Family-owned since 1997. Protecting Brevard County's shorelines with coquina, granite, and limestone revetments.
           </p>
 
-          <div class="flex gap-4">
-            <input type="email" placeholder="Email address" class="bg-white/5 border border-white/10 rounded-full px-6 py-3 w-64 focus:outline-none focus:border-white/30 transition-colors placeholder:text-white/20 font-light">
-            <button class="bg-white text-black px-6 py-3 rounded-full font-medium hover:bg-neutral-200 transition-colors">
+          <div class="flex flex-col sm:flex-row gap-4">
+            <input type="email" placeholder="Email address" class="bg-white/5 border border-white/10 rounded-full px-6 py-3 w-full sm:w-64 focus:outline-none focus:border-white/30 transition-colors placeholder:text-white/20 font-light">
+            <button class="bg-white text-black px-6 py-3 rounded-full font-medium hover:bg-neutral-200 transition-colors whitespace-nowrap">
               Connect
             </button>
           </div>
