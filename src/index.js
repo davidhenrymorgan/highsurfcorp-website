@@ -61,6 +61,15 @@ function escapeHtml(str) {
     .replace(/'/g, "&#039;");
 }
 
+/**
+ * Extract first image URL from HTML content (for thumbnail fallback)
+ */
+function extractFirstImageUrl(html) {
+  if (!html) return null;
+  const match = html.match(/<img[^>]+src=["']([^"']+)["']/i);
+  return match ? match[1] : null;
+}
+
 // ============================================================================
 // RESPONSE HELPERS
 // ============================================================================
@@ -683,11 +692,13 @@ function getRelatedPostCard(post) {
   const date = formatDate(post.published_at);
   const category = post.category || post.short_tag || "Article";
   const shortDate = date.split(",")[0]; // "Nov 05"
+  const imgSrc = post.thumbnail_image || post.hero_image || "";
+  const fallbackImg = post._fallbackImage || "";
 
   return `
     <a href="/blog/${post.slug}" class="group block">
-      <div class="aspect-[4/3] bg-white rounded-2xl overflow-hidden mb-6 relative">
-        <img src="${post.thumbnail_image || post.hero_image}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90" alt="${escapeHtml(post.title)}">
+      <div class="aspect-[4/3] bg-gradient-to-br from-neutral-200 to-neutral-300 rounded-2xl overflow-hidden mb-6 relative">
+        ${imgSrc ? `<img src="${imgSrc}" ${fallbackImg ? `data-fallback="${fallbackImg}"` : ""} onerror="this.onerror=null;if(this.dataset.fallback){this.src=this.dataset.fallback}else{this.style.display='none'}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90" alt="${escapeHtml(post.title)}">` : ""}
       </div>
       <div class="flex items-center gap-2 text-xs font-medium text-neutral-400 uppercase tracking-wider mb-2">
         <span>${escapeHtml(category)}</span>
@@ -852,11 +863,13 @@ function renderBlogIndex(posts, ctx, pagination = { page: 1, totalPages: 1 }) {
       const date = formatDate(post.published_at);
       const category = post.category || post.short_tag || "Article";
       const shortDate = date.split(",")[0];
+      const imgSrc = post.thumbnail_image || post.hero_image || "";
+      const fallbackImg = post.body ? extractFirstImageUrl(post.body) : "";
 
       return `
         <a href="/blog/${post.slug}" class="group block">
-          <div class="aspect-[4/3] bg-neutral-100 rounded-2xl overflow-hidden mb-6">
-            <img src="${post.thumbnail_image || post.hero_image}" alt="${escapeHtml(post.title)}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+          <div class="aspect-[4/3] bg-gradient-to-br from-neutral-200 to-neutral-300 rounded-2xl overflow-hidden mb-6">
+            ${imgSrc ? `<img src="${imgSrc}" ${fallbackImg ? `data-fallback="${fallbackImg}"` : ""} onerror="this.onerror=null;if(this.dataset.fallback){this.src=this.dataset.fallback}else{this.style.display='none'}" alt="${escapeHtml(post.title)}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">` : ""}
           </div>
           <div class="flex items-center gap-2 text-xs font-medium text-neutral-400 uppercase tracking-wider mb-2">
             <span>${escapeHtml(category)}</span>
@@ -962,9 +975,10 @@ async function handleBlogIndex(request, env, ctx) {
     const totalPages = Math.ceil(totalPosts / limit);
 
     // Query paginated posts (safe - never leaks SQL errors)
+    // Include body for extracting fallback images when thumbnail fails
     const posts = await safeDbQuery(
       env.DB,
-      `SELECT slug, title, thumbnail_image, hero_image, category, short_tag, short_preview, published_at, featured
+      `SELECT slug, title, thumbnail_image, hero_image, category, short_tag, short_preview, published_at, featured, body
        FROM posts
        WHERE draft = 0 AND archived = 0
        ORDER BY published_at DESC
