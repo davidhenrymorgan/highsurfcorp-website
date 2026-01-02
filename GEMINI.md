@@ -46,12 +46,40 @@ git push origin development
 ## Architecture
 
 - **Platform**: Cloudflare Workers with D1 database
+- **Framework**: Hono (modular routing framework)
 - **Config**: `wrangler.toml` in project root
 - **Static Files**: Homepage and other static pages served from `dist/` directory
 - **Dynamic Blog**: Worker renders blog pages from D1 database at runtime
 - **Database**: Cloudflare D1 (`highsurf-cms`) - blog content stored in SQL
 - **Images**: Cloudflare R2 bucket (`highsurfcorp`) - all images served from R2
-- **Worker Code**: `src/index.js` handles routing, blog rendering, contact form
+- **Worker Code**: Modular Hono-based architecture in `src/`
+
+### Modular Architecture (January 2026 Refactor)
+
+The codebase uses a clean separation of concerns:
+
+```
+src/
+├── index.js                 # Hono app router (94 lines)
+├── utils/
+│   ├── helpers.js           # formatDate, escapeHtml, calculateReadingTime
+│   └── db.js                # safeDbQuery, safeDbFirst (D1 error handling)
+├── views/
+│   ├── components.js        # SCHEMA_JSON, nav, footer, analytics, mobile menu
+│   └── templates.js         # Blog post/index page templates
+├── controllers/
+│   ├── blog.js              # getIndex, getPost handlers
+│   └── contact.js           # postContact handler
+└── middleware/
+    ├── context.js           # Pre-render nav/footer/analytics per request
+    └── static.js            # Static page transformation + response helpers
+```
+
+**Key Patterns:**
+- **Context Middleware**: Pre-renders nav/footer/analytics once per request via `c.get('nav')`, `c.get('footer')`, etc.
+- **Template Context**: Use `getTemplateContext(c)` from `middleware/context.js` to get pre-rendered components
+- **Response Helpers**: `htmlResponse()`, `jsonResponse()`, `errorResponse()` in `middleware/static.js`
+- **Database Access**: Use `c.env.DB` in Hono handlers, wrap with `safeDbQuery`/`safeDbFirst`
 
 ### R2 Storage (Cloudflare R2 Bucket)
 
@@ -134,10 +162,6 @@ node src/migrate.js --remote
 - **Analytics**: Google Analytics (G-93DQDPMR4J) + Meta Pixel (1712382146162316)
 - **SEO**: LocalBusiness structured data (schema.org)
 - **Email**: Resend API for contact form submissions
-- **Security**: 
-  - Cloudflare Turnstile (Anti-spam for Contact Form)
-  - Content Security Policy (CSP) headers
-  - `sanitize-html` for blog content
 - **Design**: Dark theme (bg-neutral-950) with pill-shaped navigation
 
 ## Blog System (D1 Dynamic)
@@ -156,10 +180,6 @@ node src/migrate.js --remote
 
 **Local Testing:**
 ```bash
-# Run Unit Tests
-npx vitest run
-
-# Run Dev Server
 npx wrangler dev
 # Visit http://localhost:8787/
 # Blog pages are rendered dynamically from local D1
@@ -184,11 +204,22 @@ npx wrangler d1 execute highsurf-cms --remote --file=./seed.sql
 ```
 /
 ├── wrangler.toml              # Cloudflare Workers config (D1 binding, static assets)
-├── src/
-│   ├── index.js               # Worker code: routing, blog rendering, contact form
-│   └── migrate.js             # Database migration runner
-├── test/
-│   └── index.test.js          # Unit tests (Vitest)
+├── package.json               # Dependencies: hono, resend, sanitize-html
+├── src/                       # Modular Hono-based Worker code
+│   ├── index.js               # Hono app router entry point
+│   ├── migrate.js             # Database migration runner
+│   ├── utils/
+│   │   ├── helpers.js         # formatDate, escapeHtml, calculateReadingTime, extractFirstImageUrl
+│   │   └── db.js              # safeDbQuery, safeDbFirst (D1 wrappers with error handling)
+│   ├── views/
+│   │   ├── components.js      # SCHEMA_JSON, getNavigationHTML, getFooterHTML, getAnalyticsHTML, getMobileMenuScript
+│   │   └── templates.js       # getBlogPostTemplate, getBlogIndexTemplate, getRelatedPostCard
+│   ├── controllers/
+│   │   ├── blog.js            # getIndex, getPost, renderBlogPost, renderBlogIndex
+│   │   └── contact.js         # postContact (Turnstile + Resend integration)
+│   └── middleware/
+│       ├── context.js         # contextMiddleware, getTemplateContext
+│       └── static.js          # serveStatic, htmlResponse, jsonResponse, errorResponse
 ├── migrations/                 # Versioned D1 schema migrations
 │   ├── 0001_initial_schema.sql
 │   ├── 0002_schema_migrations.sql
@@ -227,18 +258,28 @@ npx wrangler d1 execute highsurf-cms --remote --file=./seed.sql
 - `dist/blog/` is gitignored - blog pages are rendered dynamically by the Worker
 - `dist/css/` and `dist/js/` directories no longer exist - Tailwind CSS via CDN
 - All static pages use Tailwind CSS via CDN script tag
+- Worker code is modular - edit specific files rather than one monolithic file
 
 ## Worker Routes (src/index.js)
 
-| Route | Handler | Description |
-|-------|---------|-------------|
-| `/` | Static asset | Homepage (index.html) |
-| `/blog` | `handleBlogIndex()` | Dynamic blog index from D1 |
-| `/blog/:slug` | `handleBlogPost()` | Dynamic blog post from D1 |
-| `/legal/*` | `handleStaticPageWithComponents()` | Legal pages with injected nav/footer, Cached |
-| `/contact/*` | `handleStaticPageWithComponents()` | Contact pages with injected nav/footer, Cached |
-| `/api/contact` | `handleContactForm()` | Contact form submission (POST) + Turnstile |
-| `*` | Static asset | All other static files from dist/ |
+Hono-based routing with modular handlers:
+
+| Route | Handler | File | Description |
+|-------|---------|------|-------------|
+| `GET /` | `serveStatic(c, '/index')` | `middleware/static.js` | Homepage with component injection |
+| `GET /blog` | `getIndex(c)` | `controllers/blog.js` | Dynamic blog index from D1 |
+| `GET /blog/:slug` | `getPost(c)` | `controllers/blog.js` | Dynamic blog post from D1 |
+| `GET /legal/:page` | `serveStatic(c)` | `middleware/static.js` | Legal pages with nav/footer |
+| `GET /contact/:page` | `serveStatic(c)` | `middleware/static.js` | Contact pages with Turnstile |
+| `POST /api/contact` | `postContact(c)` | `controllers/contact.js` | Contact form (Turnstile + Resend) |
+| `GET *` | Fallback | `src/index.js` | Static assets or 404 page |
+
+**Adding New Routes:**
+```javascript
+// In src/index.js
+import { myHandler } from './controllers/myController.js';
+app.get('/my-route', myHandler);
+```
 
 ## Key Configuration Files
 
@@ -248,7 +289,6 @@ npx wrangler d1 execute highsurf-cms --remote --file=./seed.sql
   - `run_worker_first = true` - Routes through Worker for page transformation
   - `[[d1_databases]]` - D1 binding (`DB` → `highsurf-cms`)
   - Resend API key set via: `npx wrangler secret put RESEND_API_KEY`
-  - Turnstile Secret set via: `npx wrangler secret put TURNSTILE_SECRET_KEY`
 
 ## Common Tasks
 
@@ -330,3 +370,64 @@ npx wrangler r2 bucket info highsurfcorp
 - Always work on `development` branch (never commit directly to `main`)
 - All changes must be tested before pushing
 - Only deploy to production from `main` branch
+
+## Developer Guide (Hono Architecture)
+
+### Creating a New Controller
+
+```javascript
+// src/controllers/example.js
+import { htmlResponse, jsonResponse } from '../middleware/static.js';
+import { getTemplateContext } from '../middleware/context.js';
+import { safeDbQuery } from '../utils/db.js';
+
+export async function getExample(c) {
+  const ctx = getTemplateContext(c);  // Get pre-rendered nav/footer
+  const db = c.env.DB;                // Access D1 database
+
+  // Query database
+  const results = await safeDbQuery(db, 'SELECT * FROM posts LIMIT 5');
+
+  // Return HTML or JSON
+  return htmlResponse('<html>...</html>', 3600);
+  // OR: return jsonResponse({ data: results }, 200, c.req.raw);
+}
+```
+
+### Registering Routes
+
+```javascript
+// src/index.js
+import { getExample } from './controllers/example.js';
+
+// Add route
+app.get('/example', getExample);
+app.post('/api/example', postExample);
+```
+
+### Modifying Components
+
+- **Navigation**: Edit `src/views/components.js` → `getNavigationHTML()`
+- **Footer**: Edit `src/views/components.js` → `getFooterHTML()`
+- **Analytics**: Edit `src/views/components.js` → `getAnalyticsHTML()`
+- **Blog Templates**: Edit `src/views/templates.js`
+
+### Key Files by Purpose
+
+| Purpose | File |
+|---------|------|
+| Add new API endpoint | `src/controllers/` + `src/index.js` |
+| Modify blog rendering | `src/controllers/blog.js` + `src/views/templates.js` |
+| Change nav/footer | `src/views/components.js` |
+| Add database query | `src/utils/db.js` |
+| Modify static page injection | `src/middleware/static.js` |
+| Add global middleware | `src/middleware/context.js` |
+
+### Environment Variables
+
+Access via `c.env.VARIABLE_NAME` in Hono handlers:
+- `c.env.DB` - D1 database binding
+- `c.env.ASSETS` - Static assets binding
+- `c.env.RESEND_API_KEY` - Email API key (secret)
+- `c.env.TURNSTILE_SITE_KEY` - Cloudflare Turnstile public key
+- `c.env.TURNSTILE_SECRET_KEY` - Cloudflare Turnstile secret key
