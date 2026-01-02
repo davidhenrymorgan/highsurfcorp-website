@@ -1,6 +1,6 @@
 # High Surf Corp - Deployment Checklist
 
-Performance optimization deployment guide. Follow these steps to deploy changes safely.
+Deployment guide for the High Surf Corp website.
 
 ## Pre-Deployment Verification
 
@@ -34,20 +34,13 @@ npx wrangler dev
 
 - [ ] Homepage loads without console errors
 - [ ] Blog pages render correctly with images
-- [ ] Contact form validation works (webflow.js loading)
+- [ ] Contact form submission works (via Resend API)
 - [ ] Mobile navigation opens/closes correctly
-- [ ] All aria-labels are present (check with dev tools)
 - [ ] Legal pages load correctly
+- [ ] 404 page displays with countdown redirect
 
-## Build & Optimize
+## Image Optimization (Optional)
 
-### 5. Run Minification (Optional - for production)
-```bash
-# Minify CSS and JS in-place
-npm run minify
-```
-
-### 6. Image Optimization (Optional)
 ```bash
 # Optimize images in dist/images/
 npm run optimize:images
@@ -55,62 +48,36 @@ npm run optimize:images
 
 ## Commit & Push
 
-### 7. Commit Changes
+### 5. Commit Changes
 ```bash
 git add .
-git commit -m "perf: performance optimization - LCP, accessibility, dead code removal
-
-- Fix broken JS references in 5 HTML files
-- Remove 2.88 MB of dead code (unused images, fonts)
-- Add LCP optimization (preconnect, preload, fetchpriority)
-- Add accessibility fixes (aria-labels)
-- Add build pipeline with minification
-
-Generated with Claude Code"
+git commit -m "feat: descriptive commit message"
 ```
 
-### 8. Push to Development
+### 6. Push to Development
 ```bash
 git push origin development
 ```
 
 ## Production Deployment
 
-### 9. Create Pull Request
+### 7. Merge and Deploy
 ```bash
-# Using GitHub CLI
-gh pr create --title "Performance Optimization" --body "
-## Summary
-- Fixed broken JS references causing form issues
-- Removed 2.88 MB of dead code
-- Added LCP optimizations
-- Added accessibility improvements
-- Added minification build pipeline
-
-## Testing
-- [x] Local testing passed
-- [x] Blog pages render correctly
-- [x] Contact form works
-"
-```
-
-### 10. Merge and Deploy
-```bash
-# After PR approval, switch to main
+# Switch to main
 git checkout main
 git pull origin main
 
 # Merge development
 git merge development
 
-# Push to main (triggers Cloudflare build)
+# Push to main
 git push origin main
 
 # Deploy to production
 npx wrangler deploy
 ```
 
-### 11. Production Verification
+### 8. Production Verification
 After deployment, verify on production:
 
 - [ ] https://highsurfcorp.com - Homepage loads
@@ -137,25 +104,25 @@ npx wrangler deploy
 3. Go to Deployments
 4. Click "Rollback" on previous working deployment
 
-## Performance Targets
-
-| Metric | Before | Target | How to Verify |
-|--------|--------|--------|---------------|
-| Performance Score | 80 | 95+ | PageSpeed Insights |
-| FCP | 4.0s | <1.5s | PageSpeed Insights |
-| LCP | Error | <2.5s | PageSpeed Insights |
-| Accessibility | 73 | 90+ | Lighthouse |
-| Bundle Size | 14 MB | ~11 MB | `du -sh dist/` |
-
 ## Scripts Reference
 
 | Command | Description |
 |---------|-------------|
-| `npm run build` | Regenerate blog widget |
-| `npm run minify` | Minify CSS + JS |
-| `npm run minify:css` | Minify CSS only |
-| `npm run minify:js` | Minify JS only |
-| `npm run optimize:images` | Optimize images in dist/ |
-| `npm run dev` | Local development |
-| `npm run deploy` | Deploy to production |
-| `npm run deploy:prod` | Build, minify, then deploy |
+| `npm run build` | Download blog images |
+| `npm run optimize:images` | Compress images in dist/ |
+| `npm run dev` | Build + local dev server |
+| `npm run deploy` | Build + deploy to production |
+
+## Database Updates
+
+To update blog content in D1:
+```bash
+# Edit CSV files in website-main/blog/
+node generate-seed.js
+npx wrangler d1 execute highsurf-cms --remote --file=./seed.sql
+```
+
+To run migrations:
+```bash
+node src/migrate.js --remote
+```

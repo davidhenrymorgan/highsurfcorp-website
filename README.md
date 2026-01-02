@@ -26,46 +26,43 @@ npx wrangler dev
 ```
 ├── wrangler.toml           # Cloudflare Workers config (D1 binding)
 ├── src/
-│   └── index.js            # Worker: blog routing & template rendering
+│   ├── index.js            # Worker: blog routing, contact form, template rendering
+│   └── migrate.js          # Database migration runner
+├── migrations/             # Versioned D1 schema migrations
 ├── scripts/
-│   └── fix-image-urls.js   # URL transformation utility
-├── generate-blog.js        # Homepage widget generator (CSV → HTML)
+│   ├── fix-image-urls.js   # URL transformation utility
+│   ├── optimize-images.js  # Image compression
+│   └── backfill-hero-image-url.js
+├── generate-blog.js        # Blog image downloader (output gitignored)
 ├── generate-seed.js        # D1 seed generator (CSV → SQL)
-├── schema.sql              # D1 database schema
-├── seed.sql                # D1 seed data (generated)
 ├── dist/                   # Static site files
 │   ├── index.html          # Homepage (Tailwind CSS)
+│   ├── 404.html            # Custom 404 page
 │   ├── contact/            # Contact pages
 │   ├── legal/              # Legal pages
-│   ├── css/                # Stylesheets
-│   └── js/                 # JavaScript
+│   └── images/             # Static images
 └── website-main/blog/      # Source CSV data
 ```
 
-**Note:** Blog pages (`/blog`, `/blog/:slug`) are rendered dynamically by the Worker from D1.
+**Note:** Blog pages (`/blog`, `/blog/:slug`) are rendered dynamically by the Worker from D1. The `dist/blog/` directory is gitignored.
 
 ## Tech Stack
 
 - **Hosting:** Cloudflare Workers (static + dynamic)
 - **Database:** Cloudflare D1 (`highsurf-cms`) - 23 posts, 65 topics
 - **Images:** Cloudflare R2 bucket (`highsurfcorp`)
-- **CSS:** Tailwind (homepage + blog) + Webflow (legacy)
+- **CSS:** Tailwind CSS (via CDN) - all pages
+- **Email:** Resend API for contact form
 - **Blog Template:** aura.build design with dynamic rendering
 
 ## Git Workflow
 
-- **`main`** - Production (auto-deploys to highsurfcorp.com)
+- **`main`** - Production (deploys to highsurfcorp.com)
 - **`development`** - Active development branch
 
-**Never commit directly to main.** Always work on `development` and create PRs.
+**Never commit directly to main.** Always work on `development` and merge when ready.
 
 ## Common Tasks
-
-### Update Homepage Blog Widget
-```bash
-node generate-blog.js
-# Updates dist/index.html with 3 most recent posts
-```
 
 ### Update Blog Content in D1
 ```bash
@@ -76,9 +73,10 @@ npx wrangler d1 execute highsurf-cms --remote --file=./seed.sql
 
 ### Deploy to Production
 ```bash
-# Only from main branch after PR merge
+# Only from main branch after merge
 git checkout main
-git pull origin main
+git merge development
+git push origin main
 npx wrangler deploy
 ```
 
@@ -90,14 +88,8 @@ npx wrangler d1 execute highsurf-cms --command="SELECT * FROM posts LIMIT 5"
 # Query remote (production) database
 npx wrangler d1 execute highsurf-cms --remote --command="SELECT COUNT(*) FROM posts"
 
-# Re-seed database from CSV
-node generate-seed.js
-npx wrangler d1 execute highsurf-cms --remote --file=./schema.sql
-npx wrangler d1 execute highsurf-cms --remote --file=./seed.sql
-
-# Fix image URLs (Webflow → R2)
-node scripts/fix-image-urls.js > update-images.sql
-npx wrangler d1 execute highsurf-cms --remote --file=./update-images.sql
+# Run migrations
+node src/migrate.js --remote
 ```
 
 ## Analytics
