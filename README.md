@@ -12,6 +12,9 @@ git clone https://github.com/davidhenrymorgan/highsurfcorp-website.git
 cd highsurfcorp-website
 npm install
 
+# Run tests
+npx vitest run
+
 # Switch to development branch
 git checkout development
 
@@ -52,6 +55,7 @@ npx wrangler dev
 - **Database:** Cloudflare D1 (`highsurf-cms`) - 23 posts, 65 topics
 - **Images:** Cloudflare R2 bucket (`highsurfcorp`)
 - **CSS:** Tailwind CSS (via CDN) - all pages
+- **Security:** Cloudflare Turnstile (Contact Form), CSP Headers, HTML Sanitization
 - **Email:** Resend API for contact form
 - **Blog Template:** aura.build design with dynamic rendering
 
@@ -63,6 +67,15 @@ npx wrangler dev
 **Never commit directly to main.** Always work on `development` and merge when ready.
 
 ## Common Tasks
+
+### Environment Setup
+Required secrets for production:
+```bash
+npx wrangler secret put RESEND_API_KEY
+npx wrangler secret put TURNSTILE_SECRET_KEY
+```
+Variables in `wrangler.toml` or `vars`:
+- `TURNSTILE_SITE_KEY` (public key)
 
 ### Update Blog Content in D1
 ```bash

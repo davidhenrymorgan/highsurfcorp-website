@@ -3,6 +3,8 @@
  * Dynamic blog powered by D1 + R2
  */
 
+import sanitizeHtml from 'sanitize-html';
+
 // ============================================================================
 // HELPER FUNCTIONS
 // ============================================================================
@@ -75,7 +77,7 @@ function extractFirstImageUrl(html) {
 // ============================================================================
 
 /**
- * Create an HTML response with caching headers
+ * Create an HTML response with caching headers and CSP
  * Note: Cloudflare automatically applies gzip/brotli compression at the edge
  */
 function htmlResponse(html, cacheSeconds = 3600) {
@@ -83,19 +85,34 @@ function htmlResponse(html, cacheSeconds = 3600) {
     headers: {
       "Content-Type": "text/html; charset=utf-8",
       "Cache-Control": `public, max-age=${cacheSeconds}`,
+      "Content-Security-Policy": "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://code.iconify.design https://challenges.cloudflare.com https://www.googletagmanager.com https://connect.facebook.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https: blob:; font-src 'self' https://fonts.gstatic.com data:; connect-src 'self' https://www.google-analytics.com https://www.facebook.com https://challenges.cloudflare.com; frame-src 'self' https://challenges.cloudflare.com;",
+      "X-Content-Type-Options": "nosniff",
+      "X-Frame-Options": "DENY",
+      "Referrer-Policy": "strict-origin-when-cross-origin"
     },
   });
 }
 
 /**
- * Create a JSON response
+ * Create a JSON response with strict CORS
  */
 function jsonResponse(data, status = 200) {
+  // In production, you might want to check request.headers.get('Origin')
+  // and only allow specific domains. For now, we lock it to the main domain.
+  // Ideally, passing the env/request here would allow dynamic checking.
+  // We'll default to the production domain or allow localhost for dev if needed (handled by logic below if we had request context).
+  
+  // Since we don't have request context here easily, we'll set it to the primary domain
+  // or use a helper if we want to support localhost during dev.
+  // For safety, let's hardcode the production domain, but note that local dev might need a relaxed header.
+  // To keep it simple and safe:
+  
   return new Response(JSON.stringify(data), {
     status,
     headers: {
       "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Origin": "https://highsurfcorp.com", 
+      "Vary": "Origin"
     },
   });
 }
@@ -155,7 +172,7 @@ async function safeDbFirst(db, sql, params = []) {
  * Create a request context with pre-rendered nav/footer components.
  * Call once per request, pass to all handlers.
  */
-function createRequestContext() {
+function createRequestContext(executionCtx) {
   return {
     nav: {
       home: null,
@@ -165,6 +182,8 @@ function createRequestContext() {
     },
     footer: null,
     _initialized: false,
+    // Expose waitUntil from Cloudflare context, or no-op if missing
+    waitUntil: executionCtx ? executionCtx.waitUntil.bind(executionCtx) : (p) => p,
   };
 }
 
@@ -399,7 +418,20 @@ function getMobileMenuScript() {
 /**
  * Transform static HTML pages with reusable nav/footer components
  */
+/**
+ * Transform static HTML pages with reusable nav/footer components
+ * Implements Cache API and Turnstile Injection
+ */
 async function handleStaticPageWithComponents(request, env, pathname, ctx) {
+  // Try to find in cache first
+  const cacheKey = new Request(request.url, request);
+  const cache = caches.default;
+  let response = await cache.match(cacheKey);
+
+  if (response) {
+    return response;
+  }
+
   // Initialize context if needed (renders nav/footer once)
   initContext(ctx);
 
@@ -415,7 +447,7 @@ async function handleStaticPageWithComponents(request, env, pathname, ctx) {
   const assetRequest = new Request(assetUrl.toString(), request);
 
   // Fetch the original static file
-  const response = await env.ASSETS.fetch(assetRequest);
+  response = await env.ASSETS.fetch(assetRequest);
 
   if (!response.ok) {
     return response;
@@ -432,7 +464,7 @@ async function handleStaticPageWithComponents(request, env, pathname, ctx) {
   const navHtml = ctx.nav[activePage] || ctx.nav.home;
 
   // Add required dependencies to <head> if not present
-  const headAdditions = `
+  let headAdditions = `
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
     <style>
@@ -444,7 +476,22 @@ async function handleStaticPageWithComponents(request, env, pathname, ctx) {
     </style>
   `;
 
-  // Inject Tailwind CDN before </head>
+  // Inject Turnstile if on contact page
+  if (activePage === "contact") {
+    headAdditions += `
+      <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    `;
+    
+    // Inject widget before submit button
+    // Use test key "0x4AAAAAAAKFXRoBq6SEZCw" if env var not set (Safe for dev/prod if not configured)
+    const siteKey = env.TURNSTILE_SITE_KEY || "0x4AAAAAAAKFXRoBq6SEZCw"; 
+    const widgetHtml = `<div class="cf-turnstile mb-6" data-sitekey="${siteKey}" data-theme="dark"></div>`;
+    
+    // Inject before the submit button
+    html = html.replace(/<button\s+type="submit"/, `${widgetHtml}\n<button type="submit"`);
+  }
+
+  // Inject Tailwind CDN and other scripts before </head>
   html = html.replace("</head>", headAdditions + "</head>");
 
   // Replace Webflow navigation with standardized nav from context
@@ -465,7 +512,14 @@ async function handleStaticPageWithComponents(request, env, pathname, ctx) {
   // Inject mobile menu script before </body>
   html = html.replace("</body>", ctx.mobileMenuScript + "</body>");
 
-  return htmlResponse(html, 3600);
+  // Create final response with headers
+  const finalResponse = htmlResponse(html, 3600);
+  
+  // Cache the transformed response
+  // Use waitUntil so it doesn't block the return
+  ctx.waitUntil(cache.put(cacheKey, finalResponse.clone()));
+
+  return finalResponse;
 }
 
 // ============================================================================
@@ -816,7 +870,22 @@ function renderBlogPost(post, relatedPosts, ctx) {
     /\{\{meta_description\}\}/g,
     escapeHtml(post.meta_description || post.short_preview || ""),
   );
-  html = html.replace(/\{\{body\}\}/g, post.body || "");
+  
+  // Sanitize body content to prevent Stored XSS
+  const sanitizedBody = sanitizeHtml(post.body || "", {
+    allowedTags: sanitizeHtml.defaults.allowedTags.concat([
+      'img', 'figure', 'figcaption', 'h1', 'h2', 'span', 'div'
+    ]),
+    allowedAttributes: {
+      ...sanitizeHtml.defaults.allowedAttributes,
+      '*': ['class', 'style'],
+      'img': ['src', 'alt', 'width', 'height', 'loading'],
+      'a': ['href', 'target', 'rel']
+    },
+    allowedSchemes: ['http', 'https', 'mailto', 'tel'],
+  });
+  
+  html = html.replace(/\{\{body\}\}/g, sanitizedBody);
   html = html.replace(/\{\{related_posts\}\}/g, relatedHtml);
   html = html.replace(/\{\{encoded_url\}\}/g, encodeURIComponent(postUrl));
   html = html.replace(/\{\{encoded_title\}\}/g, encodeURIComponent(post.title));
@@ -1028,6 +1097,7 @@ async function handleContactForm(request, env) {
     const phone = formData.get("phone");
     const budget = formData.get("budget") || "";
     const message = formData.get("message") || "";
+    const turnstileToken = formData.get("cf-turnstile-response");
 
     // Validate required fields
     if (!name || !email || !phone) {
@@ -1038,6 +1108,40 @@ async function handleContactForm(request, env) {
         },
         400,
       );
+    }
+
+    // Verify Turnstile Token (if secret is configured)
+    if (env.TURNSTILE_SECRET_KEY) {
+      if (!turnstileToken) {
+        return jsonResponse(
+          { success: false, error: "Missing security check token" },
+          400,
+        );
+      }
+
+      const turnstileVerify = await fetch(
+        "https://challenges.cloudflare.com/turnstile/v0/siteverify",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            secret: env.TURNSTILE_SECRET_KEY,
+            response: turnstileToken,
+            remoteip: request.headers.get("CF-Connecting-IP"),
+          }),
+        },
+      );
+
+      const turnstileOutcome = await turnstileVerify.json();
+      if (!turnstileOutcome.success) {
+        console.error("Turnstile failure:", turnstileOutcome);
+        return jsonResponse(
+          { success: false, error: "Security check failed. Please refresh and try again." },
+          400,
+        );
+      }
+    } else {
+      console.warn("TURNSTILE_SECRET_KEY not set - skipping security check");
     }
 
     // Basic email validation
@@ -1199,11 +1303,11 @@ async function handleContactForm(request, env) {
 // ============================================================================
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, executionCtx) {
     const url = new URL(request.url);
 
     // Create request context once (lazy-initialized when needed)
-    const ctx = createRequestContext();
+    const ctx = createRequestContext(executionCtx);
 
     // Route: /api/contact - Contact form submission
     if (url.pathname === "/api/contact" && request.method === "POST") {
