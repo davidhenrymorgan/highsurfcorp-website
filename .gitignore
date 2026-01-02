@@ -51,6 +51,9 @@ wrangler.toml.bak
 # Generated blog files (served dynamically from D1)
 dist/blog/
 
+# Admin UI build output (built from admin-ui/ source)
+dist/admin/
+
 # Wrangler build artifacts
 dist/index.js
 dist/index.js.map
