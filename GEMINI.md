@@ -31,10 +31,9 @@ git push origin development
 ### Deployment to Production
 
 1. Work and test on `development` branch
-2. **Build Admin UI** (if changed): `cd admin-ui && npm run build && cd ..`
-3. When ready, merge: `git checkout main && git merge development`
-4. Push: `git push origin main`
-5. Deploy: `npx wrangler deploy`
+2. When ready, merge: `git checkout main && git merge development`
+3. Push: `git push origin main`
+4. Deploy: `npm run deploy` (builds admin UI + blog images, then deploys)
 
 ## Project Overview
 
@@ -375,9 +374,11 @@ Visit http://localhost:5173 for admin dashboard with hot reload.
 
 **Building Admin UI:**
 ```bash
-cd admin-ui && npm install && npm run build && cd ..
+npm run build:admin
+# Or build everything (admin + blog images):
+npm run build
 ```
-Output goes to `dist/admin/` - must run before deploying if admin code changed.
+Output goes to `dist/admin/`. The `npm run build` and `npm run deploy` scripts automatically build the admin UI.
 
 **Adding a New Blog Post:**
 1. Go to highsurfcorp.com/admin
@@ -546,7 +547,7 @@ Edit `src/controllers/admin.js` → `generateBlogPost()` function to change:
 **Adding new Admin UI components:**
 1. Create component in `admin-ui/src/components/`
 2. Import into `Dashboard.jsx` or `Layout.jsx`
-3. Build: `cd admin-ui && npm run build`
+3. Build: `npm run build:admin` (or `npm run build` to include blog images)
 
 **Key Admin Files:**
 | Purpose | File |

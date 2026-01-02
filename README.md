@@ -119,10 +119,13 @@ node generate-seed.js
 npx wrangler d1 execute highsurf-cms --remote --file=./seed.sql
 ```
 
-### Build Admin UI
+### Build Everything
 ```bash
-# Required before deploying if admin code changed
-cd admin-ui && npm run build && cd ..
+# Builds admin UI + downloads blog images
+npm run build
+
+# Or build admin UI only:
+npm run build:admin
 ```
 
 ### Deploy to Production
@@ -131,7 +134,7 @@ cd admin-ui && npm run build && cd ..
 git checkout main
 git merge development
 git push origin main
-npx wrangler deploy
+npm run deploy  # Builds everything + deploys
 ```
 
 ### D1 Database Commands

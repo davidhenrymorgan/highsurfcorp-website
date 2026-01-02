@@ -18,9 +18,9 @@ git pull origin development
 npm install
 ```
 
-### 3. Build Admin UI (Required if admin code changed)
+### 3. Build Everything
 ```bash
-cd admin-ui && npm install && npm run build && cd ..
+npm run build  # Builds admin UI + downloads blog images
 ```
 
 Verify build output:
@@ -193,7 +193,8 @@ npx wrangler deploy
 
 | Command | Description |
 |---------|-------------|
-| `npm run build` | Download blog images |
+| `npm run build` | Build admin UI + download blog images |
+| `npm run build:admin` | Build admin UI only (to dist/admin/) |
 | `npm run optimize:images` | Compress images in dist/ |
 | `npm run dev` | Build + local dev server |
 | `npm run deploy` | Build + deploy to production |
@@ -202,7 +203,6 @@ npx wrangler deploy
 | Command | Description |
 |---------|-------------|
 | `cd admin-ui && npm run dev` | Start admin frontend dev server (port 5173) |
-| `cd admin-ui && npm run build` | Build admin UI to dist/admin/ |
 
 ## Content Management
 
