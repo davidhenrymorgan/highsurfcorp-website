@@ -4,7 +4,7 @@
  */
 
 import { Hono } from "hono";
-import { cors } from 'hono/cors';
+import { cors } from "hono/cors";
 // Middleware
 import { contextMiddleware } from "./middleware/context.js";
 import { serveStatic, jsonResponse } from "./middleware/static.js";
@@ -20,6 +20,13 @@ import {
   upsertPost,
   deletePost,
 } from "./controllers/admin.js";
+import {
+  analyzeCompetitor,
+  getCompetitors,
+  getCompetitor,
+  deleteCompetitor,
+  refreshCompetitor,
+} from "./controllers/intelligence.js";
 
 const app = new Hono();
 
@@ -27,15 +34,22 @@ const app = new Hono();
 // GLOBAL MIDDLEWARE
 // ============================================================================
 
-app.use('*', cors({
-  // Add 'http://localhost:5173' to this list for local development
-  origin: ['https://highsurfcorp.com', 'http://localhost:8787', 'http://localhost:5173'],
-  allowMethods: ['GET', 'POST', 'OPTIONS', 'PUT', 'DELETE'],
-  allowHeaders: ['Content-Type', 'X-Admin-Key'], 
-  exposeHeaders: ['Content-Length'],
-}));
+app.use(
+  "*",
+  cors({
+    // Add 'http://localhost:5173' to this list for local development
+    origin: [
+      "https://highsurfcorp.com",
+      "http://localhost:8787",
+      "http://localhost:5173",
+    ],
+    allowMethods: ["GET", "POST", "OPTIONS", "PUT", "DELETE"],
+    allowHeaders: ["Content-Type", "X-Admin-Key"],
+    exposeHeaders: ["Content-Length"],
+  }),
+);
 
-app.use('*', contextMiddleware);
+app.use("*", contextMiddleware);
 
 // ============================================================================
 // API ROUTES
@@ -81,6 +95,21 @@ app.get("/api/admin/posts/:id", adminAuth, getAdminPost);
 app.post("/api/admin/posts", adminAuth, upsertPost);
 app.delete("/api/admin/posts/:id", adminAuth, deletePost);
 
+// Competitor Intelligence
+app.post("/api/admin/intelligence/analyze", adminAuth, analyzeCompetitor);
+app.get("/api/admin/intelligence/competitors", adminAuth, getCompetitors);
+app.get("/api/admin/intelligence/competitors/:id", adminAuth, getCompetitor);
+app.delete(
+  "/api/admin/intelligence/competitors/:id",
+  adminAuth,
+  deleteCompetitor,
+);
+app.post(
+  "/api/admin/intelligence/competitors/:id/refresh",
+  adminAuth,
+  refreshCompetitor,
+);
+
 // ============================================================================
 // BLOG ROUTES
 // ============================================================================
@@ -125,7 +154,6 @@ app.get("/", async (c) => {
 // Serve the React Admin Dashboard (SPA)
 // This must be placed BEFORE the catch-all '*' route
 app.get("/admin/*", serveAdmin);
-
 
 // ============================================================================
 // FALLBACK TO STATIC ASSETS

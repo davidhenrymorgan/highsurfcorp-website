@@ -55,3 +55,6 @@ dist/blog/
 dist/index.js
 dist/index.js.map
 dist/README.md
+
+.gemini/
+gha-creds-*.json

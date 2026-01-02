@@ -13,7 +13,7 @@ export async function generateBlogPost(c) {
   try {
     // Parse request body
     const body = await c.req.json();
-    const { topic, keywords, tone = "professional" } = body;
+    const { topic, keywords, tone = "professional", competitorId } = body;
 
     // Validate required fields
     if (!topic) {
@@ -25,7 +25,34 @@ export async function generateBlogPost(c) {
     }
 
     // Build AI prompt
-    const systemPrompt = `You are an expert SEO content writer for a seawall construction company in Florida specializing in coquina, granite, and limestone seawalls. Output ONLY valid JSON with no additional text or markdown formatting.`;
+    let systemPrompt = `You are an expert SEO content writer for a seawall construction company in Florida specializing in coquina, granite, and limestone seawalls. Output ONLY valid JSON with no additional text or markdown formatting.`;
+
+    // Add competitor context if provided
+    if (competitorId) {
+      const competitor = await safeDbFirst(
+        c.env.DB,
+        "SELECT * FROM competitors WHERE id = ?",
+        [competitorId],
+      );
+
+      if (competitor && competitor.insights) {
+        try {
+          const insights = JSON.parse(competitor.insights);
+          systemPrompt += `
+
+COMPETITOR INTELLIGENCE - Outperform "${competitor.name}":
+- Address these content gaps they miss: ${insights.gaps?.join(", ") || "N/A"}
+- Use a ${insights.tone || tone} tone to match their market
+- Include these keywords they target: ${insights.keywords?.slice(0, 5).join(", ") || "N/A"}
+- Differentiate from their selling points: ${insights.selling_points?.join(", ") || "N/A"}
+- Target their geographic areas: ${insights.geographic_focus?.join(", ") || "Florida"}
+
+Create content that addresses the gaps in their content strategy while maintaining our unique value proposition.`;
+        } catch (parseError) {
+          console.error("Failed to parse competitor insights:", parseError);
+        }
+      }
+    }
 
     const userPrompt = `Generate a blog post structure for the topic "${topic}"${keywords ? ` targeting keywords: ${keywords}` : ""}. Tone: ${tone}.
 

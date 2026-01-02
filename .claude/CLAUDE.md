@@ -31,10 +31,9 @@ git push origin development
 ### Deployment to Production
 
 1. Work and test on `development` branch
-2. **Build Admin UI** (if changed): `cd admin-ui && npm run build && cd ..`
-3. When ready, merge: `git checkout main && git merge development`
-4. Push: `git push origin main`
-5. Deploy: `npx wrangler deploy`
+2. When ready, merge: `git checkout main && git merge development`
+3. Push: `git push origin main`
+4. Deploy: `npm run deploy` (builds admin UI + blog images, then deploys)
 
 ## Project Overview
 
@@ -43,7 +42,7 @@ git push origin development
 - **Domain**: highsurfcorp.com
 - **Admin URL**: highsurfcorp.com/admin
 - **CSS Framework**: Tailwind CSS (via CDN for public site, bundled for admin)
-- **Migration Status**: Fully migrated from Webflow (January 2026)
+- **Migration Status**: Fully migrated from Webflow (January 2026) - Webflow account cancelled
 
 ## Architecture
 
@@ -219,9 +218,7 @@ node src/migrate.js --remote
 - **Routes**:
   - `/blog` - Blog index page (dynamically rendered)
   - `/blog/:slug` - Individual post pages (dynamically rendered)
-- **Data Source (for seeding)**: CSV files in `website-main/blog/`
-
-**Note:** The `generate-blog.js` script generates static blog files to `dist/blog/` but these are gitignored. Blog pages are served dynamically by the Worker from D1.
+**Note:** The `generate-blog.js` script downloads blog images to `dist/blog/` but these are gitignored. Blog pages are served dynamically by the Worker from D1. All content is managed via the Admin Panel.
 
 ## Build & Deployment Workflow
 
@@ -239,12 +236,11 @@ git pull origin main
 npx wrangler deploy
 ```
 
-**Update Blog Content in D1:**
-```bash
-# Edit CSV files in website-main/blog/
-node generate-seed.js
-npx wrangler d1 execute highsurf-cms --remote --file=./seed.sql
-```
+**Manage Blog Content:**
+Use the Admin Panel at https://highsurfcorp.com/admin/ for all content management:
+- Create posts with AI assistance
+- Edit existing posts
+- Publish/unpublish content
 
 ## Project Structure
 
@@ -292,9 +288,7 @@ npx wrangler d1 execute highsurf-cms --remote --file=./seed.sql
 │   ├── upload-blog-images.js
 │   └── remove-dead-code.sh
 ├── generate-blog.js           # Blog image downloader (output gitignored)
-├── generate-seed.js           # D1 seed generator (CSV → SQL)
 ├── schema.sql                 # D1 schema reference
-├── seed.sql                   # D1 seed data (generated)
 ├── dist/                      # Static assets (served by Workers)
 │   ├── index.html             # Homepage
 │   ├── 404.html               # Custom 404 page
@@ -306,9 +300,6 @@ npx wrangler d1 execute highsurf-cms --remote --file=./seed.sql
 │   ├── images/                # Static images
 │   ├── _headers               # HTTP headers config
 │   └── _redirects             # URL redirect rules
-└── website-main/blog/         # Source CSV data
-    ├── Copy of High Surf Corp V4.20 - Blog Posts.csv
-    └── Copy of High Surf Corp V4.20 - Topics.csv
 ```
 
 **Important Notes:**
@@ -383,23 +374,18 @@ Visit http://localhost:5173 for admin dashboard with hot reload.
 
 **Building Admin UI:**
 ```bash
-cd admin-ui && npm install && npm run build && cd ..
+npm run build:admin
+# Or build everything (admin + blog images):
+npm run build
 ```
-Output goes to `dist/admin/` - must run before deploying if admin code changed.
+Output goes to `dist/admin/`. The `npm run build` and `npm run deploy` scripts automatically build the admin UI.
 
-**Adding a New Blog Post (via Admin):**
+**Adding a New Blog Post:**
 1. Go to highsurfcorp.com/admin
 2. Click "Generate with AI" and enter topic/keywords
 3. Review generated outline, click "Create Draft"
-4. Edit and publish from dashboard
-
-**Adding a New Blog Post (via CSV):**
-1. On `development` branch: Add row to CSV: `website-main/blog/Copy of High Surf Corp V4.20 - Blog Posts.csv`
-2. Run: `node generate-seed.js` to generate SQL
-3. Update remote D1: `npx wrangler d1 execute highsurf-cms --remote --file=./seed.sql`
-4. (Optional) Download images: `node generate-blog.js`
-5. Test: `npx wrangler dev`
-6. Commit and push, then deploy from `main`
+4. Edit content, add hero image URL, set metadata
+5. Toggle status to Published and save
 
 **Updating Static Pages:**
 All static pages (homepage, contact, legal, 404) use Tailwind CSS via CDN. Edit the HTML files directly in `dist/`.
@@ -433,9 +419,8 @@ node src/migrate.js --remote
 ## Performance Optimizations (January 2026)
 
 ### Homepage Optimizations
-- **Removed dead CSS**: Deleted references to non-existent Webflow CSS files (normalize.css, components.css)
-- **Consolidated fonts**: Replaced WebFont.js with single Google Fonts load (Montserrat, Inter, Poppins - only used weights)
-- **Deduplicated Iconify**: Removed duplicate iconify.min.js, kept only iconify-icon.min.js
+- **Consolidated fonts**: Single Google Fonts load (Montserrat, Inter, Poppins - only used weights)
+- **Single Iconify**: Using iconify-icon.min.js only
 - **Resource hints**: Added preconnect/dns-prefetch for R2, Tailwind CDN, Iconify, Vimeo
 - **Video optimization**: Changed hero video from 1080p to 720p, added poster image
 - **Lazy loading**: Added `loading="lazy"` to blog card images
@@ -461,7 +446,6 @@ npx wrangler r2 bucket info highsurfcorp
 **Important Notes:**
 - All blog images are stored in R2 at `images/blog/` path
 - Image filenames may contain URL-encoded characters (`%20`, `%2520`)
-- Webflow CDN fallbacks have been removed (account being cancelled)
 - Database `hero_image_url` values point directly to R2 public URLs
 
 ## Code Quality Standards
@@ -563,7 +547,7 @@ Edit `src/controllers/admin.js` → `generateBlogPost()` function to change:
 **Adding new Admin UI components:**
 1. Create component in `admin-ui/src/components/`
 2. Import into `Dashboard.jsx` or `Layout.jsx`
-3. Build: `cd admin-ui && npm run build`
+3. Build: `npm run build:admin` (or `npm run build` to include blog images)
 
 **Key Admin Files:**
 | Purpose | File |
