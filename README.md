@@ -1,8 +1,9 @@
-# High Surf Corp Website
+# High Surf Corp Website & AI CMS
 
-Marketing website with D1-powered dynamic blog for High Surf Corp - a family-owned business specializing in coquina, granite, and limestone seawalls in Brevard County, Florida.
+Marketing website with D1-powered dynamic blog and **AI-powered Admin Dashboard** for High Surf Corp - a family-owned business specializing in coquina, granite, and limestone seawalls in Brevard County, Florida.
 
 **Live Site:** https://highsurfcorp.com
+**Admin Panel:** https://highsurfcorp.com/admin
 
 ## Quick Start
 
@@ -18,56 +19,73 @@ npx vitest run
 # Switch to development branch
 git checkout development
 
-# Run local dev server
+# Run local dev server (public site + API)
 npx wrangler dev
 # Visit http://localhost:8787/
-# Blog pages rendered dynamically from D1
+```
+
+### Admin Dashboard Development
+```bash
+# Terminal 1: Backend worker
+npx wrangler dev
+
+# Terminal 2: Admin frontend with hot reload
+cd admin-ui && npm install && npm run dev
+# Visit http://localhost:5173/
 ```
 
 ## Project Structure
 
 ```
-├── wrangler.toml              # Cloudflare Workers config (D1 binding)
-├── src/                       # Modular Hono-based Worker
-│   ├── index.js               # Hono app router (entry point)
+├── wrangler.toml              # Cloudflare Workers config (D1, AI, Assets)
+├── admin-ui/                  # Admin Dashboard (React + Vite)
+│   ├── src/                   # React components
+│   ├── vite.config.js         # Build config (output: ../dist/admin)
+│   └── package.json           # React 19, Vite 7, Tailwind 3
+├── src/                       # Backend Worker (Hono)
+│   ├── index.js               # Hono app router
 │   ├── migrate.js             # Database migration runner
-│   ├── utils/
-│   │   ├── helpers.js         # formatDate, escapeHtml, etc.
-│   │   └── db.js              # safeDbQuery, safeDbFirst
-│   ├── views/
-│   │   ├── components.js      # Nav, footer, analytics, schema
-│   │   └── templates.js       # Blog post/index templates
+│   ├── utils/                 # Helpers & DB wrappers
+│   ├── views/                 # HTML templates (nav, footer, blog)
 │   ├── controllers/
-│   │   ├── blog.js            # getIndex, getPost
-│   │   └── contact.js         # postContact
-│   └── middleware/
-│       ├── context.js         # Pre-render nav/footer per request
-│       └── static.js          # Static page transformation
+│   │   ├── blog.js            # Public blog rendering
+│   │   ├── contact.js         # Contact form
+│   │   └── admin.js           # Admin API + AI generation
+│   └── middleware/            # Context injection, static serving
 ├── migrations/                # Versioned D1 schema migrations
 ├── scripts/                   # Utility scripts
-├── generate-blog.js           # Blog image downloader (output gitignored)
-├── generate-seed.js           # D1 seed generator (CSV → SQL)
-├── dist/                      # Static site files
-│   ├── index.html             # Homepage (Tailwind CSS)
-│   ├── 404.html               # Custom 404 page
+├── dist/                      # Static assets (served by Worker)
+│   ├── index.html             # Homepage
+│   ├── admin/                 # Compiled Admin UI (gitignored)
 │   ├── contact/               # Contact pages
 │   ├── legal/                 # Legal pages
 │   └── images/                # Static images
-└── website-main/blog/         # Source CSV data
+└── website-main/blog/         # Source CSV data for seeding
 ```
 
-**Note:** Blog pages (`/blog`, `/blog/:slug`) are rendered dynamically by the Worker from D1. The `dist/blog/` directory is gitignored.
+**Notes:**
+- Blog pages are rendered dynamically from D1 - `dist/blog/` is gitignored
+- Admin UI is built by Vite - `dist/admin/` is gitignored
 
 ## Tech Stack
 
+**Backend:**
 - **Framework:** Hono (modular routing on Cloudflare Workers)
-- **Hosting:** Cloudflare Workers (static + dynamic)
-- **Database:** Cloudflare D1 (`highsurf-cms`) - 23 posts, 65 topics
+- **Hosting:** Cloudflare Workers
+- **Database:** Cloudflare D1 (`highsurf-cms`)
 - **Images:** Cloudflare R2 bucket (`highsurfcorp`)
-- **CSS:** Tailwind CSS (via CDN) - all pages
-- **Security:** Cloudflare Turnstile (Contact Form), CSP Headers, HTML Sanitization
+- **AI:** Cloudflare Workers AI (`@cf/meta/llama-3-8b-instruct`)
 - **Email:** Resend API for contact form
+- **Security:** Cloudflare Turnstile, CSP Headers, HTML Sanitization
+
+**Frontend (Public):**
+- **CSS:** Tailwind CSS (via CDN)
 - **Blog Template:** aura.build design with dynamic rendering
+
+**Frontend (Admin):**
+- **Framework:** React 19 + Vite 7
+- **Styling:** Tailwind CSS 3 (bundled)
+- **Icons:** Iconify React (Solar icons)
 
 ## Git Workflow
 
@@ -83,15 +101,28 @@ Required secrets for production:
 ```bash
 npx wrangler secret put RESEND_API_KEY
 npx wrangler secret put TURNSTILE_SECRET_KEY
+npx wrangler secret put ADMIN_SECRET
 ```
 Variables in `wrangler.toml` or `vars`:
 - `TURNSTILE_SITE_KEY` (public key)
+
+For local admin development, create `admin-ui/.env.local`:
+```
+VITE_API_URL=http://localhost:8787/api/admin
+VITE_ADMIN_KEY=your_local_password
+```
 
 ### Update Blog Content in D1
 ```bash
 # Edit CSV, regenerate seed, update D1
 node generate-seed.js
 npx wrangler d1 execute highsurf-cms --remote --file=./seed.sql
+```
+
+### Build Admin UI
+```bash
+# Required before deploying if admin code changed
+cd admin-ui && npm run build && cd ..
 ```
 
 ### Deploy to Production
