@@ -618,8 +618,8 @@ function getBlogPostTemplate(ctx) {
 
     <!-- Full Width Hero Image -->
     <div class="w-full max-w-[95rem] mx-auto px-4 md:px-8 mb-20 md:mb-32 animate-slide-up [animation-delay:0.6s] opacity-0">
-      <div class="relative w-full aspect-[4/3] sm:aspect-video md:aspect-[21/9] bg-neutral-100 rounded-3xl md:rounded-[2.5rem] overflow-hidden shadow-2xl">
-        <img src="{{hero_image}}" alt="{{title}}" class="w-full h-full object-cover" fetchpriority="high">
+      <div class="relative w-full aspect-[4/3] sm:aspect-video md:aspect-[21/9] bg-gradient-to-br from-neutral-200 to-neutral-300 rounded-3xl md:rounded-[2.5rem] overflow-hidden shadow-2xl">
+        <img src="{{hero_image}}" alt="{{title}}" class="w-full h-full object-cover" fetchpriority="high" onerror="this.onerror=null;this.style.display='none'">
         <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none"></div>
       </div>
     </div>
@@ -855,7 +855,7 @@ function renderBlogIndex(posts, ctx, pagination = { page: 1, totalPages: 1 }) {
         <div class="max-w-7xl mx-auto">
           <a href="/blog/${featuredPost.slug}" class="group block">
             <div class="relative aspect-[21/9] bg-neutral-100 rounded-3xl overflow-hidden mb-8">
-              <img src="${featuredPost.hero_image_url || featuredPost.thumbnail_image || featuredPost.hero_image || ""}" alt="${escapeHtml(featuredPost.title)}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+              <img src="${featuredPost.hero_image_url || featuredPost.thumbnail_image || featuredPost.hero_image || ""}" alt="${escapeHtml(featuredPost.title)}" onerror="this.onerror=null;this.style.display='none'" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
               <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
               <div class="absolute bottom-0 left-0 right-0 p-8 md:p-12">
                 <div class="flex items-center gap-3 mb-4">
