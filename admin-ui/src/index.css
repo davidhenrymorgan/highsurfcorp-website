@@ -13,6 +13,7 @@
 @layer components {
   .glass {
     background: rgba(15, 23, 42, 0.6);
+    -webkit-backdrop-filter: blur(12px);
     backdrop-filter: blur(12px);
   }
 }

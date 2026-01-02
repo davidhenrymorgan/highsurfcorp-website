@@ -8,7 +8,7 @@ import { SCHEMA_JSON } from "../views/components.js";
  * Content Security Policy header
  */
 const CSP_HEADER =
-  "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://code.iconify.design https://challenges.cloudflare.com https://www.googletagmanager.com https://connect.facebook.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https: blob:; font-src 'self' https://fonts.gstatic.com data:; connect-src 'self' https://www.google-analytics.com https://www.facebook.com https://challenges.cloudflare.com; frame-src 'self' https://challenges.cloudflare.com;";
+  "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://code.iconify.design https://challenges.cloudflare.com https://www.googletagmanager.com https://connect.facebook.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https: blob:; font-src 'self' https://fonts.gstatic.com data:; media-src 'self' https://pub-8a557d48118e46a38c0007cee5e58bd9.r2.dev; connect-src 'self' https://www.google-analytics.com https://www.facebook.com https://challenges.cloudflare.com; frame-src 'self' https://challenges.cloudflare.com;";
 
 /**
  * Create an HTML response with caching headers and CSP
@@ -137,9 +137,9 @@ export async function serveStatic(c, overridePath = null) {
     /\s*<script[^>]*googletagmanager[^>]*><\/script>\s*<script>[\s\S]*?gtag\('config',\s*'G-93DQDPMR4J'\);[\s\S]*?<\/script>/gi,
     "",
   );
-  // Meta Pixel
+  // Meta Pixel - remove existing to avoid duplicates
   html = html.replace(
-    /[\s\S]*?/gi,
+    /<!--\s*Meta Pixel Code\s*-->[\s\S]*?<!--\s*End Meta Pixel Code\s*-->/gi,
     "",
   );
 
@@ -179,8 +179,9 @@ export async function serveStatic(c, overridePath = null) {
 
   // Replace navigation with standardized nav
   const webflowNavPattern = /<header class="nav_wrap">[\s\S]*?<\/header>/;
+  // Match pill-shaped nav: <div class="fixed top-6..."><nav...>...</nav></div>
   const pillNavPattern =
-    /[\s\S]*?[\s\S]*?<\/div>\s*<\/div>\s*<\/div>/;
+    /<div class="fixed top-6[^"]*"[^>]*>[\s\S]*?<\/nav>\s*<\/div>/;
 
   if (webflowNavPattern.test(html)) {
     html = html.replace(webflowNavPattern, navHtml);
@@ -218,14 +219,14 @@ export async function serveStatic(c, overridePath = null) {
  */
 export async function serveAdmin(c) {
   // If requesting a specific file (css/js/png), serve it directly
-  if (c.req.path.includes('.')) {
+  if (c.req.path.includes(".")) {
     return c.env.ASSETS.fetch(c.req.raw);
   }
-  
+
   // Otherwise, serve the React app's index.html for all routes (client-side routing)
   // We need to rewrite the request to point to /admin/index.html in the assets bucket
   const url = new URL(c.req.url);
-  url.pathname = '/admin/index.html';
-  
+  url.pathname = "/admin/index.html";
+
   return c.env.ASSETS.fetch(new Request(url, c.req.raw));
 }

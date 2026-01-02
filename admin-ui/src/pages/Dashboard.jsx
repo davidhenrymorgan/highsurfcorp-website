@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Icon } from "@iconify/react";
 
 export default function Dashboard() {
+  const navigate = useNavigate();
   const [posts, setPosts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState("all"); // 'all', 'published', 'draft'
@@ -47,7 +49,7 @@ export default function Dashboard() {
           <h1 className="text-2xl font-semibold text-slate-100 tracking-tight">
             All Posts
           </h1>
-          <button 
+          <button
             onClick={fetchPosts}
             className="p-2 text-slate-400 hover:text-white transition-colors"
             title="Refresh"
@@ -76,7 +78,10 @@ export default function Dashboard() {
       <div className="flex-1 px-6 pb-6">
         {isLoading ? (
           <div className="flex justify-center py-20">
-            <Icon icon="solar:refresh-bold-duotone" className="text-4xl text-slate-600 animate-spin" />
+            <Icon
+              icon="solar:refresh-bold-duotone"
+              className="text-4xl text-slate-600 animate-spin"
+            />
           </div>
         ) : (
           <div className="flex flex-col gap-2">
@@ -94,17 +99,20 @@ export default function Dashboard() {
                     {/* Thumbnail Fallback */}
                     <div className="w-16 h-12 rounded-lg border border-white/10 bg-slate-800 flex items-center justify-center overflow-hidden">
                       {post.hero_image_url ? (
-                        <img 
-                          src={post.hero_image_url} 
-                          alt="" 
+                        <img
+                          src={post.hero_image_url}
+                          alt=""
                           className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
-                          onError={(e) => e.target.style.display = 'none'} 
+                          onError={(e) => (e.target.style.display = "none")}
                         />
                       ) : (
-                        <Icon icon="solar:gallery-wide-linear" className="text-slate-600 text-xl" />
+                        <Icon
+                          icon="solar:gallery-wide-linear"
+                          className="text-slate-600 text-xl"
+                        />
                       )}
                     </div>
-                    
+
                     <div>
                       <h3 className="text-sm font-medium text-slate-200 group-hover:text-white transition-colors line-clamp-1">
                         {post.title}
@@ -133,7 +141,14 @@ export default function Dashboard() {
                       {formatDate(post.published_at || post.created_at)}
                     </span>
 
-                    <button className="text-slate-400 hover:text-blue-400 p-2 hover:bg-white/10 rounded-lg transition-colors">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/edit/${post.id}`);
+                      }}
+                      className="text-slate-400 hover:text-blue-400 p-2 hover:bg-white/10 rounded-lg transition-colors"
+                      title="Edit Post"
+                    >
                       <Icon icon="solar:pen-bold-duotone" className="text-lg" />
                     </button>
                   </div>

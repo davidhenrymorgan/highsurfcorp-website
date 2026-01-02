@@ -31,28 +31,60 @@ git push origin development
 ### Deployment to Production
 
 1. Work and test on `development` branch
-2. When ready, merge: `git checkout main && git merge development`
-3. Push: `git push origin main`
-4. Deploy: `npx wrangler deploy`
+2. **Build Admin UI** (if changed): `cd admin-ui && npm run build && cd ..`
+3. When ready, merge: `git checkout main && git merge development`
+4. Push: `git push origin main`
+5. Deploy: `npx wrangler deploy`
 
 ## Project Overview
 
-- **Type**: Marketing website with D1-powered dynamic blog
-- **Hosting**: Cloudflare Workers (static assets + D1 database + dynamic blog rendering)
+- **Type**: Marketing website + Dynamic Blog + **AI Admin Dashboard**
+- **Hosting**: Cloudflare Workers (static assets + D1 database + dynamic rendering)
 - **Domain**: highsurfcorp.com
-- **CSS Framework**: Tailwind CSS (via CDN) - all pages
+- **Admin URL**: highsurfcorp.com/admin
+- **CSS Framework**: Tailwind CSS (via CDN for public site, bundled for admin)
 - **Migration Status**: Fully migrated from Webflow (January 2026)
 
 ## Architecture
 
 - **Platform**: Cloudflare Workers with D1 database
 - **Framework**: Hono (modular routing framework)
+- **Admin Frontend**: React + Vite SPA (served at `/admin/*`)
 - **Config**: `wrangler.toml` in project root
 - **Static Files**: Homepage and other static pages served from `dist/` directory
 - **Dynamic Blog**: Worker renders blog pages from D1 database at runtime
 - **Database**: Cloudflare D1 (`highsurf-cms`) - blog content stored in SQL
 - **Images**: Cloudflare R2 bucket (`highsurfcorp`) - all images served from R2
+- **AI**: Cloudflare Workers AI (Llama 3-8B) for content generation
 - **Worker Code**: Modular Hono-based architecture in `src/`
+
+### Admin Dashboard Architecture (January 2026)
+
+The Admin Panel is a Single Page Application (SPA) built with React.
+
+- **Source**: `admin-ui/` directory
+- **Build Output**: `dist/admin/` (gitignored, built by Vite)
+- **Serving**: Worker serves `dist/admin/index.html` for any `/admin/*` request
+- **API**: Communicates with Worker via `/api/admin/*` endpoints
+- **Auth**: Secured via `X-Admin-Key` header (validated against `ADMIN_SECRET`)
+- **AI**: Cloudflare Workers AI (`@cf/meta/llama-3-8b-instruct`) for blog content generation
+
+**Admin UI Structure:**
+```
+admin-ui/
+├── src/
+│   ├── main.jsx              # React entry point
+│   ├── App.jsx               # Root component
+│   ├── index.css             # Global styles + Tailwind
+│   ├── pages/
+│   │   └── Dashboard.jsx     # Blog post list & management
+│   └── components/
+│       ├── Layout.jsx        # Sidebar + header layout
+│       └── GenerateModal.jsx # AI content generation modal
+├── vite.config.js            # Build config (outDir: ../dist/admin)
+├── tailwind.config.js        # Admin-specific Tailwind config
+└── package.json              # React 19, Vite 7, Tailwind 3
+```
 
 ### Modular Architecture (January 2026 Refactor)
 
@@ -60,19 +92,20 @@ The codebase uses a clean separation of concerns:
 
 ```
 src/
-├── index.js                 # Hono app router (94 lines)
+├── index.js                 # Hono app router (~150 lines)
 ├── utils/
-│   ├── helpers.js           # formatDate, escapeHtml, calculateReadingTime
+│   ├── helpers.js           # formatDate, escapeHtml, calculateReadingTime, slugify
 │   └── db.js                # safeDbQuery, safeDbFirst (D1 error handling)
 ├── views/
 │   ├── components.js        # SCHEMA_JSON, nav, footer, analytics, mobile menu
 │   └── templates.js         # Blog post/index page templates
 ├── controllers/
 │   ├── blog.js              # getIndex, getPost handlers
-│   └── contact.js           # postContact handler
+│   ├── contact.js           # postContact handler
+│   └── admin.js             # Admin API: AI generation, CRUD operations
 └── middleware/
     ├── context.js           # Pre-render nav/footer/analytics per request
-    └── static.js            # Static page transformation + response helpers
+    └── static.js            # Static page transformation + response helpers + serveAdmin
 ```
 
 **Key Patterns:**
@@ -155,7 +188,8 @@ node src/migrate.js --remote
 
 ## Tech Stack
 
-- **CSS Framework**: Tailwind CSS (via CDN) on all pages
+### Public Site
+- **CSS Framework**: Tailwind CSS (via CDN)
 - **Icons**: Iconify (via CDN)
 - **Fonts**: Montserrat (primary), Inter (blog), Poppins (secondary)
 - **JavaScript**: Vanilla JS + IntersectionObserver for scroll animations
@@ -163,6 +197,19 @@ node src/migrate.js --remote
 - **SEO**: LocalBusiness structured data (schema.org)
 - **Email**: Resend API for contact form submissions
 - **Design**: Dark theme (bg-neutral-950) with pill-shaped navigation
+
+### Admin Dashboard
+- **Framework**: React 19 + Vite 7
+- **Styling**: Tailwind CSS 3 (bundled, not CDN)
+- **Icons**: Iconify React (@iconify/react) - Solar icon set
+- **State**: React Hooks (useState, useEffect)
+- **Design**: Dark theme (bg-gray-950) with glassmorphism effects
+
+### Backend
+- **Runtime**: Cloudflare Workers
+- **Framework**: Hono
+- **Database**: D1 (SQLite)
+- **AI Model**: `@cf/meta/llama-3-8b-instruct` (Cloudflare Workers AI)
 
 ## Blog System (D1 Dynamic)
 
@@ -203,51 +250,61 @@ npx wrangler d1 execute highsurf-cms --remote --file=./seed.sql
 
 ```
 /
-├── wrangler.toml              # Cloudflare Workers config (D1 binding, static assets)
-├── package.json               # Dependencies: hono, resend, sanitize-html
-├── src/                       # Modular Hono-based Worker code
+├── wrangler.toml              # Cloudflare Workers config (D1, AI, Assets bindings)
+├── package.json               # Backend dependencies: hono, resend, sanitize-html
+├── admin-ui/                  # Admin Dashboard Frontend (React + Vite)
+│   ├── src/                   # React components
+│   │   ├── main.jsx           # React entry point
+│   │   ├── App.jsx            # Root component
+│   │   ├── pages/             # Page components
+│   │   │   └── Dashboard.jsx  # Blog post list & management
+│   │   └── components/        # Reusable components
+│   │       ├── Layout.jsx     # Sidebar + header layout
+│   │       └── GenerateModal.jsx  # AI content generation
+│   ├── vite.config.js         # Build config (outDir: ../dist/admin)
+│   ├── tailwind.config.js     # Admin Tailwind config
+│   ├── package.json           # Frontend dependencies
+│   └── .env.local             # Dev environment variables
+├── src/                       # Backend Worker code (Hono)
 │   ├── index.js               # Hono app router entry point
 │   ├── migrate.js             # Database migration runner
 │   ├── utils/
-│   │   ├── helpers.js         # formatDate, escapeHtml, calculateReadingTime, extractFirstImageUrl
-│   │   └── db.js              # safeDbQuery, safeDbFirst (D1 wrappers with error handling)
+│   │   ├── helpers.js         # formatDate, escapeHtml, calculateReadingTime, slugify
+│   │   └── db.js              # safeDbQuery, safeDbFirst (D1 wrappers)
 │   ├── views/
-│   │   ├── components.js      # SCHEMA_JSON, getNavigationHTML, getFooterHTML, getAnalyticsHTML, getMobileMenuScript
-│   │   └── templates.js       # getBlogPostTemplate, getBlogIndexTemplate, getRelatedPostCard
+│   │   ├── components.js      # SCHEMA_JSON, nav, footer, analytics, mobile menu
+│   │   └── templates.js       # Blog post/index page templates
 │   ├── controllers/
-│   │   ├── blog.js            # getIndex, getPost, renderBlogPost, renderBlogIndex
-│   │   └── contact.js         # postContact (Turnstile + Resend integration)
+│   │   ├── blog.js            # getIndex, getPost (public blog)
+│   │   ├── contact.js         # postContact (Turnstile + Resend)
+│   │   └── admin.js           # Admin API: AI generation, CRUD
 │   └── middleware/
 │       ├── context.js         # contextMiddleware, getTemplateContext
-│       └── static.js          # serveStatic, htmlResponse, jsonResponse, errorResponse
-├── migrations/                 # Versioned D1 schema migrations
+│       └── static.js          # serveStatic, serveAdmin, response helpers
+├── migrations/                # Versioned D1 schema migrations
 │   ├── 0001_initial_schema.sql
 │   ├── 0002_schema_migrations.sql
 │   └── 0003_add_hero_image_url.sql
-├── scripts/
-│   ├── fix-image-urls.js      # URL transformation utility (Webflow → R2)
-│   ├── optimize-images.js     # Image compression utility
-│   ├── backfill-hero-image-url.js  # Populate hero_image_url from body
-│   ├── upload-blog-images.js  # Upload local blog images to R2 bucket
-│   └── remove-dead-code.sh    # Cleanup script for unused files
-├── generate-blog.js           # Blog image downloader + static file generator (gitignored output)
+├── scripts/                   # Utility scripts
+│   ├── fix-image-urls.js
+│   ├── optimize-images.js
+│   ├── backfill-hero-image-url.js
+│   ├── upload-blog-images.js
+│   └── remove-dead-code.sh
+├── generate-blog.js           # Blog image downloader (output gitignored)
 ├── generate-seed.js           # D1 seed generator (CSV → SQL)
-├── schema.sql                 # D1 database schema (reference only, use migrations)
-├── seed.sql                   # D1 seed data (generated from CSV)
-├── head-code.html             # Analytics snippet (Google + Meta)
-├── footer-code.html           # LocalBusiness schema.org structured data
+├── schema.sql                 # D1 schema reference
+├── seed.sql                   # D1 seed data (generated)
 ├── dist/                      # Static assets (served by Workers)
-│   ├── index.html             # Homepage (Tailwind CSS)
-│   ├── 404.html               # Custom 404 page (Tailwind CSS)
-│   ├── contact/               # Contact pages (Tailwind CSS)
-│   │   ├── brevard-county-free-estimate.html
-│   │   └── success.html
-│   ├── legal/                 # Legal pages (Tailwind CSS)
-│   │   ├── privacy-policy.html
-│   │   └── terms-conditions.html
+│   ├── index.html             # Homepage
+│   ├── 404.html               # Custom 404 page
+│   ├── admin/                 # Compiled Admin UI (gitignored, built by Vite)
+│   │   ├── index.html         # React SPA entry
+│   │   └── assets/            # JS/CSS bundles
+│   ├── contact/               # Contact pages
+│   ├── legal/                 # Legal pages
 │   ├── images/                # Static images
-│   │   └── blog/              # Downloaded blog images (cached)
-│   ├── _headers               # HTTP headers config (cache-control)
+│   ├── _headers               # HTTP headers config
 │   └── _redirects             # URL redirect rules
 └── website-main/blog/         # Source CSV data
     ├── Copy of High Surf Corp V4.20 - Blog Posts.csv
@@ -256,6 +313,7 @@ npx wrangler d1 execute highsurf-cms --remote --file=./seed.sql
 
 **Important Notes:**
 - `dist/blog/` is gitignored - blog pages are rendered dynamically by the Worker
+- `dist/admin/` is gitignored - built by Vite from `admin-ui/` source
 - `dist/css/` and `dist/js/` directories no longer exist - Tailwind CSS via CDN
 - All static pages use Tailwind CSS via CDN script tag
 - Worker code is modular - edit specific files rather than one monolithic file
@@ -264,6 +322,7 @@ npx wrangler d1 execute highsurf-cms --remote --file=./seed.sql
 
 Hono-based routing with modular handlers:
 
+### Public Routes
 | Route | Handler | File | Description |
 |-------|---------|------|-------------|
 | `GET /` | `serveStatic(c, '/index')` | `middleware/static.js` | Homepage with component injection |
@@ -272,7 +331,19 @@ Hono-based routing with modular handlers:
 | `GET /legal/:page` | `serveStatic(c)` | `middleware/static.js` | Legal pages with nav/footer |
 | `GET /contact/:page` | `serveStatic(c)` | `middleware/static.js` | Contact pages with Turnstile |
 | `POST /api/contact` | `postContact(c)` | `controllers/contact.js` | Contact form (Turnstile + Resend) |
+| `GET /admin/*` | `serveAdmin(c)` | `middleware/static.js` | React Admin SPA |
 | `GET *` | Fallback | `src/index.js` | Static assets or 404 page |
+
+### Admin API Routes (Protected)
+All admin routes require `X-Admin-Key` header matching `ADMIN_SECRET`.
+
+| Route | Handler | File | Description |
+|-------|---------|------|-------------|
+| `POST /api/admin/generate` | `generateBlogPost(c)` | `controllers/admin.js` | AI content generation |
+| `GET /api/admin/posts` | `getAdminPosts(c)` | `controllers/admin.js` | List all posts |
+| `GET /api/admin/posts/:id` | `getAdminPost(c)` | `controllers/admin.js` | Get single post |
+| `POST /api/admin/posts` | `upsertPost(c)` | `controllers/admin.js` | Create/update post |
+| `DELETE /api/admin/posts/:id` | `deletePost(c)` | `controllers/admin.js` | Delete post |
 
 **Adding New Routes:**
 ```javascript
@@ -288,11 +359,41 @@ app.get('/my-route', myHandler);
   - `html_handling = "none"` - Worker handles all routing
   - `run_worker_first = true` - Routes through Worker for page transformation
   - `[[d1_databases]]` - D1 binding (`DB` → `highsurf-cms`)
-  - Resend API key set via: `npx wrangler secret put RESEND_API_KEY`
+  - `[ai]` - AI binding for Cloudflare Workers AI
+  - Secrets set via wrangler:
+    - `npx wrangler secret put RESEND_API_KEY`
+    - `npx wrangler secret put ADMIN_SECRET`
+    - `npx wrangler secret put TURNSTILE_SECRET_KEY`
+
+- **admin-ui/vite.config.js**: Vite build configuration
+  - `base: '/admin/'` - URL base path for admin assets
+  - `build.outDir: '../dist/admin'` - Output to worker assets directory
 
 ## Common Tasks
 
-**Adding a New Blog Post:**
+**Running Admin Dashboard Locally:**
+```bash
+# Terminal 1: Start backend worker (port 8787)
+npx wrangler dev
+
+# Terminal 2: Start admin frontend (port 5173)
+cd admin-ui && npm run dev
+```
+Visit http://localhost:5173 for admin dashboard with hot reload.
+
+**Building Admin UI:**
+```bash
+cd admin-ui && npm install && npm run build && cd ..
+```
+Output goes to `dist/admin/` - must run before deploying if admin code changed.
+
+**Adding a New Blog Post (via Admin):**
+1. Go to highsurfcorp.com/admin
+2. Click "Generate with AI" and enter topic/keywords
+3. Review generated outline, click "Create Draft"
+4. Edit and publish from dashboard
+
+**Adding a New Blog Post (via CSV):**
 1. On `development` branch: Add row to CSV: `website-main/blog/Copy of High Surf Corp V4.20 - Blog Posts.csv`
 2. Run: `node generate-seed.js` to generate SQL
 3. Update remote D1: `npx wrangler d1 execute highsurf-cms --remote --file=./seed.sql`
@@ -428,6 +529,48 @@ app.post('/api/example', postExample);
 Access via `c.env.VARIABLE_NAME` in Hono handlers:
 - `c.env.DB` - D1 database binding
 - `c.env.ASSETS` - Static assets binding
+- `c.env.AI` - Cloudflare Workers AI binding
+- `c.env.ADMIN_SECRET` - Admin API authentication key
 - `c.env.RESEND_API_KEY` - Email API key (secret)
 - `c.env.TURNSTILE_SITE_KEY` - Cloudflare Turnstile public key
 - `c.env.TURNSTILE_SECRET_KEY` - Cloudflare Turnstile secret key
+
+**Admin Frontend Environment (admin-ui/.env.local):**
+- `VITE_API_URL` - Backend API URL (dev: `http://localhost:8787/api/admin`)
+- `VITE_ADMIN_KEY` - Admin authentication key
+
+### Admin Development
+
+**Adding a new Admin API endpoint:**
+```javascript
+// src/controllers/admin.js
+export async function myNewHandler(c) {
+  const db = c.env.DB;
+  // Your logic here
+  return jsonResponse({ success: true }, 200, c.req.raw);
+}
+
+// src/index.js - Add to admin routes section
+app.post("/api/admin/my-endpoint", adminAuth, myNewHandler);
+```
+
+**Modifying the AI prompt:**
+Edit `src/controllers/admin.js` → `generateBlogPost()` function to change:
+- System prompt (AI personality/expertise)
+- User prompt (output format/structure)
+- Max tokens (default: 1024)
+
+**Adding new Admin UI components:**
+1. Create component in `admin-ui/src/components/`
+2. Import into `Dashboard.jsx` or `Layout.jsx`
+3. Build: `cd admin-ui && npm run build`
+
+**Key Admin Files:**
+| Purpose | File |
+|---------|------|
+| Admin API handlers | `src/controllers/admin.js` |
+| AI generation logic | `src/controllers/admin.js` → `generateBlogPost()` |
+| Admin SPA routing | `src/middleware/static.js` → `serveAdmin()` |
+| React dashboard | `admin-ui/src/pages/Dashboard.jsx` |
+| React layout | `admin-ui/src/components/Layout.jsx` |
+| AI modal | `admin-ui/src/components/GenerateModal.jsx` |
