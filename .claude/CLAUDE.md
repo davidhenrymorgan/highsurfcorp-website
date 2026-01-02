@@ -73,16 +73,23 @@ The Admin Panel is a Single Page Application (SPA) built with React.
 admin-ui/
 ├── src/
 │   ├── main.jsx              # React entry point
-│   ├── App.jsx               # Root component
+│   ├── App.jsx               # Root component with routing
 │   ├── index.css             # Global styles + Tailwind
 │   ├── pages/
-│   │   └── Dashboard.jsx     # Blog post list & management
+│   │   ├── Dashboard.jsx     # Analytics overview with stats cards & chart
+│   │   ├── Posts.jsx         # Blog post list with preview modal
+│   │   ├── Leads.jsx         # Lead/inquiry management (CRUD)
+│   │   ├── Intelligence.jsx  # Competitor analysis
+│   │   └── EditPost.jsx      # Blog post editor
 │   └── components/
 │       ├── Layout.jsx        # Sidebar + header layout
-│       └── GenerateModal.jsx # AI content generation modal
+│       ├── GenerateModal.jsx # AI content generation modal
+│       ├── PreviewModal.jsx  # Blog post preview modal
+│       ├── StatsCards.jsx    # Dashboard stats cards
+│       └── AnalyticsChart.jsx # Traffic/leads chart (recharts)
 ├── vite.config.js            # Build config (outDir: ../dist/admin)
 ├── tailwind.config.js        # Admin-specific Tailwind config
-└── package.json              # React 19, Vite 7, Tailwind 3
+└── package.json              # React 19, Vite 7, Tailwind 3, recharts
 ```
 
 ### Modular Architecture (January 2026 Refactor)
@@ -100,8 +107,10 @@ src/
 │   └── templates.js         # Blog post/index page templates
 ├── controllers/
 │   ├── blog.js              # getIndex, getPost handlers
-│   ├── contact.js           # postContact handler
-│   └── admin.js             # Admin API: AI generation, CRUD operations
+│   ├── contact.js           # postContact handler (saves to leads table + sends email)
+│   ├── admin.js             # Admin API: AI generation, blog CRUD
+│   ├── leads.js             # Lead management API: list, update status, delete
+│   └── intelligence.js      # Competitor analysis with Firecrawl v2
 └── middleware/
     ├── context.js           # Pre-render nav/footer/analytics per request
     └── static.js            # Static page transformation + response helpers + serveAdmin
@@ -170,6 +179,20 @@ CREATE TABLE posts (
   created_at TEXT,
   updated_at TEXT,
   published_at TEXT
+);
+
+-- Leads/Contact form submissions table (added via migration 0005)
+CREATE TABLE leads (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  phone TEXT,
+  zip TEXT,
+  budget TEXT,
+  message TEXT,
+  status TEXT DEFAULT 'new',    -- new, contacted, closed
+  notes TEXT,
+  created_at TEXT DEFAULT (datetime('now'))
 );
 ```
 
@@ -280,7 +303,9 @@ Use the Admin Panel at https://highsurfcorp.com/admin/ for all content managemen
 ├── migrations/                # Versioned D1 schema migrations
 │   ├── 0001_initial_schema.sql
 │   ├── 0002_schema_migrations.sql
-│   └── 0003_add_hero_image_url.sql
+│   ├── 0003_add_hero_image_url.sql
+│   ├── 0004_create_competitors_table.sql
+│   └── 0005_create_leads_table.sql
 ├── scripts/                   # Utility scripts
 │   ├── fix-image-urls.js
 │   ├── optimize-images.js
@@ -335,6 +360,9 @@ All admin routes require `X-Admin-Key` header matching `ADMIN_SECRET`.
 | `GET /api/admin/posts/:id` | `getAdminPost(c)` | `controllers/admin.js` | Get single post |
 | `POST /api/admin/posts` | `upsertPost(c)` | `controllers/admin.js` | Create/update post |
 | `DELETE /api/admin/posts/:id` | `deletePost(c)` | `controllers/admin.js` | Delete post |
+| `GET /api/admin/leads` | `getLeads(c)` | `controllers/leads.js` | List all leads |
+| `PATCH /api/admin/leads/:id` | `updateLeadStatus(c)` | `controllers/leads.js` | Update lead status |
+| `DELETE /api/admin/leads/:id` | `deleteLead(c)` | `controllers/leads.js` | Delete a lead |
 
 **Adding New Routes:**
 ```javascript
@@ -553,8 +581,13 @@ Edit `src/controllers/admin.js` → `generateBlogPost()` function to change:
 | Purpose | File |
 |---------|------|
 | Admin API handlers | `src/controllers/admin.js` |
+| Lead management API | `src/controllers/leads.js` |
+| Competitor intelligence API | `src/controllers/intelligence.js` |
 | AI generation logic | `src/controllers/admin.js` → `generateBlogPost()` |
 | Admin SPA routing | `src/middleware/static.js` → `serveAdmin()` |
 | React dashboard | `admin-ui/src/pages/Dashboard.jsx` |
+| Blog posts list | `admin-ui/src/pages/Posts.jsx` |
+| Lead management UI | `admin-ui/src/pages/Leads.jsx` |
 | React layout | `admin-ui/src/components/Layout.jsx` |
 | AI modal | `admin-ui/src/components/GenerateModal.jsx` |
+| Post preview modal | `admin-ui/src/components/PreviewModal.jsx` |
