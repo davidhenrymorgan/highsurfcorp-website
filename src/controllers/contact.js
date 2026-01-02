@@ -4,6 +4,7 @@
 
 import { escapeHtml } from "../utils/helpers.js";
 import { jsonResponse } from "../middleware/static.js";
+import { safeDbQuery } from "../utils/db.js";
 
 /**
  * POST /api/contact - Handle contact form submission
@@ -78,6 +79,29 @@ export async function postContact(c) {
         400,
         c.req.raw,
       );
+    }
+
+    // Save lead to Database
+    try {
+      const leadId = crypto.randomUUID();
+      await safeDbQuery(
+        c.env.DB,
+        `INSERT INTO leads (id, name, email, phone, zip, budget, message, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          leadId,
+          name,
+          email,
+          phone,
+          zip || null,
+          budget || null,
+          message || null,
+          "new",
+        ],
+      );
+      console.log("Lead saved to DB:", leadId);
+    } catch (dbError) {
+      console.error("Failed to save lead to DB:", dbError);
+      // Continue to email sending - don't fail the request just because DB failed
     }
 
     // Format budget for display

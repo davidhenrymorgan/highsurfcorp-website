@@ -17,7 +17,7 @@ function sleep(ms) {
  */
 async function crawlAndWait(firecrawlKey, url, limit = 10) {
   // Start the crawl job
-  const crawlResponse = await fetch("https://api.firecrawl.dev/v1/crawl", {
+  const crawlResponse = await fetch("https://api.firecrawl.dev/v2/crawl", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -27,7 +27,43 @@ async function crawlAndWait(firecrawlKey, url, limit = 10) {
       url,
       limit,
       scrapeOptions: {
-        formats: ["markdown"],
+        formats: [
+          "markdown",
+          {
+            type: "json",
+            schema: {
+              type: "object",
+              properties: {
+                services: {
+                  type: "array",
+                  items: { type: "string" },
+                  description: "List of services offered by this company",
+                },
+                locations_served: {
+                  type: "array",
+                  items: { type: "string" },
+                  description: "Geographic areas and cities served",
+                },
+                unique_selling_points: {
+                  type: "array",
+                  items: { type: "string" },
+                  description: "What makes them different from competitors",
+                },
+                contact_info: {
+                  type: "object",
+                  properties: {
+                    phone: { type: "string" },
+                    email: { type: "string" },
+                    address: { type: "string" },
+                  },
+                  description: "Contact information found on site",
+                },
+              },
+            },
+            prompt:
+              "Extract business information for a seawall/marine construction company",
+          },
+        ],
         onlyMainContent: true,
       },
     }),
@@ -42,15 +78,15 @@ async function crawlAndWait(firecrawlKey, url, limit = 10) {
   const jobId = crawlData.id;
 
   // Poll for completion
-  const maxWaitTime = 90000; // 90 seconds max
+  const maxWaitTime = 120000; // 120 seconds max (v2 can take longer)
   const pollInterval = 3000; // 3 seconds between polls
   const startTime = Date.now();
 
-  await sleep(2000); // Initial delay before first poll
+  await sleep(5000); // Initial delay before first poll (v2 needs more startup time)
 
   while (Date.now() - startTime < maxWaitTime) {
     const statusResponse = await fetch(
-      `https://api.firecrawl.dev/v1/crawl/${jobId}`,
+      `https://api.firecrawl.dev/v2/crawl/${jobId}`,
       {
         headers: {
           Authorization: `Bearer ${firecrawlKey}`,
@@ -61,15 +97,23 @@ async function crawlAndWait(firecrawlKey, url, limit = 10) {
     const statusData = await statusResponse.json();
 
     if (statusData.status === "completed") {
+      // Handle potential pagination in v2
+      let allData = statusData.data || [];
+
+      // v2 may paginate results with 'next' parameter
+      if (statusData.next && allData.length > 0) {
+        console.log("Note: Crawl had additional pages not fetched");
+      }
+
       return {
         success: true,
-        data: statusData.data || [],
-        pagesCrawled: statusData.completed || statusData.data?.length || 0,
+        data: allData,
+        pagesCrawled: statusData.completed || allData.length || 0,
       };
     }
 
     if (statusData.status === "failed") {
-      throw new Error("Crawl job failed");
+      throw new Error(statusData.error || "Crawl job failed");
     }
 
     // Still in progress, wait and poll again
@@ -78,7 +122,7 @@ async function crawlAndWait(firecrawlKey, url, limit = 10) {
 
   // Timeout - try to get partial results
   const finalResponse = await fetch(
-    `https://api.firecrawl.dev/v1/crawl/${jobId}`,
+    `https://api.firecrawl.dev/v2/crawl/${jobId}`,
     {
       headers: {
         Authorization: `Bearer ${firecrawlKey}`,
@@ -88,13 +132,24 @@ async function crawlAndWait(firecrawlKey, url, limit = 10) {
 
   const finalData = await finalResponse.json();
 
+  // Check if we got any data despite timeout
   if (finalData.data && finalData.data.length > 0) {
+    // Handle potential pagination in v2
+    if (finalData.next) {
+      console.log("Note: Partial crawl had additional pages not fetched");
+    }
+
     return {
       success: true,
       data: finalData.data,
       pagesCrawled: finalData.data.length,
       partial: true,
     };
+  }
+
+  // Check for v2-specific error information
+  if (finalData.error) {
+    throw new Error(`Crawl failed: ${finalData.error}`);
   }
 
   throw new Error("Crawl timed out with no results");
@@ -124,6 +179,49 @@ function combineMarkdown(pages, maxChars = 8000) {
   }
 
   return combined.trim();
+}
+
+/**
+ * Helper: Combine structured JSON data from multiple pages
+ */
+function combineStructuredData(pages) {
+  const combined = {
+    services: new Set(),
+    locations_served: new Set(),
+    unique_selling_points: new Set(),
+    contact_info: {},
+  };
+
+  for (const page of pages) {
+    if (page.json) {
+      if (page.json.services) {
+        page.json.services.forEach((s) => combined.services.add(s));
+      }
+      if (page.json.locations_served) {
+        page.json.locations_served.forEach((l) =>
+          combined.locations_served.add(l),
+        );
+      }
+      if (page.json.unique_selling_points) {
+        page.json.unique_selling_points.forEach((u) =>
+          combined.unique_selling_points.add(u),
+        );
+      }
+      if (page.json.contact_info) {
+        combined.contact_info = {
+          ...combined.contact_info,
+          ...page.json.contact_info,
+        };
+      }
+    }
+  }
+
+  return {
+    services: [...combined.services],
+    locations_served: [...combined.locations_served],
+    unique_selling_points: [...combined.unique_selling_points],
+    contact_info: combined.contact_info,
+  };
 }
 
 /**
@@ -206,9 +304,19 @@ export async function analyzeCompetitor(c) {
     // Combine markdown from all pages
     const combinedMarkdown = combineMarkdown(crawlResult.data);
 
-    // Analyze with AI
+    // Extract structured data from v2 JSON extraction
+    const structuredData = combineStructuredData(crawlResult.data);
+
+    // Analyze with AI (using both structured data and markdown)
     const analysisPrompt = `Analyze this competitor's website content for a Seawall/Marine construction business in Florida.
-Extract the following information:
+
+Pre-extracted structured data from crawl:
+${JSON.stringify(structuredData, null, 2)}
+
+Additional context from page content:
+${combinedMarkdown}
+
+Based on both the structured data AND the markdown content, extract:
 1. Primary keywords (what services do they emphasize?)
 2. Tone of voice (professional, casual, urgent, educational?)
 3. Key selling points (what do they claim makes them different?)
@@ -222,10 +330,7 @@ Return ONLY valid JSON with no additional text:
   "selling_points": ["point1", "point2", "point3"],
   "gaps": ["gap1", "gap2", "gap3"],
   "geographic_focus": ["area1", "area2"]
-}
-
-Website content to analyze:
-${combinedMarkdown}`;
+}`;
 
     let insights;
     try {
@@ -503,9 +608,19 @@ export async function refreshCompetitor(c) {
     // Combine markdown from all pages
     const combinedMarkdown = combineMarkdown(crawlResult.data);
 
-    // Re-analyze with AI
+    // Extract structured data from v2 JSON extraction
+    const structuredData = combineStructuredData(crawlResult.data);
+
+    // Re-analyze with AI (using both structured data and markdown)
     const analysisPrompt = `Analyze this competitor's website content for a Seawall/Marine construction business in Florida.
-Extract the following information:
+
+Pre-extracted structured data from crawl:
+${JSON.stringify(structuredData, null, 2)}
+
+Additional context from page content:
+${combinedMarkdown}
+
+Based on both the structured data AND the markdown content, extract:
 1. Primary keywords (what services do they emphasize?)
 2. Tone of voice (professional, casual, urgent, educational?)
 3. Key selling points (what do they claim makes them different?)
@@ -519,10 +634,7 @@ Return ONLY valid JSON with no additional text:
   "selling_points": ["point1", "point2", "point3"],
   "gaps": ["gap1", "gap2", "gap3"],
   "geographic_focus": ["area1", "area2"]
-}
-
-Website content to analyze:
-${combinedMarkdown}`;
+}`;
 
     let insights;
     try {

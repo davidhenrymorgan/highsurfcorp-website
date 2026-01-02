@@ -27,6 +27,11 @@ import {
   deleteCompetitor,
   refreshCompetitor,
 } from "./controllers/intelligence.js";
+import {
+  getLeads,
+  updateLeadStatus,
+  deleteLead,
+} from "./controllers/leads.js";
 
 const app = new Hono();
 
@@ -109,6 +114,11 @@ app.post(
   adminAuth,
   refreshCompetitor,
 );
+
+// Lead Management
+app.get("/api/admin/leads", adminAuth, getLeads);
+app.patch("/api/admin/leads/:id", adminAuth, updateLeadStatus);
+app.delete("/api/admin/leads/:id", adminAuth, deleteLead);
 
 // ============================================================================
 // BLOG ROUTES
