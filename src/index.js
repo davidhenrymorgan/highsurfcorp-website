@@ -839,7 +839,15 @@ function getRelatedPostCard(post) {
   return `
     <a href="/blog/${post.slug}" class="group block">
       <div class="aspect-[4/3] bg-gradient-to-br from-neutral-200 to-neutral-300 rounded-2xl overflow-hidden mb-6 relative">
-        ${imgSrc ? `<img src="${imgSrc}" loading="lazy" onerror="this.onerror=null;this.style.display='none'" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90" alt="${escapeHtml(post.title)}">` : ""}
+        ${imgSrc ? `<img 
+            src="${imgSrc}" 
+            loading="lazy" 
+            decoding="async" 
+            width="600" 
+            height="450" 
+            onerror="this.onerror=null;this.style.display='none'" 
+            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90" 
+            alt="${escapeHtml(post.title)}">` : ""}
       </div>
       <div class="flex items-center gap-2 text-xs font-medium text-neutral-400 uppercase tracking-wider mb-2">
         <span>${escapeHtml(category)}</span>
@@ -1034,7 +1042,15 @@ function renderBlogIndex(posts, ctx, pagination = { page: 1, totalPages: 1 }) {
       return `
         <a href="/blog/${post.slug}" class="group block">
           <div class="aspect-[4/3] bg-gradient-to-br from-neutral-200 to-neutral-300 rounded-2xl overflow-hidden mb-6">
-            ${imgSrc ? `<img src="${imgSrc}" loading="lazy" onerror="this.onerror=null;this.style.display='none'" alt="${escapeHtml(post.title)}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">` : ""}
+            ${imgSrc ? `<img 
+                src="${imgSrc}" 
+                loading="lazy" 
+                decoding="async"
+                width="600" 
+                height="450" 
+                onerror="this.onerror=null;this.style.display='none'" 
+                alt="${escapeHtml(post.title)}" 
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">` : ""}
           </div>
           <div class="flex items-center gap-2 text-xs font-medium text-neutral-400 uppercase tracking-wider mb-2">
             <span>${escapeHtml(category)}</span>
