@@ -16,7 +16,6 @@
     <link rel="preconnect" href="https://pub-8a557d48118e46a38c0007cee5e58bd9.r2.dev" crossorigin>
     <link rel="dns-prefetch" href="https://cdn.tailwindcss.com">
     <link rel="dns-prefetch" href="https://code.iconify.design">
-    <link rel="dns-prefetch" href="https://player.vimeo.com">
     <!-- Iconify icons -->
     <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
     <!-- Google Fonts - optimized load -->
@@ -299,7 +298,10 @@ fbq('track', 'PageView');
     <header class="relative w-full h-screen overflow-hidden flex flex-col justify-end pb-12 md:pb-24">
       <!-- Background Image Layer with Cinematic Animation -->
       <div class="absolute inset-0 z-0 bg-black">
-        <video src="https://player.vimeo.com/progressive_redirect/playback/1009108643/rendition/720p/file.mp4?loc=external&amp;signature=0fd366a40a779073adfab86c14ee0db8f36832bd321b8a0ff398afe102a08342" autoplay="" loop="" muted="" playsinline="" preload="metadata" poster="https://pub-8a557d48118e46a38c0007cee5e58bd9.r2.dev/images/coquina-wall-barge-access_1coquina%20wall%20barge%20access.avif" class="w-full h-full object-cover animate-cinematic opacity-0"></video>
+        <video autoplay loop muted playsinline preload="metadata" poster="https://pub-8a557d48118e46a38c0007cee5e58bd9.r2.dev/images/coquina-wall-barge-access_1coquina%20wall%20barge%20access.avif" class="w-full h-full object-cover animate-cinematic opacity-0">
+          <source src="https://pub-8a557d48118e46a38c0007cee5e58bd9.r2.dev/videos/homepage-1440p.mp4" type="video/mp4" media="(min-width: 1024px)">
+          <source src="https://pub-8a557d48118e46a38c0007cee5e58bd9.r2.dev/videos/homepage-720p.mp4" type="video/mp4">
+        </video>
         <!-- Overlays -->
         <div class="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/20 to-transparent opacity-80"></div>
         <div class="bg-black/10 mix-blend-overlay absolute top-0 right-0 bottom-0 left-0"></div>
