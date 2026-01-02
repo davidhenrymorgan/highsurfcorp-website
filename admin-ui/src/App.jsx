@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
 import Dashboard from "./pages/Dashboard";
 import EditPost from "./pages/EditPost";
+import Intelligence from "./pages/Intelligence";
 
 function App() {
   return (
@@ -13,6 +14,16 @@ function App() {
           element={
             <Layout>
               <Dashboard />
+            </Layout>
+          }
+        />
+
+        {/* Intelligence Route (Wrapped in Sidebar Layout) */}
+        <Route
+          path="/intelligence"
+          element={
+            <Layout>
+              <Intelligence />
             </Layout>
           }
         />
