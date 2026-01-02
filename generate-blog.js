@@ -227,6 +227,15 @@ function extractNavigation() {
 
 // Generate blog index page
 function generateBlogIndex(posts, topics, { headerNav, footer, head }) {
+  // Remove duplicate charset and viewport from head if present
+  let cleanHead = head;
+  if (cleanHead) {
+    // Remove charset and viewport meta tags from head to avoid duplicates
+    cleanHead = cleanHead.replace(/<meta\s+charset=["'][^"']*["']\s*>/gi, '');
+    cleanHead = cleanHead.replace(/<meta\s+[^>]*name=["']viewport["'][^>]*>/gi, '');
+    cleanHead = cleanHead.replace(/<meta\s+[^>]*content=["']width=device-width[^"']*["'][^>]*>/gi, '');
+  }
+
   const featuredPosts = posts.filter((p) => p["Feature?"] === "true");
   const allPosts = posts;
 
@@ -312,7 +321,7 @@ function generateBlogIndex(posts, topics, { headerNav, footer, head }) {
   <meta content="https://highsurfcorp.com/blog/" property="og:url">
   <meta property="og:type" content="website">
   <meta content="width=device-width, initial-scale=1" name="viewport">
-  ${head}
+  ${cleanHead}
   ${BLOG_FONTS}
 </head>
 <body>
@@ -366,6 +375,15 @@ function generatePostPage(post, { headerNav, footer, head }) {
   const metaDesc = post["Meta description"] || post["Short preview"] || "";
   const content = post["Post body"] || "";
 
+  // Remove duplicate charset and viewport from head if present
+  let cleanHead = head;
+  if (cleanHead) {
+    // Remove charset and viewport meta tags from head to avoid duplicates
+    cleanHead = cleanHead.replace(/<meta\s+charset=["'][^"']*["']\s*>/gi, '');
+    cleanHead = cleanHead.replace(/<meta\s+[^>]*name=["']viewport["'][^>]*>/gi, '');
+    cleanHead = cleanHead.replace(/<meta\s+[^>]*content=["']width=device-width[^"']*["'][^>]*>/gi, '');
+  }
+
   return `<!DOCTYPE html>
 <html data-wf-page="blog-post" data-wf-site="68fc859a95b7d8d6466ccd3f" lang="en">
 <head>
@@ -379,7 +397,7 @@ function generatePostPage(post, { headerNav, footer, head }) {
   <meta property="og:type" content="article">
   <meta property="article:published_time" content="${post["Published On"]}">
   <meta content="width=device-width, initial-scale=1" name="viewport">
-  ${head}
+  ${cleanHead}
   ${BLOG_FONTS}
   <style>
     .blog-post-content h2 {

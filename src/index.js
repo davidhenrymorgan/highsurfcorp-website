@@ -173,23 +173,27 @@ function htmlResponse(html, cacheSeconds = 3600) {
 
 /**
  * Create a JSON response with strict CORS
+ * Supports localhost for development and production domain for production
  */
-function jsonResponse(data, status = 200) {
-  // In production, you might want to check request.headers.get('Origin')
-  // and only allow specific domains. For now, we lock it to the main domain.
-  // Ideally, passing the env/request here would allow dynamic checking.
-  // We'll default to the production domain or allow localhost for dev if needed (handled by logic below if we had request context).
+function jsonResponse(data, status = 200, request = null) {
+  // Determine allowed origin based on request origin
+  let allowedOrigin = "https://highsurfcorp.com";
   
-  // Since we don't have request context here easily, we'll set it to the primary domain
-  // or use a helper if we want to support localhost during dev.
-  // For safety, let's hardcode the production domain, but note that local dev might need a relaxed header.
-  // To keep it simple and safe:
+  if (request) {
+    const origin = request.headers.get("Origin");
+    // Allow localhost for development
+    if (origin && (origin.includes("localhost") || origin.includes("127.0.0.1") || origin.includes(":8787"))) {
+      allowedOrigin = origin;
+    } else if (origin === "https://highsurfcorp.com" || origin === "https://www.highsurfcorp.com") {
+      allowedOrigin = origin;
+    }
+  }
   
   return new Response(JSON.stringify(data), {
     status,
     headers: {
       "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": "https://highsurfcorp.com", 
+      "Access-Control-Allow-Origin": allowedOrigin, 
       "Vary": "Origin"
     },
   });
@@ -1207,6 +1211,7 @@ async function handleContactForm(request, env) {
           error: "Please fill in all required fields (Name, Email, Phone)",
         },
         400,
+        request,
       );
     }
 
@@ -1216,6 +1221,7 @@ async function handleContactForm(request, env) {
         return jsonResponse(
           { success: false, error: "Missing security check token" },
           400,
+          request,
         );
       }
 
@@ -1238,6 +1244,7 @@ async function handleContactForm(request, env) {
         return jsonResponse(
           { success: false, error: "Security check failed. Please refresh and try again." },
           400,
+          request,
         );
       }
     } else {
@@ -1249,6 +1256,7 @@ async function handleContactForm(request, env) {
       return jsonResponse(
         { success: false, error: "Please enter a valid email address" },
         400,
+        request,
       );
     }
 
@@ -1353,6 +1361,7 @@ async function handleContactForm(request, env) {
             "Email service not configured. Please call us at (321) 821-4895.",
         },
         500,
+        request,
       );
     }
 
@@ -1384,7 +1393,7 @@ async function handleContactForm(request, env) {
     return jsonResponse({
       success: true,
       message: "Thank you! We'll contact you within 24 hours.",
-    });
+    }, 200, request);
   } catch (error) {
     console.error("Form submission error:", error);
     return jsonResponse(
@@ -1394,6 +1403,7 @@ async function handleContactForm(request, env) {
           "Something went wrong. Please call us at (321) 821-4895 or try again later.",
       },
       500,
+      request,
     );
   }
 }
