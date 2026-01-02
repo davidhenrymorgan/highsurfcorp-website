@@ -78,13 +78,14 @@ admin-ui/
 │   ├── pages/
 │   │   ├── Dashboard.jsx     # Analytics overview with stats cards & chart
 │   │   ├── Posts.jsx         # Blog post list with preview modal
-│   │   ├── Leads.jsx         # Lead/inquiry management (CRUD)
+│   │   ├── Leads.jsx         # Lead/inquiry + Email inbox (tabbed interface)
 │   │   ├── Intelligence.jsx  # Competitor analysis
 │   │   └── EditPost.jsx      # Blog post editor
 │   └── components/
 │       ├── Layout.jsx        # Sidebar + header layout
 │       ├── GenerateModal.jsx # AI content generation modal
 │       ├── PreviewModal.jsx  # Blog post preview modal
+│       ├── ReplyModal.jsx    # Email reply compose modal
 │       ├── StatsCards.jsx    # Dashboard stats cards
 │       └── AnalyticsChart.jsx # Traffic/leads chart (recharts)
 ├── vite.config.js            # Build config (outDir: ../dist/admin)
@@ -110,6 +111,8 @@ src/
 │   ├── contact.js           # postContact handler (saves to leads table + sends email)
 │   ├── admin.js             # Admin API: AI generation, blog CRUD
 │   ├── leads.js             # Lead management API: list, update status, delete
+│   ├── emails.js            # Email management API: list, get, send, update status
+│   ├── webhooks.js          # Resend webhook handler (inbound email capture)
 │   └── intelligence.js      # Competitor analysis with Firecrawl v2
 └── middleware/
     ├── context.js           # Pre-render nav/footer/analytics per request
@@ -192,6 +195,24 @@ CREATE TABLE leads (
   message TEXT,
   status TEXT DEFAULT 'new',    -- new, contacted, closed
   notes TEXT,
+  created_at TEXT DEFAULT (datetime('now'))
+);
+
+-- Emails table for inbound/outbound email storage (added via migration 0007)
+CREATE TABLE emails (
+  id TEXT PRIMARY KEY,
+  message_id TEXT UNIQUE NOT NULL,
+  from_email TEXT NOT NULL,
+  from_name TEXT,
+  to_email TEXT NOT NULL,
+  subject TEXT,
+  html_body TEXT,
+  text_body TEXT,
+  thread_id TEXT,
+  in_reply_to TEXT,
+  direction TEXT DEFAULT 'inbound',  -- inbound, outbound
+  status TEXT DEFAULT 'unread',      -- unread, read, replied
+  lead_id TEXT,                      -- Auto-linked to leads by email match
   created_at TEXT DEFAULT (datetime('now'))
 );
 ```
@@ -304,8 +325,10 @@ Use the Admin Panel at https://highsurfcorp.com/admin/ for all content managemen
 │   ├── 0001_initial_schema.sql
 │   ├── 0002_schema_migrations.sql
 │   ├── 0003_add_hero_image_url.sql
-│   ├── 0004_create_competitors_table.sql
-│   └── 0005_create_leads_table.sql
+│   ├── 0004_competitors.sql
+│   ├── 0005_create_leads_table.sql
+│   ├── 0006_competitors_content.sql
+│   └── 0007_create_emails_table.sql
 ├── scripts/                   # Utility scripts
 │   ├── fix-image-urls.js
 │   ├── optimize-images.js
@@ -347,6 +370,7 @@ Hono-based routing with modular handlers:
 | `GET /legal/:page` | `serveStatic(c)` | `middleware/static.js` | Legal pages with nav/footer |
 | `GET /contact/:page` | `serveStatic(c)` | `middleware/static.js` | Contact pages with Turnstile |
 | `POST /api/contact` | `postContact(c)` | `controllers/contact.js` | Contact form (Turnstile + Resend) |
+| `POST /api/webhooks/resend` | `handleResendWebhook(c)` | `controllers/webhooks.js` | Resend inbound email webhook |
 | `GET /admin/*` | `serveAdmin(c)` | `middleware/static.js` | React Admin SPA |
 | `GET *` | Fallback | `src/index.js` | Static assets or 404 page |
 
@@ -363,6 +387,10 @@ All admin routes require `X-Admin-Key` header matching `ADMIN_SECRET`.
 | `GET /api/admin/leads` | `getLeads(c)` | `controllers/leads.js` | List all leads |
 | `PATCH /api/admin/leads/:id` | `updateLeadStatus(c)` | `controllers/leads.js` | Update lead status |
 | `DELETE /api/admin/leads/:id` | `deleteLead(c)` | `controllers/leads.js` | Delete a lead |
+| `GET /api/admin/emails` | `listEmails(c)` | `controllers/emails.js` | List emails with pagination |
+| `GET /api/admin/emails/:id` | `getEmail(c)` | `controllers/emails.js` | Get single email |
+| `POST /api/admin/emails/send` | `sendEmail(c)` | `controllers/emails.js` | Send reply email |
+| `PATCH /api/admin/emails/:id` | `updateEmail(c)` | `controllers/emails.js` | Update email status |
 
 **Adding New Routes:**
 ```javascript
@@ -381,6 +409,7 @@ app.get('/my-route', myHandler);
   - `[ai]` - AI binding for Cloudflare Workers AI
   - Secrets set via wrangler:
     - `npx wrangler secret put RESEND_API_KEY`
+    - `npx wrangler secret put RESEND_WEBHOOK_SECRET`
     - `npx wrangler secret put ADMIN_SECRET`
     - `npx wrangler secret put TURNSTILE_SECRET_KEY`
 
@@ -544,6 +573,7 @@ Access via `c.env.VARIABLE_NAME` in Hono handlers:
 - `c.env.AI` - Cloudflare Workers AI binding
 - `c.env.ADMIN_SECRET` - Admin API authentication key
 - `c.env.RESEND_API_KEY` - Email API key (secret)
+- `c.env.RESEND_WEBHOOK_SECRET` - Resend webhook signature verification (secret)
 - `c.env.TURNSTILE_SITE_KEY` - Cloudflare Turnstile public key
 - `c.env.TURNSTILE_SECRET_KEY` - Cloudflare Turnstile secret key
 
@@ -582,12 +612,60 @@ Edit `src/controllers/admin.js` → `generateBlogPost()` function to change:
 |---------|------|
 | Admin API handlers | `src/controllers/admin.js` |
 | Lead management API | `src/controllers/leads.js` |
+| Email management API | `src/controllers/emails.js` |
+| Inbound email webhook | `src/controllers/webhooks.js` |
 | Competitor intelligence API | `src/controllers/intelligence.js` |
 | AI generation logic | `src/controllers/admin.js` → `generateBlogPost()` |
 | Admin SPA routing | `src/middleware/static.js` → `serveAdmin()` |
 | React dashboard | `admin-ui/src/pages/Dashboard.jsx` |
 | Blog posts list | `admin-ui/src/pages/Posts.jsx` |
-| Lead management UI | `admin-ui/src/pages/Leads.jsx` |
+| Leads + Email inbox UI | `admin-ui/src/pages/Leads.jsx` |
 | React layout | `admin-ui/src/components/Layout.jsx` |
 | AI modal | `admin-ui/src/components/GenerateModal.jsx` |
 | Post preview modal | `admin-ui/src/components/PreviewModal.jsx` |
+| Email reply modal | `admin-ui/src/components/ReplyModal.jsx` |
+
+## Resend Email Integration (January 2026)
+
+### Overview
+Inbound email capture via Resend webhooks. Emails sent to `*@send.highsurfcorp.com` are captured and displayed in the admin dashboard alongside leads.
+
+### Architecture
+- **Webhook Endpoint**: `POST /api/webhooks/resend` (public, signature-verified)
+- **Admin API**: `GET/POST/PATCH /api/admin/emails/*` (protected)
+- **Admin UI**: Email Inbox tab in Leads page (`admin-ui/src/pages/Leads.jsx`)
+
+### Webhook Flow
+1. Email arrives at `*@send.highsurfcorp.com`
+2. Resend sends webhook to `/api/webhooks/resend` with svix signature
+3. Worker verifies signature using HMAC-SHA256 (base64-decoded secret)
+4. Worker fetches full email content via Resend API
+5. Email stored in D1 `emails` table
+6. Auto-links to lead if `from_email` matches existing lead
+
+### Key Files
+- `src/controllers/webhooks.js` - Svix signature verification, webhook handling
+- `src/controllers/emails.js` - Email CRUD API
+- `admin-ui/src/pages/Leads.jsx` - Tabbed interface (Form Submissions / Email Inbox)
+- `admin-ui/src/components/ReplyModal.jsx` - Reply compose modal
+
+### Resend Dashboard Setup (Required)
+1. Register webhook at https://resend.com/webhooks:
+   - URL: `https://highsurfcorp.com/api/webhooks/resend`
+   - Event: `email.received`
+2. Enable Receiving on domain `send.highsurfcorp.com`
+3. Add MX record in Cloudflare DNS:
+   - Type: MX
+   - Name: `send`
+   - Content: `inbound-smtp.resend.com`
+   - Priority: 10
+
+### Signature Verification
+Uses svix headers for webhook verification:
+```javascript
+// Headers: svix-id, svix-timestamp, svix-signature
+const signedContent = `${svixId}.${svixTimestamp}.${rawBody}`;
+const secret = webhookSecret.replace('whsec_', '');
+const secretBytes = Uint8Array.from(atob(secret), c => c.charCodeAt(0));
+// HMAC-SHA256 with crypto.subtle
+```
