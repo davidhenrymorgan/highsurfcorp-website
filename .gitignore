@@ -50,3 +50,8 @@ wrangler.toml.bak
 
 # Generated blog files (served dynamically from D1)
 dist/blog/
+
+# Wrangler build artifacts
+dist/index.js
+dist/index.js.map
+dist/README.md
