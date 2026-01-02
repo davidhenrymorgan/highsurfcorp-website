@@ -3,7 +3,7 @@
  * Dynamic blog powered by D1 + R2
  */
 
-import sanitizeHtml from 'sanitize-html';
+import sanitizeHtml from "sanitize-html";
 
 // ============================================================================
 // CONSTANTS
@@ -163,10 +163,11 @@ function htmlResponse(html, cacheSeconds = 3600) {
     headers: {
       "Content-Type": "text/html; charset=utf-8",
       "Cache-Control": `public, max-age=${cacheSeconds}`,
-      "Content-Security-Policy": "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://code.iconify.design https://challenges.cloudflare.com https://www.googletagmanager.com https://connect.facebook.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https: blob:; font-src 'self' https://fonts.gstatic.com data:; connect-src 'self' https://www.google-analytics.com https://www.facebook.com https://challenges.cloudflare.com; frame-src 'self' https://challenges.cloudflare.com;",
+      "Content-Security-Policy":
+        "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://code.iconify.design https://challenges.cloudflare.com https://www.googletagmanager.com https://connect.facebook.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https: blob:; font-src 'self' https://fonts.gstatic.com data:; connect-src 'self' https://www.google-analytics.com https://www.facebook.com https://challenges.cloudflare.com; frame-src 'self' https://challenges.cloudflare.com;",
       "X-Content-Type-Options": "nosniff",
       "X-Frame-Options": "DENY",
-      "Referrer-Policy": "strict-origin-when-cross-origin"
+      "Referrer-Policy": "strict-origin-when-cross-origin",
     },
   });
 }
@@ -178,23 +179,31 @@ function htmlResponse(html, cacheSeconds = 3600) {
 function jsonResponse(data, status = 200, request = null) {
   // Determine allowed origin based on request origin
   let allowedOrigin = "https://highsurfcorp.com";
-  
+
   if (request) {
     const origin = request.headers.get("Origin");
     // Allow localhost for development
-    if (origin && (origin.includes("localhost") || origin.includes("127.0.0.1") || origin.includes(":8787"))) {
+    if (
+      origin &&
+      (origin.includes("localhost") ||
+        origin.includes("127.0.0.1") ||
+        origin.includes(":8787"))
+    ) {
       allowedOrigin = origin;
-    } else if (origin === "https://highsurfcorp.com" || origin === "https://www.highsurfcorp.com") {
+    } else if (
+      origin === "https://highsurfcorp.com" ||
+      origin === "https://www.highsurfcorp.com"
+    ) {
       allowedOrigin = origin;
     }
   }
-  
+
   return new Response(JSON.stringify(data), {
     status,
     headers: {
       "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": allowedOrigin, 
-      "Vary": "Origin"
+      "Access-Control-Allow-Origin": allowedOrigin,
+      Vary: "Origin",
     },
   });
 }
@@ -263,9 +272,13 @@ function createRequestContext(executionCtx) {
       legal: null,
     },
     footer: null,
+    analytics: null,
+    mobileMenuScript: null,
     _initialized: false,
     // Expose waitUntil from Cloudflare context, or no-op if missing
-    waitUntil: executionCtx ? executionCtx.waitUntil.bind(executionCtx) : (p) => p,
+    waitUntil: executionCtx
+      ? executionCtx.waitUntil.bind(executionCtx)
+      : (p) => p,
   };
 }
 
@@ -280,6 +293,7 @@ function initContext(ctx) {
   ctx.nav.contact = getNavigationHTML({ activePage: "contact" });
   ctx.nav.legal = getNavigationHTML({ activePage: "legal" });
   ctx.footer = getFooterHTML();
+  ctx.analytics = getAnalyticsHTML();
   ctx.mobileMenuScript = getMobileMenuScript();
   ctx._initialized = true;
   return ctx;
@@ -431,6 +445,36 @@ function getFooterHTML() {
 }
 
 /**
+ * Returns the analytics HTML (Google Analytics + Meta Pixel)
+ */
+function getAnalyticsHTML() {
+  return `
+    <!-- Google tag (gtag.js) -->
+    <script src="https://www.googletagmanager.com/gtag/js?id=G-93DQDPMR4J" defer></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-93DQDPMR4J');
+    </script>
+    <!-- Meta Pixel Code -->
+    <script>
+      !function(f,b,e,v,n,t,s)
+      {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+      n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+      if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+      n.queue=[];t=b.createElement(e);t.defer=!0;
+      t.src=v;s=b.getElementsByTagName(e)[0];
+      s.parentNode.insertBefore(t,s)}(window, document,'script',
+      'https://connect.facebook.net/en_US/fbevents.js');
+      fbq('init', '1712382146162316');
+      fbq('track', 'PageView');
+    </script>
+    <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=1712382146162316&ev=PageView&noscript=1"></noscript>
+  `;
+}
+
+/**
  * Returns the mobile menu JavaScript
  */
 function getMobileMenuScript() {
@@ -538,16 +582,30 @@ async function handleStaticPageWithComponents(request, env, pathname, ctx) {
   let html = await response.text();
 
   // Determine active page for nav highlighting
-  let activePage = "";
+  let activePage = "home";
   if (pathname.includes("/contact/")) activePage = "contact";
-  if (pathname.includes("/legal/")) activePage = "legal";
+  else if (pathname.includes("/legal/")) activePage = "legal";
 
   // Get pre-rendered nav from context
   const navHtml = ctx.nav[activePage] || ctx.nav.home;
 
+  // Remove existing analytics code to avoid duplicates (they'll be injected by Worker)
+  // Google Analytics - remove the comment, gtag.js script, and config script
+  html = html.replace(
+    /<!--\s*Google tag \(gtag\.js\)\s*-->\s*<script[^>]*googletagmanager[^>]*><\/script>\s*<script>[\s\S]*?gtag\('config',\s*'G-93DQDPMR4J'\);[\s\S]*?<\/script>/gi,
+    "",
+  );
+  // Meta Pixel - remove from comment to End Meta Pixel comment
+  html = html.replace(
+    /<!--\s*Meta Pixel Code\s*-->[\s\S]*?<!--\s*End Meta Pixel Code\s*-->/gi,
+    "",
+  );
+
   // Add required dependencies to <head> if not present
+  // Note: Homepage has its own Tailwind/Iconify, but they'll be harmless duplicates
   let headAdditions = `
     ${SCHEMA_JSON}
+    ${ctx.analytics}
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
     <style>
@@ -564,32 +622,45 @@ async function handleStaticPageWithComponents(request, env, pathname, ctx) {
     headAdditions += `
       <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     `;
-    
+
     // Inject widget before submit button
     // Use test key "0x4AAAAAAAKFXRoBq6SEZCw" if env var not set (Safe for dev/prod if not configured)
-    const siteKey = env.TURNSTILE_SITE_KEY || "0x4AAAAAAAKFXRoBq6SEZCw"; 
+    const siteKey = env.TURNSTILE_SITE_KEY || "0x4AAAAAAAKFXRoBq6SEZCw";
     const widgetHtml = `<div class="cf-turnstile mb-6" data-sitekey="${siteKey}" data-theme="dark"></div>`;
-    
+
     // Inject before the submit button
-    html = html.replace(/<button\s+type="submit"/, `${widgetHtml}\n<button type="submit"`);
+    html = html.replace(
+      /<button\s+type="submit"/,
+      `${widgetHtml}\n<button type="submit"`,
+    );
   }
 
   // Inject Tailwind CDN and other scripts before </head>
   html = html.replace("</head>", headAdditions + "</head>");
 
-  // Replace Webflow navigation with standardized nav from context
-  const navPattern = /<header class="nav_wrap">[\s\S]*?<\/header>/;
-  if (navPattern.test(html)) {
-    html = html.replace(navPattern, navHtml);
+  // Replace navigation with standardized nav from context
+  // Pattern 1: Webflow nav header
+  const webflowNavPattern = /<header class="nav_wrap">[\s\S]*?<\/header>/;
+  // Pattern 2: Pill-shaped nav (homepage format) - from comment to end of mobile drawer
+  const pillNavPattern =
+    /<!-- Navigation \(Pill Shaped\) -->[\s\S]*?<!-- Mobile Navigation Drawer -->[\s\S]*?<\/div>\s*<\/div>\s*<\/div>/;
+
+  if (webflowNavPattern.test(html)) {
+    html = html.replace(webflowNavPattern, navHtml);
+  } else if (pillNavPattern.test(html)) {
+    html = html.replace(pillNavPattern, navHtml);
   } else {
-    // If no Webflow nav found, inject our nav after <body>
+    // If no nav found, inject our nav after <body>
     html = html.replace(/<body[^>]*>/, "$&\n" + navHtml);
   }
 
-  // Replace Webflow footer with standardized footer from context
+  // Replace footer with standardized footer from context
+  html = html.replace(/<footer[\s\S]*?<\/footer>/, ctx.footer);
+
+  // Remove existing mobile menu script to avoid duplicates
   html = html.replace(
-    /<footer[\s\S]*?<\/footer>/,
-    ctx.footer,
+    /<script>\s*\/\/\s*Mobile Navigation Drawer[\s\S]*?\}\)\(\);\s*<\/script>/g,
+    "",
   );
 
   // Inject mobile menu script before </body>
@@ -597,7 +668,7 @@ async function handleStaticPageWithComponents(request, env, pathname, ctx) {
 
   // Create final response with headers
   const finalResponse = htmlResponse(html, 3600);
-  
+
   // Cache the transformed response
   // Use waitUntil so it doesn't block the return
   ctx.waitUntil(cache.put(cacheKey, finalResponse.clone()));
@@ -629,6 +700,7 @@ function getBlogPostTemplate(ctx) {
     <!-- LCP Optimization: Preload hero image -->
     <link rel="preload" as="image" href="{{hero_image}}" fetchpriority="high">
     ${SCHEMA_JSON}
+    ${ctx.analytics}
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
     <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
@@ -843,7 +915,9 @@ function getRelatedPostCard(post) {
   return `
     <a href="/blog/${post.slug}" class="group block">
       <div class="aspect-[4/3] bg-gradient-to-br from-neutral-200 to-neutral-300 rounded-2xl overflow-hidden mb-6 relative">
-        ${imgSrc ? `<img 
+        ${
+          imgSrc
+            ? `<img 
             src="${imgSrc}" 
             loading="lazy" 
             decoding="async" 
@@ -851,7 +925,9 @@ function getRelatedPostCard(post) {
             height="450" 
             onerror="this.onerror=null;this.style.display='none'" 
             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90" 
-            alt="${escapeHtml(post.title)}">` : ""}
+            alt="${escapeHtml(post.title)}">`
+            : ""
+        }
       </div>
       <div class="flex items-center gap-2 text-xs font-medium text-neutral-400 uppercase tracking-wider mb-2">
         <span>${escapeHtml(category)}</span>
@@ -894,6 +970,7 @@ function getBlogIndexTemplate(ctx) {
       .animate-slide-up { animation: slideUpFade 0.8s ease-out forwards; }
     </style>
     ${SCHEMA_JSON}
+    ${ctx.analytics}
 </head>
 <body class="bg-white text-neutral-900 w-full overflow-x-hidden selection:bg-neutral-900 selection:text-white font-light antialiased">
 
@@ -963,21 +1040,27 @@ function renderBlogPost(post, relatedPosts, ctx) {
     /\{\{meta_description\}\}/g,
     escapeHtml(post.meta_description || post.short_preview || ""),
   );
-  
+
   // Sanitize body content to prevent Stored XSS
   const sanitizedBody = sanitizeHtml(post.body || "", {
     allowedTags: sanitizeHtml.defaults.allowedTags.concat([
-      'img', 'figure', 'figcaption', 'h1', 'h2', 'span', 'div'
+      "img",
+      "figure",
+      "figcaption",
+      "h1",
+      "h2",
+      "span",
+      "div",
     ]),
     allowedAttributes: {
       ...sanitizeHtml.defaults.allowedAttributes,
-      '*': ['class', 'style'],
-      'img': ['src', 'alt', 'width', 'height', 'loading'],
-      'a': ['href', 'target', 'rel']
+      "*": ["class", "style"],
+      img: ["src", "alt", "width", "height", "loading"],
+      a: ["href", "target", "rel"],
     },
-    allowedSchemes: ['http', 'https', 'mailto', 'tel'],
+    allowedSchemes: ["http", "https", "mailto", "tel"],
   });
-  
+
   html = html.replace(/\{\{body\}\}/g, sanitizedBody);
   html = html.replace(/\{\{related_posts\}\}/g, relatedHtml);
   html = html.replace(/\{\{encoded_url\}\}/g, encodeURIComponent(postUrl));
@@ -1046,7 +1129,9 @@ function renderBlogIndex(posts, ctx, pagination = { page: 1, totalPages: 1 }) {
       return `
         <a href="/blog/${post.slug}" class="group block">
           <div class="aspect-[4/3] bg-gradient-to-br from-neutral-200 to-neutral-300 rounded-2xl overflow-hidden mb-6">
-            ${imgSrc ? `<img 
+            ${
+              imgSrc
+                ? `<img 
                 src="${imgSrc}" 
                 loading="lazy" 
                 decoding="async"
@@ -1054,7 +1139,9 @@ function renderBlogIndex(posts, ctx, pagination = { page: 1, totalPages: 1 }) {
                 height="450" 
                 onerror="this.onerror=null;this.style.display='none'" 
                 alt="${escapeHtml(post.title)}" 
-                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">` : ""}
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">`
+                : ""
+            }
           </div>
           <div class="flex items-center gap-2 text-xs font-medium text-neutral-400 uppercase tracking-wider mb-2">
             <span>${escapeHtml(category)}</span>
@@ -1239,7 +1326,10 @@ async function handleContactForm(request, env) {
       if (!turnstileOutcome.success) {
         console.error("Turnstile failure:", turnstileOutcome);
         return jsonResponse(
-          { success: false, error: "Security check failed. Please refresh and try again." },
+          {
+            success: false,
+            error: "Security check failed. Please refresh and try again.",
+          },
           400,
           request,
         );
@@ -1387,10 +1477,14 @@ async function handleContactForm(request, env) {
     const resendData = await resendResponse.json();
     console.log("Email sent successfully:", resendData.id);
 
-    return jsonResponse({
-      success: true,
-      message: "Thank you! We'll contact you within 24 hours.",
-    }, 200, request);
+    return jsonResponse(
+      {
+        success: true,
+        message: "Thank you! We'll contact you within 24 hours.",
+      },
+      200,
+      request,
+    );
   } catch (error) {
     console.error("Form submission error:", error);
     return jsonResponse(
@@ -1451,17 +1545,19 @@ export default {
       return handleStaticPageWithComponents(request, env, url.pathname, ctx);
     }
 
-    // Route: Homepage - map / to /index.html
+    // Route: Homepage - transform with reusable components
     if (url.pathname === "/" || url.pathname === "") {
-      const assetUrl = new URL(request.url);
-      assetUrl.pathname = "/index.html";
-      const assetRequest = new Request(assetUrl.toString(), request);
-      return env.ASSETS.fetch(assetRequest);
+      return handleStaticPageWithComponents(request, env, "/index", ctx);
     }
 
     // Fallback to static assets
-    return env.ASSETS
-      ? env.ASSETS.fetch(request)
-      : errorResponse("Not found", 404);
+    const assetResponse = env.ASSETS ? await env.ASSETS.fetch(request) : null;
+
+    // If asset not found, return 404 page with components
+    if (!assetResponse || assetResponse.status === 404) {
+      return handleStaticPageWithComponents(request, env, "/404", ctx);
+    }
+
+    return assetResponse;
   },
 };
