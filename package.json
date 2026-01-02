@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "High Surf Corp marketing website with blog and contact form",
   "scripts": {
-    "build": "npm run build:admin && node generate-blog.js",
-    "build:admin": "cd admin-ui && npm ci && npm run build && cd .. && rm -rf dist/admin && cp -r admin-ui/dist dist/admin",
+    "build": "npm run build:admin",
+    "build:admin": "cd admin-ui && npm ci && npm run build",
     "optimize:images": "node scripts/optimize-images.js",
     "dev": "npm run build && npx wrangler dev",
     "deploy": "npm run build && npx wrangler deploy"
