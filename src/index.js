@@ -28,11 +28,14 @@ import {
   deleteCompetitor,
   refreshCompetitor,
 } from "./controllers/intelligence.js";
+import { getLeads, updateLeadStatus, deleteLead } from "./controllers/leads.js";
+import { handleResendWebhook } from "./controllers/webhooks.js";
 import {
-  getLeads,
-  updateLeadStatus,
-  deleteLead,
-} from "./controllers/leads.js";
+  listEmails,
+  getEmail,
+  sendEmail,
+  updateEmail,
+} from "./controllers/emails.js";
 
 const app = new Hono();
 
@@ -63,6 +66,9 @@ app.use("*", contextMiddleware);
 
 // Contact form submission
 app.post("/api/contact", postContact);
+
+// Resend webhook (public - signature verified internally)
+app.post("/api/webhooks/resend", handleResendWebhook);
 
 // ============================================================================
 // ADMIN API ROUTES (secured)
@@ -105,7 +111,11 @@ app.delete("/api/admin/posts/:id", adminAuth, deletePost);
 app.post("/api/admin/intelligence/analyze", adminAuth, analyzeCompetitor);
 app.get("/api/admin/intelligence/competitors", adminAuth, getCompetitors);
 app.get("/api/admin/intelligence/competitors/:id", adminAuth, getCompetitor);
-app.get("/api/admin/intelligence/competitors/:id/content", adminAuth, getCompetitorContent);
+app.get(
+  "/api/admin/intelligence/competitors/:id/content",
+  adminAuth,
+  getCompetitorContent,
+);
 app.delete(
   "/api/admin/intelligence/competitors/:id",
   adminAuth,
@@ -121,6 +131,12 @@ app.post(
 app.get("/api/admin/leads", adminAuth, getLeads);
 app.patch("/api/admin/leads/:id", adminAuth, updateLeadStatus);
 app.delete("/api/admin/leads/:id", adminAuth, deleteLead);
+
+// Email Management
+app.get("/api/admin/emails", adminAuth, listEmails);
+app.get("/api/admin/emails/:id", adminAuth, getEmail);
+app.post("/api/admin/emails/send", adminAuth, sendEmail);
+app.patch("/api/admin/emails/:id", adminAuth, updateEmail);
 
 // ============================================================================
 // BLOG ROUTES
