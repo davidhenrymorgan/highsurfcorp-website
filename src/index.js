@@ -24,6 +24,7 @@ import {
   analyzeCompetitor,
   getCompetitors,
   getCompetitor,
+  getCompetitorContent,
   deleteCompetitor,
   refreshCompetitor,
 } from "./controllers/intelligence.js";
@@ -104,6 +105,7 @@ app.delete("/api/admin/posts/:id", adminAuth, deletePost);
 app.post("/api/admin/intelligence/analyze", adminAuth, analyzeCompetitor);
 app.get("/api/admin/intelligence/competitors", adminAuth, getCompetitors);
 app.get("/api/admin/intelligence/competitors/:id", adminAuth, getCompetitor);
+app.get("/api/admin/intelligence/competitors/:id/content", adminAuth, getCompetitorContent);
 app.delete(
   "/api/admin/intelligence/competitors/:id",
   adminAuth,
