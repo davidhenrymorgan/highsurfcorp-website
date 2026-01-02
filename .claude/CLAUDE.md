@@ -187,6 +187,7 @@ npx wrangler d1 execute highsurf-cms --remote --file=./seed.sql
 │   ├── fix-image-urls.js      # URL transformation utility (Webflow → R2)
 │   ├── optimize-images.js     # Image compression utility
 │   ├── backfill-hero-image-url.js  # Populate hero_image_url from body
+│   ├── upload-blog-images.js  # Upload local blog images to R2 bucket
 │   └── remove-dead-code.sh    # Cleanup script for unused files
 ├── generate-blog.js           # Blog image downloader + static file generator (gitignored output)
 ├── generate-seed.js           # D1 seed generator (CSV → SQL)
@@ -276,6 +277,40 @@ node src/migrate.js --remote
 - **Navigation**: Pill-shaped with `backdrop-blur-xl`, `rounded-full`
 - **Cards**: `bg-neutral-800/50`, `border-white/10`, hover effects
 - **Animations**: `animate-slide-up` for entrance effects
+
+## Performance Optimizations (January 2026)
+
+### Homepage Optimizations
+- **Removed dead CSS**: Deleted references to non-existent Webflow CSS files (normalize.css, components.css)
+- **Consolidated fonts**: Replaced WebFont.js with single Google Fonts load (Montserrat, Inter, Poppins - only used weights)
+- **Deduplicated Iconify**: Removed duplicate iconify.min.js, kept only iconify-icon.min.js
+- **Resource hints**: Added preconnect/dns-prefetch for R2, Tailwind CDN, Iconify, Vimeo
+- **Video optimization**: Changed hero video from 1080p to 720p, added poster image
+- **Lazy loading**: Added `loading="lazy"` to blog card images
+
+### Image Error Handling
+All blog images now have proper error handling:
+- Featured post (blog index): `onerror` hides broken images, gradient background fallback
+- Blog post hero: `onerror` hides broken images, gradient background fallback
+- Grid/related posts: Already had `onerror` handlers
+
+### R2 Image Management
+
+**Upload blog images to R2:**
+```bash
+node scripts/upload-blog-images.js
+```
+
+**Verify R2 bucket status:**
+```bash
+npx wrangler r2 bucket info highsurfcorp
+```
+
+**Important Notes:**
+- All blog images are stored in R2 at `images/blog/` path
+- Image filenames may contain URL-encoded characters (`%20`, `%2520`)
+- Webflow CDN fallbacks have been removed (account being cancelled)
+- Database `hero_image_url` values point directly to R2 public URLs
 
 ## Code Quality Standards
 
