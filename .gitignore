@@ -47,3 +47,6 @@ package-lock.json
 # Cloudflare
 .wrangler
 wrangler.toml.bak
+
+# Generated blog files (served dynamically from D1)
+dist/blog/
