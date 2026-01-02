@@ -27,30 +27,40 @@ npx wrangler dev
 ## Project Structure
 
 ```
-├── wrangler.toml           # Cloudflare Workers config (D1 binding)
-├── src/
-│   ├── index.js            # Worker: blog routing, contact form, template rendering
-│   └── migrate.js          # Database migration runner
-├── migrations/             # Versioned D1 schema migrations
-├── scripts/
-│   ├── fix-image-urls.js   # URL transformation utility
-│   ├── optimize-images.js  # Image compression
-│   └── backfill-hero-image-url.js
-├── generate-blog.js        # Blog image downloader (output gitignored)
-├── generate-seed.js        # D1 seed generator (CSV → SQL)
-├── dist/                   # Static site files
-│   ├── index.html          # Homepage (Tailwind CSS)
-│   ├── 404.html            # Custom 404 page
-│   ├── contact/            # Contact pages
-│   ├── legal/              # Legal pages
-│   └── images/             # Static images
-└── website-main/blog/      # Source CSV data
+├── wrangler.toml              # Cloudflare Workers config (D1 binding)
+├── src/                       # Modular Hono-based Worker
+│   ├── index.js               # Hono app router (entry point)
+│   ├── migrate.js             # Database migration runner
+│   ├── utils/
+│   │   ├── helpers.js         # formatDate, escapeHtml, etc.
+│   │   └── db.js              # safeDbQuery, safeDbFirst
+│   ├── views/
+│   │   ├── components.js      # Nav, footer, analytics, schema
+│   │   └── templates.js       # Blog post/index templates
+│   ├── controllers/
+│   │   ├── blog.js            # getIndex, getPost
+│   │   └── contact.js         # postContact
+│   └── middleware/
+│       ├── context.js         # Pre-render nav/footer per request
+│       └── static.js          # Static page transformation
+├── migrations/                # Versioned D1 schema migrations
+├── scripts/                   # Utility scripts
+├── generate-blog.js           # Blog image downloader (output gitignored)
+├── generate-seed.js           # D1 seed generator (CSV → SQL)
+├── dist/                      # Static site files
+│   ├── index.html             # Homepage (Tailwind CSS)
+│   ├── 404.html               # Custom 404 page
+│   ├── contact/               # Contact pages
+│   ├── legal/                 # Legal pages
+│   └── images/                # Static images
+└── website-main/blog/         # Source CSV data
 ```
 
 **Note:** Blog pages (`/blog`, `/blog/:slug`) are rendered dynamically by the Worker from D1. The `dist/blog/` directory is gitignored.
 
 ## Tech Stack
 
+- **Framework:** Hono (modular routing on Cloudflare Workers)
 - **Hosting:** Cloudflare Workers (static + dynamic)
 - **Database:** Cloudflare D1 (`highsurf-cms`) - 23 posts, 65 topics
 - **Images:** Cloudflare R2 bucket (`highsurfcorp`)
