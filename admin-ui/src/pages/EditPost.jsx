@@ -90,23 +90,23 @@ export default function EditPost() {
 
   if (isLoading) {
     return (
-      <div className="h-screen w-full flex items-center justify-center bg-neutral-950 text-neutral-500">
+      <div className="h-screen w-full flex items-center justify-center bg-gray-950 text-gray-500">
         <Icon
           icon="solar:refresh-bold-duotone"
-          className="text-4xl animate-spin"
+          className="text-4xl animate-spin text-emerald-500"
         />
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col h-screen bg-neutral-950 text-neutral-300 overflow-hidden">
+    <div className="flex flex-col h-screen bg-gray-950 text-gray-300 overflow-hidden font-sans">
       {/* --- Top Bar --- */}
-      <div className="h-16 px-6 border-b border-white/5 flex items-center justify-between shrink-0 bg-neutral-950/50 backdrop-blur-md z-20">
+      <div className="h-16 px-6 border-b border-white/5 flex items-center justify-between shrink-0 bg-gray-900/50 backdrop-blur-xl z-20">
         <div className="flex items-center gap-4">
           <button
             onClick={() => navigate("/")}
-            className="p-2 hover:bg-white/5 rounded-full text-neutral-400 hover:text-white transition-colors"
+            className="p-2 hover:bg-white/5 rounded-full text-gray-400 hover:text-white transition-colors"
             title="Back to Dashboard"
           >
             <Icon icon="solar:arrow-left-linear" className="text-xl" />
@@ -120,7 +120,7 @@ export default function EditPost() {
               href={`https://highsurfcorp.com/blog/${post.slug}`}
               target="_blank"
               rel="noreferrer"
-              className="text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1 ml-2 bg-emerald-500/10 px-3 py-1.5 rounded-full font-medium"
+              className="text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1 ml-2 bg-emerald-500/10 px-3 py-1.5 rounded-full font-medium transition-colors"
             >
               View Live <Icon icon="solar:arrow-right-up-linear" />
             </a>
@@ -142,7 +142,7 @@ export default function EditPost() {
           <button
             onClick={handleSave}
             disabled={isSaving}
-            className="bg-white hover:bg-neutral-200 text-neutral-950 px-6 py-2.5 rounded-full text-sm font-bold transition-all shadow-lg shadow-white/10 flex items-center gap-2 disabled:opacity-50"
+            className="btn-primary flex items-center gap-2"
           >
             {isSaving ? (
               <Icon icon="solar:refresh-linear" className="animate-spin" />
@@ -166,17 +166,17 @@ export default function EditPost() {
                 value={post.title}
                 onChange={(e) => setPost({ ...post, title: e.target.value })}
                 placeholder="Post Title"
-                className="w-full bg-transparent text-4xl font-bold text-white placeholder-neutral-700 focus:outline-none"
+                className="w-full bg-transparent text-4xl font-bold text-white placeholder-gray-700 focus:outline-none"
               />
-              <div className="flex items-center gap-3 text-neutral-500 text-sm group">
-                <span className="font-mono text-xs uppercase tracking-wider text-neutral-600">
+              <div className="flex items-center gap-3 text-gray-500 text-sm group">
+                <span className="font-mono text-xs uppercase tracking-wider text-gray-600">
                   SLUG:
                 </span>
                 <input
                   type="text"
                   value={post.slug}
                   onChange={(e) => setPost({ ...post, slug: e.target.value })}
-                  className="bg-transparent border-b border-dashed border-neutral-800 group-hover:border-neutral-600 focus:border-emerald-500 focus:outline-none text-neutral-400 w-full max-w-md transition-colors"
+                  className="bg-transparent border-b border-dashed border-gray-800 group-hover:border-gray-600 focus:border-emerald-500 focus:outline-none text-gray-400 w-full max-w-md transition-colors"
                 />
               </div>
             </div>
@@ -184,10 +184,10 @@ export default function EditPost() {
             {/* Body Textarea (HTML) */}
             <div className="relative group">
               <div className="flex items-center justify-between mb-2">
-                <label className="text-xs uppercase tracking-wider text-neutral-600 font-semibold">
+                <label className="text-xs uppercase tracking-wider text-gray-600 font-semibold">
                   Content (HTML)
                 </label>
-                <span className="text-[10px] bg-white/5 px-2 py-0.5 rounded text-neutral-500 border border-white/5">
+                <span className="text-[10px] bg-white/5 px-2 py-0.5 rounded text-gray-500 border border-white/5">
                   Raw HTML Mode
                 </span>
               </div>
@@ -196,26 +196,26 @@ export default function EditPost() {
                 value={post.body}
                 onChange={(e) => setPost({ ...post, body: e.target.value })}
                 placeholder="<p>Write your content here...</p>"
-                className="w-full h-[60vh] bg-white/[0.02] border border-white/5 rounded-2xl p-6 text-neutral-300 focus:outline-none focus:ring-1 focus:ring-emerald-500/50 focus:bg-white/5 font-mono text-sm leading-relaxed resize-none transition-all"
+                className="w-full h-[60vh] bg-gray-900/30 border border-white/5 rounded-2xl p-6 text-gray-300 focus:outline-none focus:ring-1 focus:ring-emerald-500/50 focus:bg-gray-900/50 font-mono text-sm leading-relaxed resize-none transition-all"
               />
             </div>
           </div>
         </div>
 
         {/* Sidebar Settings (Right) */}
-        <div className="w-80 border-l border-white/5 bg-neutral-950 p-6 overflow-y-auto space-y-8 h-full">
+        <div className="w-80 border-l border-white/5 bg-gray-900/30 backdrop-blur-xl p-6 overflow-y-auto space-y-8 h-full z-10">
           {/* Status Toggle */}
           <div className="space-y-3">
-            <label className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">
+            <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
               Status
             </label>
-            <div className="grid grid-cols-2 gap-2 p-1 bg-white/5 rounded-xl border border-white/5">
+            <div className="grid grid-cols-2 gap-2 p-1 bg-gray-800/50 rounded-xl border border-white/5">
               <button
                 onClick={() => setPost({ ...post, draft: 1 })}
                 className={`py-2 text-xs font-medium rounded-lg transition-all ${
                   post.draft === 1
-                    ? "bg-neutral-700 text-white shadow-sm"
-                    : "text-neutral-500 hover:text-neutral-300"
+                    ? "bg-gray-700 text-white shadow-sm"
+                    : "text-gray-500 hover:text-gray-300"
                 }`}
               >
                 Draft
@@ -224,8 +224,8 @@ export default function EditPost() {
                 onClick={() => setPost({ ...post, draft: 0 })}
                 className={`py-2 text-xs font-medium rounded-lg transition-all ${
                   post.draft === 0
-                    ? "bg-emerald-500 text-neutral-950 shadow-sm shadow-emerald-500/20"
-                    : "text-neutral-500 hover:text-neutral-300"
+                    ? "bg-emerald-500 text-gray-950 shadow-sm shadow-emerald-500/20"
+                    : "text-gray-500 hover:text-gray-300"
                 }`}
               >
                 Published
@@ -235,7 +235,7 @@ export default function EditPost() {
 
           {/* Hero Image */}
           <div className="space-y-3">
-            <label className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">
+            <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
               Hero Image
             </label>
 
@@ -246,7 +246,7 @@ export default function EditPost() {
               onChange={(e) =>
                 setPost({ ...post, hero_image_url: e.target.value })
               }
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-neutral-300 focus:outline-none focus:border-emerald-500/50 focus:bg-white/10 transition-colors"
+              className="input-base"
             />
 
             <div className="aspect-video rounded-xl border border-white/10 bg-black/40 overflow-hidden flex items-center justify-center relative group">
@@ -261,9 +261,9 @@ export default function EditPost() {
                 <div className="text-center">
                   <Icon
                     icon="solar:gallery-wide-linear"
-                    className="text-2xl text-neutral-700 mx-auto mb-1"
+                    className="text-2xl text-gray-700 mx-auto mb-1"
                   />
-                  <span className="text-[10px] text-neutral-600">No image</span>
+                  <span className="text-[10px] text-gray-600">No image</span>
                 </div>
               )}
             </div>
@@ -272,19 +272,19 @@ export default function EditPost() {
           {/* Meta Data */}
           <div className="space-y-5 pt-4 border-t border-white/5">
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">
+              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
                 Category
               </label>
               <input
                 type="text"
                 value={post.category || ""}
                 onChange={(e) => setPost({ ...post, category: e.target.value })}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-neutral-200 focus:outline-none focus:border-emerald-500/50 focus:bg-white/10 transition-colors"
+                className="input-base"
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">
+              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
                 Meta Description
               </label>
               <textarea
@@ -293,7 +293,7 @@ export default function EditPost() {
                 onChange={(e) =>
                   setPost({ ...post, meta_description: e.target.value })
                 }
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-neutral-200 focus:outline-none focus:border-emerald-500/50 focus:bg-white/10 transition-colors resize-none"
+                className="input-base resize-none"
               />
             </div>
           </div>
