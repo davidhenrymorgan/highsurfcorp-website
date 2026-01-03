@@ -218,7 +218,7 @@ export async function postContact(c) {
       },
       body: JSON.stringify({
         from: "High Surf Corp Website <website@send.highsurfcorp.com>",
-        to: ["crew@highsurfcorp.com"],
+        to: ["crew@highsurfcorp.com", "hello@send.highsurfcorp.com"],
         reply_to: email,
         subject: `New Lead: ${name}${budgetDisplay ? ` (${budgetDisplay})` : ""} - ${zip || "No Zip"}`,
         html: emailHTML,
