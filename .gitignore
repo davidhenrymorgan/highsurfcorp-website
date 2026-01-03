@@ -48,6 +48,14 @@ package-lock.json
 .wrangler
 wrangler.toml.bak
 
+# Environment and secrets files (NEVER commit these)
+.dev.vars
+*.vars
+.env
+.env.*
+.env.local
+.env.*.local
+
 # Generated blog files (served dynamically from D1)
 dist/blog/
 
