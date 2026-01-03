@@ -19,6 +19,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Iconify icons -->
     <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <!-- Cloudflare Turnstile -->
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     <!-- Google Fonts - optimized load -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -709,6 +711,9 @@ fbq('track', 'PageView');
               <label for="message" class="block text-xs font-semibold uppercase tracking-wider text-neutral-400">Message</label>
               <textarea rows="4" name="message" class="placeholder:text-neutral-400 focus:outline-none focus:border-neutral-400 focus:ring-1 focus:ring-neutral-400 transition-all resize-none text-sm text-neutral-900 bg-white w-full border-neutral-200 border rounded-lg pt-3 pr-4 pb-3 pl-4" placeholder="Tell us about your project..." id="message"></textarea>
             </div>
+
+            <!-- Cloudflare Turnstile -->
+            <div class="cf-turnstile" data-sitekey="0x4AAAAAACKP2c6hqSw4QKiZ" data-theme="light"></div>
 
             <!-- Submit -->
             <button type="submit" class="w-full bg-neutral-900 text-white font-medium py-4 rounded-xl hover:bg-neutral-800 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-2 group mt-2">
