@@ -33,6 +33,35 @@ export function getBlogPostTemplate(ctx) {
     <!-- LCP Optimization: Preload hero image -->
     <link rel="preload" as="image" href="{{hero_image}}" fetchpriority="high">
     ${SCHEMA_JSON}
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      "headline": "{{title}}",
+      "image": "{{hero_image}}",
+      "datePublished": "{{published_at}}",
+      "dateModified": "{{updated_at}}",
+      "author": {
+        "@type": "Organization",
+        "name": "High Surf Corp",
+        "url": "https://highsurfcorp.com"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "High Surf Corp",
+        "url": "https://highsurfcorp.com",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://pub-8a557d48118e46a38c0007cee5e58bd9.r2.dev/images/highsurf-logo.png"
+        }
+      },
+      "description": "{{meta_description}}",
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "https://highsurfcorp.com/blog/{{slug}}"
+      }
+    }
+    </script>
     ${ctx.analytics}
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
@@ -124,6 +153,8 @@ export function getBlogPostTemplate(ctx) {
     </script>
 </head>
 <body class="bg-white text-neutral-900 w-full overflow-x-hidden selection:bg-neutral-900 selection:text-white relative font-light antialiased">
+    <!-- Skip to content link for accessibility -->
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:bg-neutral-900 focus:text-white focus:px-4 focus:py-2 focus:rounded focus:outline-none focus:ring-2 focus:ring-neutral-900">Skip to main content</a>
 
     <!-- Vertical Lines -->
     <div class="grid-lines">
@@ -136,7 +167,7 @@ export function getBlogPostTemplate(ctx) {
     ${ctx.nav.blog}
 
     <!-- Blog Header Section -->
-    <header class="relative pt-32 pb-16 md:pt-48 md:pb-24 px-6">
+    <header id="main-content" class="relative pt-32 pb-16 md:pt-48 md:pb-24 px-6">
       <div class="max-w-7xl mx-auto text-center relative z-10">
         <!-- Category / Date -->
         <div class="inline-flex items-center gap-3 px-3 py-1.5 rounded-full border border-neutral-200 bg-neutral-50/50 text-xs font-medium text-neutral-500 mb-8 animate-slide-up [animation-delay:0.3s] opacity-0">
@@ -306,11 +337,13 @@ export function getBlogIndexTemplate(ctx) {
     ${ctx.analytics}
 </head>
 <body class="bg-white text-neutral-900 w-full overflow-x-hidden selection:bg-neutral-900 selection:text-white font-light antialiased">
+    <!-- Skip to content link for accessibility -->
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:bg-neutral-900 focus:text-white focus:px-4 focus:py-2 focus:rounded focus:outline-none focus:ring-2 focus:ring-neutral-900">Skip to main content</a>
 
     ${ctx.nav.blog}
 
     <!-- Header -->
-    <header class="relative pt-32 pb-16 md:pt-40 md:pb-20 px-6">
+    <header id="main-content" class="relative pt-32 pb-16 md:pt-40 md:pb-20 px-6">
       <div class="max-w-7xl mx-auto text-center">
         <h1 class="text-5xl md:text-7xl font-semibold tracking-tighter text-neutral-900 mb-6 animate-slide-up [animation-delay:0.3s] opacity-0">
           Journal

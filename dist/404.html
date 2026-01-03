@@ -57,6 +57,8 @@
   </script>
 </head>
 <body class="bg-neutral-950 text-neutral-50 w-full overflow-x-hidden selection:bg-white/20 selection:text-white font-light min-h-screen flex flex-col">
+  <!-- Skip to content link for accessibility -->
+  <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:bg-neutral-900 focus:text-white focus:px-4 focus:py-2 focus:rounded focus:outline-none focus:ring-2 focus:ring-white">Skip to main content</a>
 
   <!-- Navigation -->
   <div class="fixed top-6 left-0 right-0 z-50 flex justify-center px-4 animate-slide-up">
@@ -113,7 +115,7 @@
   </div>
 
   <!-- Main Content -->
-  <main class="flex-1 flex items-center justify-center pt-24 pb-20">
+  <main id="main-content" class="flex-1 flex items-center justify-center pt-24 pb-20">
     <div class="max-w-2xl mx-auto px-6 text-center animate-slide-up">
 
       <!-- 404 Icon -->
