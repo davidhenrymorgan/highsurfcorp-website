@@ -36,6 +36,7 @@ import {
   sendEmail,
   updateEmail,
 } from "./controllers/emails.js";
+import { getSitemap } from "./controllers/sitemap.js";
 
 const app = new Hono();
 
@@ -147,6 +148,13 @@ app.get("/blog", getIndex);
 
 // Individual blog post
 app.get("/blog/:slug", getPost);
+
+// ============================================================================
+// SEO ROUTES
+// ============================================================================
+
+// XML Sitemap (dynamic)
+app.get("/sitemap.xml", getSitemap);
 
 // ============================================================================
 // STATIC PAGES (with component injection)
