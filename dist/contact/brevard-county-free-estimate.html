@@ -15,6 +15,7 @@
   <meta property="twitter:image" content="https://pub-8a557d48118e46a38c0007cee5e58bd9.r2.dev/images/capt-hirams-blue-small.avif">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
   <link href="https://fonts.googleapis.com" rel="preconnect">
   <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin="anonymous">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -175,8 +176,8 @@
 
               <!-- Zip Code -->
               <div>
-                <label for="zipcode" class="block text-sm font-medium text-white/80 mb-2">Zip code</label>
-                <input type="text" id="zipcode" name="zipcode"
+                <label for="zip" class="block text-sm font-medium text-white/80 mb-2">Zip code</label>
+                <input type="text" id="zip" name="zip"
                   class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-white/30 focus:bg-white/10 transition-colors placeholder:text-white/30"
                   placeholder="32903">
               </div>
@@ -204,6 +205,9 @@
                   class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-white/30 focus:bg-white/10 transition-colors placeholder:text-white/30 resize-none"
                   placeholder="Describe your shoreline protection needs..."></textarea>
               </div>
+
+              <!-- Cloudflare Turnstile -->
+              <div class="cf-turnstile" data-sitekey="0x4AAAAAACKP2c6hqSw4QKiZ" data-theme="dark"></div>
 
               <!-- Submit Button -->
               <button type="submit"
