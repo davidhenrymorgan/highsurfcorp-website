@@ -178,10 +178,10 @@ export default function GenerateModal({ isOpen, onClose }) {
 
   return (
     <div
-      className="fixed inset-0 bg-neutral-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 bg-gray-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="glass rounded-3xl border border-white/10 max-w-lg w-full max-h-[90vh] overflow-y-auto bg-neutral-900/50 shadow-2xl">
+      <div className="glass rounded-3xl border border-white/10 max-w-lg w-full max-h-[90vh] overflow-y-auto bg-gray-900/50 shadow-2xl">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-white/5">
           <div className="flex items-center gap-3">
@@ -189,13 +189,13 @@ export default function GenerateModal({ isOpen, onClose }) {
               icon="solar:magic-stick-3-bold-duotone"
               className="text-2xl text-emerald-400"
             />
-            <h2 className="text-lg font-semibold text-neutral-50">
+            <h2 className="text-lg font-semibold text-gray-50">
               Generate with AI
             </h2>
           </div>
           <button
             onClick={onClose}
-            className="text-neutral-400 hover:text-white transition-colors"
+            className="text-gray-400 hover:text-white transition-colors"
           >
             <Icon icon="solar:close-circle-bold-duotone" className="text-2xl" />
           </button>
@@ -207,7 +207,7 @@ export default function GenerateModal({ isOpen, onClose }) {
             <form onSubmit={handleSubmit} className="space-y-5">
               {/* Topic Input */}
               <div>
-                <label className="block text-sm font-medium text-neutral-300 mb-2">
+                <label className="block text-sm font-medium text-gray-300 mb-2">
                   Topic <span className="text-red-400">*</span>
                 </label>
                 <input
@@ -216,15 +216,15 @@ export default function GenerateModal({ isOpen, onClose }) {
                   onChange={(e) => setTopic(e.target.value)}
                   placeholder="e.g., Seawall Maintenance"
                   disabled={isLoading}
-                  className="w-full bg-white/5 border border-white/5 rounded-xl py-2.5 px-4 text-sm focus:outline-none focus:ring-1 transition-all placeholder-neutral-600 text-neutral-300 focus:ring-emerald-500/50 focus:border-emerald-500/50 disabled:opacity-50"
+                  className="input-base"
                 />
               </div>
 
               {/* Keywords Input */}
               <div>
-                <label className="block text-sm font-medium text-neutral-300 mb-2">
+                <label className="block text-sm font-medium text-gray-300 mb-2">
                   Keywords{" "}
-                  <span className="text-neutral-500 font-normal">
+                  <span className="text-gray-500 font-normal">
                     (optional)
                   </span>
                 </label>
@@ -234,23 +234,23 @@ export default function GenerateModal({ isOpen, onClose }) {
                   onChange={(e) => setKeywords(e.target.value)}
                   placeholder="e.g., Brevard County, erosion, coastal protection"
                   disabled={isLoading}
-                  className="w-full bg-white/5 border border-white/5 rounded-xl py-2.5 px-4 text-sm focus:outline-none focus:ring-1 transition-all placeholder-neutral-600 text-neutral-300 focus:ring-emerald-500/50 focus:border-emerald-500/50 disabled:opacity-50"
+                  className="input-base"
                 />
-                <p className="mt-1.5 text-xs text-neutral-500">
+                <p className="mt-1.5 text-xs text-gray-500">
                   Comma-separated keywords to include
                 </p>
               </div>
 
               {/* Tone Select */}
               <div>
-                <label className="block text-sm font-medium text-neutral-300 mb-2">
+                <label className="block text-sm font-medium text-gray-300 mb-2">
                   Tone
                 </label>
                 <select
                   value={tone}
                   onChange={(e) => setTone(e.target.value)}
                   disabled={isLoading}
-                  className="w-full bg-white/5 border border-white/5 rounded-xl py-2.5 px-4 text-sm focus:outline-none focus:ring-1 transition-all text-neutral-300 focus:ring-emerald-500/50 focus:border-emerald-500/50 disabled:opacity-50 appearance-none cursor-pointer"
+                  className="input-base appearance-none cursor-pointer"
                   style={{
                     backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23737373' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
                     backgroundPosition: "right 0.75rem center",
@@ -262,7 +262,7 @@ export default function GenerateModal({ isOpen, onClose }) {
                     <option
                       key={option.value}
                       value={option.value}
-                      className="bg-neutral-900"
+                      className="bg-gray-900"
                     >
                       {option.label}
                     </option>
@@ -273,9 +273,9 @@ export default function GenerateModal({ isOpen, onClose }) {
               {/* Competitor Context */}
               {competitors.length > 0 && (
                 <div>
-                  <label className="block text-sm font-medium text-neutral-300 mb-2">
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
                     Competitor Context{" "}
-                    <span className="text-neutral-500 font-normal">
+                    <span className="text-gray-500 font-normal">
                       (optional)
                     </span>
                   </label>
@@ -283,7 +283,7 @@ export default function GenerateModal({ isOpen, onClose }) {
                     value={selectedCompetitor}
                     onChange={(e) => setSelectedCompetitor(e.target.value)}
                     disabled={isLoading}
-                    className="w-full bg-white/5 border border-white/5 rounded-xl py-2.5 px-4 text-sm focus:outline-none focus:ring-1 transition-all text-neutral-300 focus:ring-emerald-500/50 focus:border-emerald-500/50 disabled:opacity-50 appearance-none cursor-pointer"
+                    className="input-base appearance-none cursor-pointer"
                     style={{
                       backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23737373' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
                       backgroundPosition: "right 0.75rem center",
@@ -291,20 +291,20 @@ export default function GenerateModal({ isOpen, onClose }) {
                       backgroundSize: "1.25em 1.25em",
                     }}
                   >
-                    <option value="" className="bg-neutral-900">
+                    <option value="" className="bg-gray-900">
                       None - Standard generation
                     </option>
                     {competitors.map((comp) => (
                       <option
                         key={comp.id}
                         value={comp.id}
-                        className="bg-neutral-900"
+                        className="bg-gray-900"
                       >
                         Outperform: {comp.name}
                       </option>
                     ))}
                   </select>
-                  <p className="mt-1.5 text-xs text-neutral-500">
+                  <p className="mt-1.5 text-xs text-gray-500">
                     Generate content optimized to outrank this competitor
                   </p>
                 </div>
@@ -325,7 +325,7 @@ export default function GenerateModal({ isOpen, onClose }) {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full text-neutral-950 text-sm font-bold px-4 py-3 rounded-full transition-all flex items-center justify-center gap-2 shadow-lg bg-white hover:bg-neutral-200 shadow-white/10 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="btn-primary w-full flex items-center justify-center gap-2"
               >
                 {isLoading ? (
                   <>
@@ -361,27 +361,27 @@ export default function GenerateModal({ isOpen, onClose }) {
 
               {/* Generated Title */}
               <div>
-                <label className="block text-sm font-medium text-neutral-400 mb-2">
+                <label className="block text-sm font-medium text-gray-400 mb-2">
                   Generated Title
                 </label>
-                <div className="bg-white/5 border border-white/5 rounded-xl py-3 px-4 text-neutral-200">
+                <div className="bg-gray-800/50 border border-white/5 rounded-xl py-3 px-4 text-gray-200">
                   {result.title}
                 </div>
               </div>
 
               {/* Generated Outline */}
               <div>
-                <label className="block text-sm font-medium text-neutral-400 mb-2">
+                <label className="block text-sm font-medium text-gray-400 mb-2">
                   Generated Outline
                 </label>
-                <div className="bg-white/5 border border-white/5 rounded-xl py-3 px-4 text-neutral-300 text-sm whitespace-pre-wrap max-h-60 overflow-y-auto">
+                <div className="bg-gray-800/50 border border-white/5 rounded-xl py-3 px-4 text-gray-300 text-sm whitespace-pre-wrap max-h-60 overflow-y-auto">
                   {Array.isArray(result.outline) ? (
                     result.outline.map((section, idx) => (
                       <div key={idx} className="mb-2">
                         <strong className="text-white block mb-1">
                           {section.heading}
                         </strong>
-                        <ul className="list-disc pl-4 text-neutral-400">
+                        <ul className="list-disc pl-4 text-gray-400">
                           {section.content_points.map((pt, i) => (
                             <li key={i}>{pt}</li>
                           ))}
@@ -412,7 +412,7 @@ export default function GenerateModal({ isOpen, onClose }) {
                 <button
                   onClick={() => setResult(null)}
                   disabled={isLoading}
-                  className="flex-1 text-neutral-300 text-sm font-medium px-4 py-2.5 rounded-full transition-all flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 border border-white/5 disabled:opacity-50"
+                  className="btn-secondary flex-1 flex items-center justify-center gap-2"
                 >
                   <Icon icon="solar:refresh-bold-duotone" className="text-lg" />
                   <span>Generate Again</span>
@@ -420,7 +420,7 @@ export default function GenerateModal({ isOpen, onClose }) {
                 <button
                   onClick={handleCreateDraft}
                   disabled={isLoading}
-                  className="flex-1 text-neutral-950 text-sm font-bold px-4 py-3 rounded-full transition-all flex items-center justify-center gap-2 shadow-lg bg-white hover:bg-neutral-200 shadow-white/10 disabled:opacity-50"
+                  className="btn-primary flex-1 flex items-center justify-center gap-2"
                 >
                   {isLoading ? (
                     <>

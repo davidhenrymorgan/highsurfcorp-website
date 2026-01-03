@@ -159,10 +159,10 @@ export default function Leads() {
   return (
     <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
       <div className="px-6 py-6 shrink-0">
-        <h1 className="text-2xl font-semibold text-neutral-100 tracking-tight">
+        <h1 className="text-2xl font-semibold text-gray-100 tracking-tight">
           Leads & Inquiries
         </h1>
-        <p className="text-sm text-neutral-500 mt-1">
+        <p className="text-sm text-gray-500 mt-1">
           Manage contact form submissions and email inbox
         </p>
       </div>
@@ -175,7 +175,7 @@ export default function Leads() {
             className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
               activeTab === "leads"
                 ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                : "bg-white/5 text-neutral-400 hover:bg-white/10 border border-transparent"
+                : "bg-white/5 text-gray-400 hover:bg-white/10 border border-transparent"
             }`}
           >
             <Icon
@@ -194,7 +194,7 @@ export default function Leads() {
             className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
               activeTab === "emails"
                 ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                : "bg-white/5 text-neutral-400 hover:bg-white/10 border border-transparent"
+                : "bg-white/5 text-gray-400 hover:bg-white/10 border border-transparent"
             }`}
           >
             <Icon
@@ -211,7 +211,7 @@ export default function Leads() {
           {activeTab === "emails" && (
             <button
               onClick={fetchEmails}
-              className="ml-auto px-3 py-2 bg-white/5 hover:bg-white/10 rounded-full text-neutral-400 text-sm transition-colors"
+              className="ml-auto px-3 py-2 bg-white/5 hover:bg-white/10 rounded-full text-gray-400 text-sm transition-colors"
               title="Refresh"
             >
               <Icon icon="solar:refresh-bold-duotone" className="text-lg" />
@@ -228,11 +228,11 @@ export default function Leads() {
               <div className="flex justify-center py-20">
                 <Icon
                   icon="solar:refresh-bold-duotone"
-                  className="text-4xl text-neutral-600 animate-spin"
+                  className="text-4xl text-gray-600 animate-spin"
                 />
               </div>
             ) : leads.length === 0 ? (
-              <div className="text-center py-20 text-neutral-500">
+              <div className="text-center py-20 text-gray-500">
                 No leads found yet.
               </div>
             ) : (
@@ -240,12 +240,12 @@ export default function Leads() {
                 {leads.map((lead) => (
                   <div
                     key={lead.id}
-                    className="bg-neutral-800/30 border border-white/5 rounded-2xl p-6 backdrop-blur-sm"
+                    className="glass-panel p-6 rounded-2xl"
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div>
                         <div className="flex items-center gap-3 mb-2">
-                          <h3 className="text-lg font-semibold text-neutral-200">
+                          <h3 className="text-lg font-semibold text-gray-200">
                             {lead.name}
                           </h3>
                           {lead.status === "new" && (
@@ -259,7 +259,7 @@ export default function Leads() {
                             </span>
                           )}
                         </div>
-                        <div className="text-sm text-neutral-400 space-y-1">
+                        <div className="text-sm text-gray-400 space-y-1">
                           <p className="flex items-center gap-2">
                             <Icon icon="solar:letter-linear" /> {lead.email}
                           </p>
@@ -275,13 +275,13 @@ export default function Leads() {
                         </div>
                       </div>
                       <div className="flex flex-col items-end gap-2">
-                        <span className="text-xs text-neutral-600 font-mono">
+                        <span className="text-xs text-gray-600 font-mono">
                           {formatDate(lead.created_at)}
                         </span>
                         <div className="flex gap-2 mt-2">
                           <a
                             href={`mailto:${lead.email}?subject=Re: Your Inquiry to High Surf Corp`}
-                            className="p-2 bg-white/5 hover:bg-white/10 rounded-xl text-neutral-300 transition-colors"
+                            className="p-2 bg-white/5 hover:bg-white/10 rounded-xl text-gray-300 transition-colors"
                             title="Reply via Email"
                           >
                             <Icon
@@ -299,7 +299,7 @@ export default function Leads() {
                             className={`p-2 rounded-xl transition-colors ${
                               lead.status === "contacted"
                                 ? "bg-blue-500/10 text-blue-400"
-                                : "bg-white/5 hover:bg-white/10 text-neutral-300"
+                                : "bg-white/5 hover:bg-white/10 text-gray-300"
                             }`}
                             title="Toggle Status"
                           >
@@ -310,7 +310,7 @@ export default function Leads() {
                           </button>
                           <button
                             onClick={() => deleteLead(lead.id)}
-                            className="p-2 bg-white/5 hover:bg-red-500/20 hover:text-red-400 rounded-xl text-neutral-300 transition-colors"
+                            className="p-2 bg-white/5 hover:bg-red-500/20 hover:text-red-400 rounded-xl text-gray-300 transition-colors"
                             title="Delete Lead"
                           >
                             <Icon
@@ -323,7 +323,7 @@ export default function Leads() {
                     </div>
                     {lead.message && (
                       <div className="mt-4 pt-4 border-t border-white/5">
-                        <p className="text-sm text-neutral-300 leading-relaxed whitespace-pre-wrap">
+                        <p className="text-sm text-gray-300 leading-relaxed whitespace-pre-wrap">
                           {lead.message}
                         </p>
                       </div>
@@ -342,11 +342,11 @@ export default function Leads() {
               <div className="flex justify-center py-20">
                 <Icon
                   icon="solar:refresh-bold-duotone"
-                  className="text-4xl text-neutral-600 animate-spin"
+                  className="text-4xl text-gray-600 animate-spin"
                 />
               </div>
             ) : emails.length === 0 ? (
-              <div className="text-center py-20 text-neutral-500">
+              <div className="text-center py-20 text-gray-500">
                 <Icon
                   icon="solar:mailbox-bold-duotone"
                   className="text-6xl mb-4 opacity-50"
@@ -363,10 +363,10 @@ export default function Leads() {
                     {/* Email Row */}
                     <div
                       onClick={() => handleEmailClick(email)}
-                      className={`bg-neutral-800/30 border rounded-2xl p-4 backdrop-blur-sm cursor-pointer transition-all ${
+                      className={`glass-panel p-4 cursor-pointer transition-all ${
                         selectedEmail?.id === email.id
-                          ? "border-emerald-500/30 bg-neutral-800/50"
-                          : "border-white/5 hover:border-white/10"
+                          ? "border-emerald-500/30 bg-gray-800/60"
+                          : ""
                       }`}
                     >
                       <div className="flex items-center gap-4">
@@ -385,7 +385,7 @@ export default function Leads() {
                           ) : (
                             <Icon
                               icon="solar:circle-linear"
-                              className="text-neutral-600 text-sm"
+                              className="text-gray-600 text-sm"
                             />
                           )}
                         </div>
@@ -396,8 +396,8 @@ export default function Leads() {
                             <span
                               className={`font-medium truncate ${
                                 email.status === "unread"
-                                  ? "text-neutral-100"
-                                  : "text-neutral-400"
+                                  ? "text-gray-100"
+                                  : "text-gray-400"
                               }`}
                             >
                               {email.from_name || email.from_email}
@@ -411,8 +411,8 @@ export default function Leads() {
                           <p
                             className={`text-sm truncate ${
                               email.status === "unread"
-                                ? "text-neutral-300"
-                                : "text-neutral-500"
+                                ? "text-gray-300"
+                                : "text-gray-500"
                             }`}
                           >
                             {email.subject || "(No Subject)"}
@@ -420,7 +420,7 @@ export default function Leads() {
                         </div>
 
                         {/* Date */}
-                        <div className="shrink-0 text-xs text-neutral-600 font-mono">
+                        <div className="shrink-0 text-xs text-gray-600 font-mono">
                           {formatDate(email.created_at)}
                         </div>
 
@@ -431,42 +431,42 @@ export default function Leads() {
                               ? "solar:alt-arrow-up-linear"
                               : "solar:alt-arrow-down-linear"
                           }
-                          className="text-neutral-500 text-lg shrink-0"
+                          className="text-gray-500 text-lg shrink-0"
                         />
                       </div>
                     </div>
 
                     {/* Expanded Email Content */}
                     {selectedEmail?.id === email.id && (
-                      <div className="mt-2 bg-neutral-900/50 border border-white/5 rounded-2xl p-6 animate-slide-up">
+                      <div className="mt-2 glass-panel p-6 animate-slide-up bg-gray-900/50">
                         {/* Email Header */}
                         <div className="space-y-2 mb-4 pb-4 border-b border-white/5">
                           <div className="flex items-center gap-2 text-sm">
-                            <span className="text-neutral-500 w-16">From:</span>
-                            <span className="text-neutral-300">
+                            <span className="text-gray-500 w-16">From:</span>
+                            <span className="text-gray-300">
                               {email.from_name
                                 ? `${email.from_name} <${email.from_email}>`
                                 : email.from_email}
                             </span>
                           </div>
                           <div className="flex items-center gap-2 text-sm">
-                            <span className="text-neutral-500 w-16">To:</span>
-                            <span className="text-neutral-300">
+                            <span className="text-gray-500 w-16">To:</span>
+                            <span className="text-gray-300">
                               {email.to_email}
                             </span>
                           </div>
                           <div className="flex items-center gap-2 text-sm">
-                            <span className="text-neutral-500 w-16">
+                            <span className="text-gray-500 w-16">
                               Subject:
                             </span>
-                            <span className="text-neutral-300">
+                            <span className="text-gray-300">
                               {email.subject || "(No Subject)"}
                             </span>
                           </div>
                         </div>
 
                         {/* Email Body */}
-                        <div className="text-neutral-300 text-sm leading-relaxed">
+                        <div className="text-gray-300 text-sm leading-relaxed">
                           {email.html_body ? (
                             <div
                               className="prose prose-invert prose-sm max-w-none"
@@ -479,7 +479,7 @@ export default function Leads() {
                               {email.text_body}
                             </pre>
                           ) : (
-                            <p className="text-neutral-500 italic">
+                            <p className="text-gray-500 italic">
                               No content available
                             </p>
                           )}
@@ -493,7 +493,7 @@ export default function Leads() {
                                 e.stopPropagation();
                                 handleReply(email);
                               }}
-                              className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-neutral-950 rounded-full text-sm font-medium transition-colors flex items-center gap-2"
+                              className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-gray-950 rounded-full text-sm font-medium transition-colors flex items-center gap-2"
                             >
                               <Icon
                                 icon="solar:reply-bold"
@@ -510,7 +510,7 @@ export default function Leads() {
                                 email.status === "unread" ? "read" : "unread",
                               );
                             }}
-                            className="px-4 py-2 bg-white/5 hover:bg-white/10 text-neutral-300 rounded-full text-sm transition-colors flex items-center gap-2"
+                            className="px-4 py-2 bg-white/5 hover:bg-white/10 text-gray-300 rounded-full text-sm transition-colors flex items-center gap-2"
                           >
                             <Icon
                               icon={
